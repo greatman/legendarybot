@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.greatmancode</groupId>
+    <artifactId>legendarybot</artifactId>
+    <packaging>pom</packaging>
+    <version>2.0-SNAPSHOT</version>
+    <inceptionYear>2017</inceptionYear>
+    <organization>
+        <name>Greatmancode</name>
+    </organization>
+    <modules>
+        <module>ilvlcommand</module>
+        <module>server</module>
+        <module>api</module>
+    </modules>
+
+    <properties>
+        <pf4j.version>1.3.0</pf4j.version>
+        <jda.version>3.1.0_204</jda.version>
+        <jsonsimple.version>1.1.1</jsonsimple.version>
+        <jodatime.version>2.9.7</jodatime.version>
+        <raygun4java.version>1.3.2</raygun4java.version>
+        <mindscapehqcore.version>1.3.2</mindscapehqcore.version>
+        <slf4jsimple.version>1.7.25</slf4jsimple.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <name>jcenter-bintray</name>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>ro.fortsoft.pf4j</groupId>
+            <artifactId>pf4j</artifactId>
+            <version>${pf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>${jda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${jsonsimple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${jodatime.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mindscapehq</groupId>
+            <artifactId>core</artifactId>
+            <version>${mindscapehqcore.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4jsimple.version}</version>
+        </dependency>
+    </dependencies>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>3.0</version>
+            <executions>
+                <execution>
+                    <phase>clean</phase>
+                    <goals>
+                        <goal>format</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <quiet>false</quiet>
+                <encoding>UTF-8</encoding>
+                <strictCheck>true</strictCheck>
+                <header>HEADER.txt</header>
+                <keywords>
+                    <keyword>${project.name}</keyword>
+                    <keyword>license</keyword>
+                </keywords>
+                <mapping>
+                    <java>SLASHSTAR_STYLE</java>
+                </mapping>
+                <properties>
+                    <name>${project.name}</name>
+                    <url>${project.organization.url}</url>
+                    <copyright>Copyright (c) ${project.inceptionYear}-2017, ${project.organization.name}</copyright>
+                </properties>
+                <includes>
+                    <include>src/main/java/**</include>
+                    <include>src/test/java/**</include>
+                </includes>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+</project>
