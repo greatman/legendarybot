@@ -37,10 +37,13 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import ro.fortsoft.pf4j.PluginManager;
 import ro.fortsoft.pf4j.PluginWrapper;
-
+import org.apache.commons.io.FileUtils;
 import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -73,6 +76,14 @@ public class ILegendaryBot extends LegendaryBot {
             }
             jda.shutdown();
 
+            File plugins = new File("plugins");
+            Arrays.stream(plugins.listFiles(pathname -> pathname.isDirectory())).forEach(file -> {
+                try {
+                    FileUtils.deleteDirectory(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
             System.out.println("Legendarybot shutdown.");
         }));
     }
