@@ -28,6 +28,7 @@ import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.server.ServerSettings;
 import com.greatmancode.legendarybot.api.utils.LogListener;
+import com.greatmancode.legendarybot.commands.ReloadCommand;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -55,17 +56,32 @@ public class ILegendaryBot extends LegendaryBot {
     public ILegendaryBot(JDA jda, String raygunKey, String battlenetKey) throws IOException {
         super(raygunKey, battlenetKey);
         this.jda = jda;
+
+        //Register the server specific commands
+        commandHandler.addCommand("reload", new ReloadCommand(this));
+
+        //We register the message listener
         jda.addEventListener(new MessageListener(this));
+
+        //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
     }
 
     public static void main(String[] args) throws IOException, LoginException, InterruptedException, RateLimitedException {
+
+        //We configure our Stacktrace catchers
         //Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
         SimpleLog.getLog("JDA").addListener(new LogListener());
+
+        //Load the configuration
         props = new Properties();
         props.load(new FileInputStream("app.properties"));
+
+        //Connect the bot to Discord
         JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
+
+        //We launch the bot
         new ILegendaryBot(jda, props.getProperty("raygun.key"), props.getProperty("battlenet.key"));
     }
 
@@ -76,5 +92,10 @@ public class ILegendaryBot extends LegendaryBot {
     public ServerSettings getServerSettings(Guild guild) {
         //TODO Use the actual Hashmap for server settings
         return new ServerSettings();
+    }
+
+    @Override
+    public PluginManager getPluginManager() {
+        return pluginManager;
     }
 }

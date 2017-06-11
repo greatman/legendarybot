@@ -21,36 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot;
+package com.greatmancode.legendarybot.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import net.dv8tion.jda.core.entities.ChannelType;
+import com.greatmancode.legendarybot.api.commands.Command;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import ro.fortsoft.pf4j.PluginWrapper;
 
-public class MessageListener extends ListenerAdapter {
+/**
+ * Created by greatman on 17-06-10.
+ */
+public class ReloadCommand implements Command {
 
     private LegendaryBot bot;
-
-    public MessageListener(LegendaryBot bot) {
+    public ReloadCommand(LegendaryBot bot) {
         this.bot = bot;
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.PRIVATE) && event.getAuthor().isBot()) {
-            return;
+    public void execute(MessageReceivedEvent event, String[] args) {
+        for (PluginWrapper wrapper : bot.getPluginManager().getPlugins()) {
+           bot.getPluginManager().unloadPlugin(wrapper.getPluginId());
         }
-        if (!bot.getCommandHandler().handle(event)) {
-            if (event.getMessage().getContent().startsWith("!")) {
-                String[] split = event.getMessage().getContent().split(" ");
-                String value = split[0].substring(1);
-                //Map<String, String> serverMap = serverCustomCommands.get(event.getGuild().getId());
-                //if (serverMap.containsKey(value.toLowerCase())) {
-                //    event.getChannel().sendMessage(serverMap.get(value.toLowerCase())).queue();
-                //}
-            }
-        }
+        bot.getPluginManager().loadPlugins();
+        bot.getPluginManager().startPlugins();
+    }
 
+    @Override
+    public boolean canExecute(Member member) {
+        return member.getUser().getId().equals("95709957629939712");
+    }
+
+    @Override
+    public int minArgs() {
+        return 0;
+    }
+
+    @Override
+    public int maxArgs() {
+        return 0;
+    }
+
+    @Override
+    public String help() {
+        return "!reload - Reload the plugins";
     }
 }

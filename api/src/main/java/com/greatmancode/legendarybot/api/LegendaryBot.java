@@ -27,10 +27,8 @@ import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.server.ServerSettings;
 import com.mindscapehq.raygun4java.core.RaygunClient;
 import net.dv8tion.jda.core.entities.Guild;
+import ro.fortsoft.pf4j.PluginManager;
 
-/**
- * Created by greatman on 17-06-10.
- */
 public abstract class LegendaryBot {
 
     private static RaygunClient raygunClient;
@@ -41,6 +39,7 @@ public abstract class LegendaryBot {
     }
     public abstract CommandHandler getCommandHandler();
     public abstract ServerSettings getServerSettings(Guild guild);
+    public abstract PluginManager getPluginManager();
 
     public static RaygunClient getRaygunClient() {
         return raygunClient;
