@@ -1,0 +1,4 @@
+Plugin-Class: com.greatmancode.legendarybot.commands.server.ServerCommand
+Plugin-Id: serverCommand
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1

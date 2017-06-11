@@ -36,6 +36,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import ro.fortsoft.pf4j.PluginManager;
+import ro.fortsoft.pf4j.PluginWrapper;
 
 import javax.security.auth.login.LoginException;
 import java.io.FileInputStream;
@@ -66,6 +67,14 @@ public class ILegendaryBot extends LegendaryBot {
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            for (PluginWrapper wrapper : getPluginManager().getPlugins()) {
+                getPluginManager().unloadPlugin(wrapper.getPluginId());
+            }
+            jda.shutdown();
+
+            System.out.println("Legendarybot shutdown.");
+        }));
     }
 
     public static void main(String[] args) throws IOException, LoginException, InterruptedException, RateLimitedException {
@@ -80,7 +89,6 @@ public class ILegendaryBot extends LegendaryBot {
 
         //Connect the bot to Discord
         JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
-
         //We launch the bot
         new ILegendaryBot(jda, props.getProperty("raygun.key"), props.getProperty("battlenet.key"));
     }
