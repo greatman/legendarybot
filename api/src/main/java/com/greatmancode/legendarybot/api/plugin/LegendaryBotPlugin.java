@@ -23,23 +23,19 @@
  */
 package com.greatmancode.legendarybot.api.plugin;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
-import ro.fortsoft.pf4j.DefaultPluginManager;
-import ro.fortsoft.pf4j.PluginClasspath;
+import ro.fortsoft.pf4j.Plugin;
+import ro.fortsoft.pf4j.PluginException;
+import ro.fortsoft.pf4j.PluginWrapper;
 
-public class LegendaryBotPluginManager extends DefaultPluginManager {
+public abstract class LegendaryBotPlugin extends Plugin {
 
-    private final LegendaryBot bot;
-    public LegendaryBotPluginManager(LegendaryBot bot) {
-        super();
-        this.bot = bot;
+    public LegendaryBotPlugin(PluginWrapper wrapper) {
+        super(wrapper);
     }
 
-    public LegendaryBot getBot() {
-        return bot;
-    }
+    @Override
+    public abstract void start() throws PluginException;
 
-    protected PluginClasspath createPluginClasspath() {
-        return new LegendaryBotClasspath();
-    }
+    @Override
+    public abstract void stop() throws PluginException;
 }

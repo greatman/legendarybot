@@ -1,0 +1,4 @@
+Plugin-Class: com.greatmancode.legendarybot.commands.invasion.InvasionCommand
+Plugin-Id: invasionCommand
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1

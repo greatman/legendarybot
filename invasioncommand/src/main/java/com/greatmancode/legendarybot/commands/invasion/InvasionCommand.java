@@ -21,69 +21,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.commands.ilvl;
+package com.greatmancode.legendarybot.commands.invasion;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
+import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
-import com.greatmancode.legendarybot.api.utils.BattleNet;
-import com.greatmancode.legendarybot.api.utils.Hero;
+import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
+public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand, ZeroArgsCommand {
 
-
-    private static final Logger log = LoggerFactory.getLogger(IlvlCommand.class);
+    private static final Logger log = LoggerFactory.getLogger(InvasionCommand.class);
     private LegendaryBot bot;
 
-    public IlvlCommand(PluginWrapper wrapper) {
+    public InvasionCommand(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
-    public void start() {
-        bot = ((LegendaryBotPluginManager)getWrapper().getPluginManager()).getBot();
-        bot.getCommandHandler().addCommand("ilvl", this);
-        log.info("command !ilvl loaded");
+    public void start() throws PluginException {
+        bot = ((LegendaryBotPluginManager)wrapper.getPluginManager()).getBot();
+        bot.getCommandHandler().addCommand("invasion", this);
+        log.info("Command !invasion loaded.");
+
     }
 
     @Override
     public void stop() throws PluginException {
-        bot.getCommandHandler().removeCommand("ilvl");
-        log.info("command !ilvl unloaded");
+        bot.getCommandHandler().removeCommand("invasion");
+        log.info("Command !invasion disabled.");
     }
 
+    @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String serverName = args[0];
-        Hero hero;
-        if (args.length == 1) {
-            serverName = bot.getServerSettings(event.getGuild()).getWowServerName();
-            hero = BattleNet.getiLvl(serverName, args[0]);
+        int[] timeleft = Utils.timeLeftBeforeNextInvasion(new DateTime(DateTimeZone.forID("America/Montreal")));
+        if (Utils.isInvasionTime(new DateTime(DateTimeZone.forID("America/Montreal")))) {
+            event.getChannel().sendMessage("There is currently an invasion active on the Broken Isles! End of the invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")").queue();
         } else {
-            hero = BattleNet.getiLvl(serverName, args[1]);
-        }
-
-        if (hero != null) {
-            event.getChannel().sendMessage(hero.getName() + " ("+hero.getHeroClass()+" "+hero.getLevel()+") ilvl is " + hero.getEquipilvl() + "/" + hero.getIlvl()).queue();
-        } else {
-            event.getChannel().sendMessage("WowCharacter not found!").queue();
+            event.getChannel().sendMessage("There is no invasions currently active on the Broken Isle. Next invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")").queue();
         }
     }
 
-    public int minArgs() {
-        return 1;
-    }
-
-    public int maxArgs() {
-        return 2;
-    }
-
+    @Override
     public String help() {
-        return  "!ilvl <Server Name> [Character Name] - Retrieve a character iLvl";
+        return "!invasion - Say if there's currently an invasion running on WoW US!";
     }
 }

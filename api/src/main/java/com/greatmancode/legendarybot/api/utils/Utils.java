@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.api.utils;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;
@@ -111,6 +112,64 @@ public class Utils {
             LegendaryBot.getRaygunClient().Send(e);
         }
         return null;
+    }
+
+    public static boolean isInvasionTime(DateTime current) {
+        //For the record, the invasion times themselves are NOT random. They are 6 hours on, 12.5 hours off, repeating forever.
+        //This gives an invasion happening at every possible hour of the day over a 3 day period.
+        DateTime start = new DateTime(startDateInvasion);
+        boolean loop = true;
+        boolean enabled = true;
+        while (loop) {
+            if (enabled) {
+                start = start.plusHours(6);
+                if (current.isBefore(start)) {
+                    loop = false;
+                } else {
+                    enabled = false;
+                }
+            } else {
+                start = start.plusHours(12).plusMinutes(30);
+                if (current.isBefore(start)) {
+                    loop = false;
+                } else {
+                    enabled = true;
+                }
+            }
+
+        }
+        return enabled;
+    }
+
+    public static int[] timeLeftBeforeNextInvasion(DateTime current) {
+        //For the record, the invasion times themselves are NOT random. They are 6 hours on, 12.5 hours off, repeating forever.
+        //This gives an invasion happening at every possible hour of the day over a 3 day period.
+        DateTime start = new DateTime(startDateInvasion);
+        boolean loop = true;
+        boolean enabled = true;
+        Period p = null;
+        int hours = 0;
+        while (loop) {
+            if (enabled) {
+                start = start.plusHours(6);
+                if (current.isBefore(start)) {
+                    loop = false;
+                    p = new Period(current, start);
+                } else {
+                    enabled = false;
+                }
+            } else {
+                start = start.plusHours(12).plusMinutes(30);
+                if (current.isBefore(start)) {
+                    loop = false;
+                    p = new Period(current, start);
+                } else {
+                    enabled = true;
+                }
+            }
+
+        }
+        return new int[] {p.getHours(), p.getMinutes(),start.getHourOfDay(), start.getMinuteOfHour()};
     }
 
 }
