@@ -39,7 +39,6 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
 
 
     private static final Logger log = LoggerFactory.getLogger(IlvlCommand.class);
-    private LegendaryBot bot;
 
     public IlvlCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -47,14 +46,13 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void start() {
-        bot = ((LegendaryBotPluginManager)getWrapper().getPluginManager()).getBot();
-        bot.getCommandHandler().addCommand("ilvl", this);
+        getBot().getCommandHandler().addCommand("ilvl", this);
         log.info("command !ilvl loaded");
     }
 
     @Override
     public void stop() throws PluginException {
-        bot.getCommandHandler().removeCommand("ilvl");
+        getBot().getCommandHandler().removeCommand("ilvl");
         log.info("command !ilvl unloaded");
     }
 
@@ -62,7 +60,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
         String serverName = args[0];
         Hero hero;
         if (args.length == 1) {
-            serverName = bot.getServerSettings(event.getGuild()).getWowServerName();
+            serverName = getBot().getServerSettings(event.getGuild()).getWowServerName();
             hero = BattleNet.getiLvl(serverName, args[0]);
         } else {
             hero = BattleNet.getiLvl(serverName, args[1]);

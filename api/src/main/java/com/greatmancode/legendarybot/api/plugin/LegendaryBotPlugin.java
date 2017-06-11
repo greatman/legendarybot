@@ -23,14 +23,17 @@
  */
 package com.greatmancode.legendarybot.api.plugin;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 public abstract class LegendaryBotPlugin extends Plugin {
 
+    private final LegendaryBot bot;
     public LegendaryBotPlugin(PluginWrapper wrapper) {
         super(wrapper);
+        bot = ((LegendaryBotPluginManager)wrapper.getPluginManager()).getBot();
     }
 
     @Override
@@ -38,4 +41,8 @@ public abstract class LegendaryBotPlugin extends Plugin {
 
     @Override
     public abstract void stop() throws PluginException;
+
+    public LegendaryBot getBot() {
+        return bot;
+    }
 }

@@ -23,12 +23,9 @@
  */
 package com.greatmancode.legendarybot.commands.server;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.utils.BattleNet;
-import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
@@ -41,7 +38,6 @@ import java.util.Map;
 public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
 
     private static final Logger log = LoggerFactory.getLogger(ServerCommand.class);
-    private LegendaryBot bot;
 
     public ServerCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -50,14 +46,13 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void start() throws PluginException {
-        bot = ((LegendaryBotPluginManager)wrapper.getPluginManager()).getBot();
-        bot.getCommandHandler().addCommand("server", this);
+        getBot().getCommandHandler().addCommand("server", this);
         log.info("Command !server loaded.");
     }
 
     @Override
     public void stop() throws PluginException {
-        bot.getCommandHandler().removeCommand("server");
+        getBot().getCommandHandler().removeCommand("server");
         log.info("Command !server disabled.");
     }
 
@@ -67,7 +62,7 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
         if (args.length == 1) {
             map = BattleNet.getServerStatus(args[0]);
         } else {
-            String serverName = bot.getServerSettings(event.getGuild()).getWowServerName();
+            String serverName = getBot().getServerSettings(event.getGuild()).getWowServerName();
             if (serverName == null) {
                 event.getChannel().sendMessage("No server set. You are required to type a server.");
             }

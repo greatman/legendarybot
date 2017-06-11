@@ -23,11 +23,9 @@
  */
 package com.greatmancode.legendarybot.commands.invasion;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.joda.time.DateTime;
@@ -40,7 +38,6 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand, ZeroArgsCommand {
 
     private static final Logger log = LoggerFactory.getLogger(InvasionCommand.class);
-    private LegendaryBot bot;
 
     public InvasionCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -48,15 +45,14 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
 
     @Override
     public void start() throws PluginException {
-        bot = ((LegendaryBotPluginManager)wrapper.getPluginManager()).getBot();
-        bot.getCommandHandler().addCommand("invasion", this);
+        getBot().getCommandHandler().addCommand("invasion", this);
         log.info("Command !invasion loaded.");
 
     }
 
     @Override
     public void stop() throws PluginException {
-        bot.getCommandHandler().removeCommand("invasion");
+        getBot().getCommandHandler().removeCommand("invasion");
         log.info("Command !invasion disabled.");
     }
 
