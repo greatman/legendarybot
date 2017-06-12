@@ -58,7 +58,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
         String serverName = args[0];
         Hero hero;
         if (args.length == 1) {
-            serverName = getBot().getServerSettings(event.getGuild()).getWowServerName();
+            serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
             hero = BattleNet.getiLvl(serverName, args[0]);
         } else {
             hero = BattleNet.getiLvl(serverName, args[1]);

@@ -26,21 +26,24 @@ package com.greatmancode.legendarybot;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
-import com.greatmancode.legendarybot.api.server.ServerSettings;
+import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.utils.LogListener;
 import com.greatmancode.legendarybot.commands.ReloadCommand;
+import com.greatmancode.legendarybot.server.IGuildSettings;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.utils.SimpleLog;
+import org.apache.commons.io.FileUtils;
 import ro.fortsoft.pf4j.PluginManager;
 import ro.fortsoft.pf4j.PluginWrapper;
-import org.apache.commons.io.FileUtils;
+
 import javax.security.auth.login.LoginException;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -53,7 +56,8 @@ public class ILegendaryBot extends LegendaryBot {
     private PluginManager pluginManager = new LegendaryBotPluginManager(this);
     private CommandHandler commandHandler = new CommandHandler();
     private JDA jda;
-    private Map<String, ServerSettings> serverSettings = new HashMap<>();
+    private Map<String, GuildSettings> guildSettings = new HashMap<>();
+    private HikariDataSource dataSource;
 
     private static Properties props;
 
@@ -70,6 +74,10 @@ public class ILegendaryBot extends LegendaryBot {
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
+
+        //Load the settings for each guild
+        jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings()));
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {
                 getPluginManager().unloadPlugin(wrapper.getPluginId());
@@ -108,13 +116,28 @@ public class ILegendaryBot extends LegendaryBot {
         return commandHandler;
     }
 
-    public ServerSettings getServerSettings(Guild guild) {
-        //TODO Use the actual Hashmap for server settings
-        return new ServerSettings();
+    public GuildSettings getGuildSettings(Guild guild) {
+        return guildSettings.get(guild.getId());
     }
 
     @Override
     public PluginManager getPluginManager() {
         return pluginManager;
+    }
+
+    @Override
+    public HikariDataSource getDatabase() {
+        if (dataSource == null) {
+            HikariConfig config = new HikariConfig();
+            config.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+            config.addDataSourceProperty("serverName", System.getenv("MYSQL_ADDRESS") != null ? System.getenv("MYSQL_ADDRESS") : props.getProperty("mysql.address"));
+            config.addDataSourceProperty("port", System.getenv("MYSQL_PORT") != null ? System.getenv("MYSQL_PORT") : props.getProperty("mysql.port"));
+            config.addDataSourceProperty("databaseName", System.getenv("MYSQL_DATABASE") != null ? System.getenv("MYSQL_DATABASE") : props.getProperty("mysql.database"));
+            config.addDataSourceProperty("user", System.getenv("MYSQL_USER") != null ? System.getenv("MYSQL_USER") : props.getProperty("mysql.user"));
+            config.addDataSourceProperty("password", System.getenv("MYSQL_PASSWORD") != null ? System.getenv("MYSQL_PASSWORD") : props.getProperty("mysql.password"));
+            config.setConnectionTimeout(5000);
+            dataSource = new HikariDataSource(config);
+        }
+        return dataSource;
     }
 }

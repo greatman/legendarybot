@@ -21,31 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.api;
+package com.greatmancode.legendarybot.api.server;
 
-import com.greatmancode.legendarybot.api.commands.CommandHandler;
-import com.greatmancode.legendarybot.api.server.GuildSettings;
-import com.mindscapehq.raygun4java.core.RaygunClient;
-import com.zaxxer.hikari.HikariDataSource;
-import net.dv8tion.jda.core.entities.Guild;
-import ro.fortsoft.pf4j.PluginManager;
+public interface GuildSettings {
 
-public abstract class LegendaryBot {
+    String getWowServerName();
 
-    private static RaygunClient raygunClient;
-    private static String battlenetKey;
-    public LegendaryBot(String raygunKey, String battlenetKey) {
-        raygunClient = new RaygunClient(raygunKey);
-        LegendaryBot.battlenetKey = battlenetKey;
-    }
-    public abstract CommandHandler getCommandHandler();
-    public abstract GuildSettings getGuildSettings(Guild guild);
-    public abstract PluginManager getPluginManager();
-    public abstract HikariDataSource getDatabase();
-    public static RaygunClient getRaygunClient() {
-        return raygunClient;
-    }
-    public static String getBattlenetKey() {
-        return battlenetKey;
-    }
+    String getRegionName();
+
+    String getSetting(String setting);
+
+    void setSetting(String setting, String value);
 }

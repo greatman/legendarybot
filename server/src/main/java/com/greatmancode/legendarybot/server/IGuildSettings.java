@@ -21,18 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.api.server;
+package com.greatmancode.legendarybot.server;
 
-public class ServerSettings {
+import com.greatmancode.legendarybot.api.server.GuildSettings;
 
-    private String wowServerName = "Arthas";
-    private String regionName = "US";
+public class IGuildSettings implements GuildSettings {
 
+    @Override
     public String getWowServerName() {
-        return wowServerName;
+        return "Arthas";
     }
 
+    @Override
     public String getRegionName() {
-        return regionName;
+        return "US";
+    }
+
+    @Override
+    public String getSetting(String setting) {
+        return null;
+    }
+
+    @Override
+    public void setSetting(String setting, String value) {
+
     }
 }

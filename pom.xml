@@ -29,6 +29,8 @@
         <jodatime.version>2.9.7</jodatime.version>
         <mindscapehqcore.version>1.3.2</mindscapehqcore.version>
         <slf4jsimple.version>1.7.25</slf4jsimple.version>
+        <hikaricp.version>2.6.0</hikaricp.version>
+        <mysql.version>5.1.40</mysql.version>
     </properties>
 
     <repositories>
@@ -69,6 +71,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4jsimple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikaricp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
         </dependency>
     </dependencies>
 <build>
