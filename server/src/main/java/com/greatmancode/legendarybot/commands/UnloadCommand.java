@@ -27,27 +27,21 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.Command;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import ro.fortsoft.pf4j.PluginWrapper;
 
-public class ReloadCommand implements Command {
+public class UnloadCommand implements Command {
 
     private LegendaryBot bot;
-    public ReloadCommand(LegendaryBot bot) {
+
+    public UnloadCommand(LegendaryBot bot) {
         this.bot = bot;
     }
-
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (args.length == 1) {
-            bot.getPluginManager().unloadPlugin(args[0]);
+        if (bot.getPluginManager().unloadPlugin(args[0])) {
+            event.getChannel().sendMessage("Plugin " + args[0] + " unloaded!").queue();
         } else {
-            for (PluginWrapper wrapper : bot.getPluginManager().getPlugins()) {
-                bot.getPluginManager().unloadPlugin(wrapper.getPluginId());
-            }
+            event.getChannel().sendMessage("An error occured. Please check console").queue();
         }
-        bot.getPluginManager().loadPlugins();
-        bot.getPluginManager().startPlugins();
-        event.getChannel().sendMessage("Plugins reloaded!").queue();
     }
 
     @Override
@@ -57,7 +51,7 @@ public class ReloadCommand implements Command {
 
     @Override
     public int minArgs() {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -67,6 +61,6 @@ public class ReloadCommand implements Command {
 
     @Override
     public String help() {
-        return "!reload [Plugin ID] - Reload the plugins";
+        return "!unload <pluginID> - Unload a plugin";
     }
 }

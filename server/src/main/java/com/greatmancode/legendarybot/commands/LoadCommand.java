@@ -27,30 +27,21 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.Command;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import ro.fortsoft.pf4j.PluginWrapper;
 
-public class ReloadCommand implements Command {
-
+public class LoadCommand implements Command {
     private LegendaryBot bot;
-    public ReloadCommand(LegendaryBot bot) {
+
+    public LoadCommand(LegendaryBot bot) {
         this.bot = bot;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (args.length == 1) {
-            bot.getPluginManager().unloadPlugin(args[0]);
-        } else {
-            for (PluginWrapper wrapper : bot.getPluginManager().getPlugins()) {
-                bot.getPluginManager().unloadPlugin(wrapper.getPluginId());
-            }
-        }
         bot.getPluginManager().loadPlugins();
         bot.getPluginManager().startPlugins();
-        event.getChannel().sendMessage("Plugins reloaded!").queue();
+        event.getChannel().sendMessage("Plugins loaded!").queue();
     }
 
-    @Override
     public boolean canExecute(Member member) {
         return member.getUser().getId().equals("95709957629939712");
     }
@@ -62,11 +53,11 @@ public class ReloadCommand implements Command {
 
     @Override
     public int maxArgs() {
-        return 1;
+        return 0;
     }
 
     @Override
     public String help() {
-        return "!reload [Plugin ID] - Reload the plugins";
+        return "!load - Load the plugins";
     }
 }
