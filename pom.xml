@@ -19,6 +19,7 @@
         <module>invasioncommand</module>
         <module>servercommand</module>
         <module>owrankcommand</module>
+        <module>affixcommand</module>
     </modules>
 
     <properties>

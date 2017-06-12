@@ -46,14 +46,6 @@ public class Utils {
     public final static JSONParser jsonParser = new JSONParser();
 
     /**
-     * The day Mythic+ started on US servers. Helps calculate which affix is this week
-     */
-    public final static DateTime startDateMythicPlus = new DateTime(2016,10,20,0,0, DateTimeZone.forID("America/Montreal"));
-
-    //Start date of the Invasion
-    private final static DateTime startDateInvasion = new DateTime(2017,4,14,17,0, DateTimeZone.forID("America/Montreal"));
-
-    /**
      * Do a web request that returns a string response
      * @param urlString the URL to query
      * @return A string containing the result, else null
@@ -113,63 +105,4 @@ public class Utils {
         }
         return null;
     }
-
-    public static boolean isInvasionTime(DateTime current) {
-        //For the record, the invasion times themselves are NOT random. They are 6 hours on, 12.5 hours off, repeating forever.
-        //This gives an invasion happening at every possible hour of the day over a 3 day period.
-        DateTime start = new DateTime(startDateInvasion);
-        boolean loop = true;
-        boolean enabled = true;
-        while (loop) {
-            if (enabled) {
-                start = start.plusHours(6);
-                if (current.isBefore(start)) {
-                    loop = false;
-                } else {
-                    enabled = false;
-                }
-            } else {
-                start = start.plusHours(12).plusMinutes(30);
-                if (current.isBefore(start)) {
-                    loop = false;
-                } else {
-                    enabled = true;
-                }
-            }
-
-        }
-        return enabled;
-    }
-
-    public static int[] timeLeftBeforeNextInvasion(DateTime current) {
-        //For the record, the invasion times themselves are NOT random. They are 6 hours on, 12.5 hours off, repeating forever.
-        //This gives an invasion happening at every possible hour of the day over a 3 day period.
-        DateTime start = new DateTime(startDateInvasion);
-        boolean loop = true;
-        boolean enabled = true;
-        Period p = null;
-        int hours = 0;
-        while (loop) {
-            if (enabled) {
-                start = start.plusHours(6);
-                if (current.isBefore(start)) {
-                    loop = false;
-                    p = new Period(current, start);
-                } else {
-                    enabled = false;
-                }
-            } else {
-                start = start.plusHours(12).plusMinutes(30);
-                if (current.isBefore(start)) {
-                    loop = false;
-                    p = new Period(current, start);
-                } else {
-                    enabled = true;
-                }
-            }
-
-        }
-        return new int[] {p.getHours(), p.getMinutes(),start.getHourOfDay(), start.getMinuteOfHour()};
-    }
-
 }

@@ -23,10 +23,8 @@
  */
 package com.greatmancode.legendarybot.commands.ilvl;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.utils.BattleNet;
 import com.greatmancode.legendarybot.api.utils.Hero;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
