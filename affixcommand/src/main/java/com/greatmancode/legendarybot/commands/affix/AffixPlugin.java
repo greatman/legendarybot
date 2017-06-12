@@ -23,29 +23,31 @@
  */
 package com.greatmancode.legendarybot.commands.affix;
 
-import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Weeks;
+import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import ro.fortsoft.pf4j.PluginException;
+import ro.fortsoft.pf4j.PluginWrapper;
 
-public class AffixCommand implements PublicCommand, ZeroArgsCommand {
+/**
+ * Created by lebel on 6/11/2017.
+ */
+public class AffixPlugin extends LegendaryBotPlugin {
 
-    @Override
-    public void execute(MessageReceivedEvent event, String[] args) {
-        DateTime current = new DateTime(DateTimeZone.forID("America/Montreal"));
-        while (current.getDayOfWeek() != DateTimeConstants.TUESDAY) {
-            current = current.minusDays(1);
-        }
-        int weeks = Weeks.weeksBetween(Utils.startDateMythicPlus, current).getWeeks();
-        String[] weekAffixes = Utils.mythicPlusAffixes[weeks % 12];
-        event.getChannel().sendMessage("This week affixes: " + weekAffixes[0] + ", " + weekAffixes[1] + ", " + weekAffixes[2]).queue();
+
+    public AffixPlugin(PluginWrapper wrapper) {
+        super(wrapper);
     }
 
     @Override
-    public String help() {
-        return "!affix - Return this week's affixes.";
+    public void start() throws PluginException {
+        getBot().getCommandHandler().addCommand("affix", new AffixCommand());
+        getBot().getCommandHandler().addCommand("nextaffix", new NextAffixCommand());
+        log.info("Command !affix & !nextaffix loaded");
+    }
+
+    @Override
+    public void stop() throws PluginException {
+        getBot().getCommandHandler().removeCommand("affix");
+        getBot().getCommandHandler().removeCommand("nextaffix");
+        log.info("Command !affix & !nextaffix unloaded");
     }
 }

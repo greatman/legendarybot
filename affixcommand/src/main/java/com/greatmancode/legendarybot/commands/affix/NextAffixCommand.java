@@ -31,21 +31,23 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Weeks;
 
-public class AffixCommand implements PublicCommand, ZeroArgsCommand {
-
+public class NextAffixCommand implements PublicCommand, ZeroArgsCommand {
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         DateTime current = new DateTime(DateTimeZone.forID("America/Montreal"));
+        if (current.getDayOfWeek() == DateTimeConstants.TUESDAY) {
+            current = current.plusDays(1);
+        }
         while (current.getDayOfWeek() != DateTimeConstants.TUESDAY) {
-            current = current.minusDays(1);
+            current = current.plusDays(1);
         }
         int weeks = Weeks.weeksBetween(Utils.startDateMythicPlus, current).getWeeks();
         String[] weekAffixes = Utils.mythicPlusAffixes[weeks % 12];
-        event.getChannel().sendMessage("This week affixes: " + weekAffixes[0] + ", " + weekAffixes[1] + ", " + weekAffixes[2]).queue();
+        event.getChannel().sendMessage("Next week affixes: " + weekAffixes[0] + ", " + weekAffixes[1] + ", " + weekAffixes[2]).queue();
     }
 
     @Override
     public String help() {
-        return "!affix - Return this week's affixes.";
+        return "!nextaffix - Shows next week Mythic+ US affixes";
     }
 }

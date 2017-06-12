@@ -23,29 +23,24 @@
  */
 package com.greatmancode.legendarybot.commands.affix;
 
-import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Weeks;
 
-public class AffixCommand implements PublicCommand, ZeroArgsCommand {
+public class Utils {
 
-    @Override
-    public void execute(MessageReceivedEvent event, String[] args) {
-        DateTime current = new DateTime(DateTimeZone.forID("America/Montreal"));
-        while (current.getDayOfWeek() != DateTimeConstants.TUESDAY) {
-            current = current.minusDays(1);
-        }
-        int weeks = Weeks.weeksBetween(Utils.startDateMythicPlus, current).getWeeks();
-        String[] weekAffixes = Utils.mythicPlusAffixes[weeks % 12];
-        event.getChannel().sendMessage("This week affixes: " + weekAffixes[0] + ", " + weekAffixes[1] + ", " + weekAffixes[2]).queue();
-    }
-
-    @Override
-    public String help() {
-        return "!affix - Return this week's affixes.";
-    }
+    public final static DateTime startDateMythicPlus = new DateTime(2017,3,28,0,0, DateTimeZone.forID("America/Montreal"));
+    public final static String[][] mythicPlusAffixes = {
+            {"Raging","Volcanic","Tyrannical"},
+            {"Teeming","Explosive","Fortified"},
+            {"Bolstering","Grievous","Tyrannical"},
+            {"Sanguine", "Volcanic","Fortified"},
+            {"Bursting", "Skittish", "Tyrannical"},
+            {"Teeming","Quaking","Fortified"},
+            {"Raging", "Necrotic","Tyrannical"},
+            {"Bolstering", "Skittish", "Fortified"},
+            {"Teeming", "Necrotic", "Tyrannical"},
+            {"Sanguine","Grievous", "Fortified"},
+            {"Bolstering", "Explosive", "Tyrannical"},
+            {"Unknown", "Unknown", "Unknown"}
+    };
 }
