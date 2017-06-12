@@ -27,16 +27,12 @@ import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.Utils;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-/**
- * Created by lebel on 6/11/2017.
- */
 public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,PublicCommand {
 
     public TokenCommand(PluginWrapper wrapper) {
@@ -62,9 +58,7 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
             String minPrice = (String) prices.get("24min");
             String maxPrice = (String) prices.get("24max");
             double pctPrice = Double.parseDouble(prices.get("24pct").toString());
-            MessageBuilder builder = new MessageBuilder();
-            builder.append("Price for 1 WoW Token: " + price + " | Minimum 24H: " + minPrice + " | Maximum 24H: " +maxPrice + " | Percentage 24H range: " + pctPrice + "%");
-            event.getChannel().sendMessage(builder.build()).queue();
+            event.getChannel().sendMessage("Price for 1 WoW Token: " + price + " | Minimum 24H: " + minPrice + " | Maximum 24H: " +maxPrice + " | Percentage 24H range: " + pctPrice + "%").queue();
         } catch (ParseException e) {
             e.printStackTrace();
         }
