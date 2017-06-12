@@ -1,0 +1,4 @@
+Plugin-Class: com.greatmancode.legendarybot.commands.token.TokenCommand
+Plugin-Id: tokenCommand
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1

@@ -21,6 +21,7 @@
         <module>owrankcommand</module>
         <module>affixcommand</module>
         <module>logcommand</module>
+        <module>tokencommand</module>
     </modules>
 
     <properties>

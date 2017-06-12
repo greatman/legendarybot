@@ -64,7 +64,8 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
         } else {
             String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
             if (serverName == null) {
-                event.getChannel().sendMessage("No server set. You are required to type a server.");
+                event.getChannel().sendMessage("No server set. You are required to type a server.").queue();
+                return;
             }
             map = BattleNet.getServerStatus(serverName);
         }
