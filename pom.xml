@@ -20,6 +20,7 @@
         <module>servercommand</module>
         <module>owrankcommand</module>
         <module>affixcommand</module>
+        <module>logcommand</module>
     </modules>
 
     <properties>

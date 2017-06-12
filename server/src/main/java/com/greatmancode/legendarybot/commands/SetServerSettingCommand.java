@@ -21,34 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.server;
+package com.greatmancode.legendarybot.commands;
 
-import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.greatmancode.legendarybot.api.LegendaryBot;
+import com.greatmancode.legendarybot.api.commands.AdminCommand;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.util.HashMap;
-import java.util.Map;
+public class SetServerSettingCommand extends AdminCommand {
+    private LegendaryBot bot;
 
-//TODO Support saving in MySQL or something similar
-public class IGuildSettings implements GuildSettings {
-
-    Map<String, String> settings = new HashMap<>();
-    @Override
-    public String getWowServerName() {
-        return "Arthas";
+    public SetServerSettingCommand(LegendaryBot legendaryBot) {
+        super();
+        this.bot = legendaryBot;
     }
 
     @Override
-    public String getRegionName() {
-        return "US";
+    public void execute(MessageReceivedEvent event, String[] args) {
+        bot.getGuildSettings(event.getGuild()).setSetting(args[0], args[1]);
+        event.getChannel().sendMessage("Setting" + args[0] + "set!").queue();
     }
 
     @Override
-    public String getSetting(String setting) {
-        return settings.get(setting);
+    public int minArgs() {
+        return 2;
     }
 
     @Override
-    public void setSetting(String setting, String value) {
-        settings.put(setting,value);
+    public int maxArgs() {
+        return 2;
+    }
+
+    @Override
+    public String help() {
+        return "!setserversetting <Setting Name> <Setting Value> - Set a server setting";
     }
 }
