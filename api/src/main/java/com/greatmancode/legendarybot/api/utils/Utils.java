@@ -86,7 +86,7 @@ public class Utils {
             if (responseCode == 200) {
                 // Reading response from input Stream
                 BufferedReader in = new BufferedReader(
-                        new InputStreamReader(con.getInputStream()));
+                        new InputStreamReader(con.getInputStream(), "UTF-8"));
                 String output;
                 StringBuilder response = new StringBuilder();
 

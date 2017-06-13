@@ -46,6 +46,9 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,13 +78,28 @@ public class ILegendaryBot extends LegendaryBot {
         //We register the message listener
         jda.addEventListener(new MessageListener(this));
 
+        //We create the Config table
+        String SERVER_CONFIG_TABLE = "CREATE TABLE IF NOT EXISTS `guild_config` (\n" +
+                "  `guildId` VARCHAR(64) NOT NULL,\n" +
+                "  `configName` VARCHAR(255) NOT NULL,\n" +
+                "  `configValue` MEDIUMTEXT NOT NULL,\n" +
+                "  PRIMARY KEY (`guildId`, `configName`));\n";
+        try {
+            Connection conn = getDatabase().getConnection();
+            PreparedStatement statement = conn.prepareStatement(SERVER_CONFIG_TABLE);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         //Load the settings for each guild
-        jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings()));
+        jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings(guild, this)));
 
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
+
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {

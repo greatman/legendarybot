@@ -38,7 +38,7 @@ public class SetServerSettingCommand extends AdminCommand {
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         bot.getGuildSettings(event.getGuild()).setSetting(args[0], args[1]);
-        event.getChannel().sendMessage("Setting" + args[0] + "set!").queue();
+        event.getChannel().sendMessage("Setting " + args[0] + " set!").queue();
     }
 
     @Override
