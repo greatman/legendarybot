@@ -21,44 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.server;
+package com.greatmancode.legendarybot.plugin.legendarycheck;
 
-import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.greatmancode.legendarybot.api.commands.AdminCommand;
+import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.util.HashMap;
-import java.util.Map;
+public class MuteLegendaryCheckCommand extends AdminCommand implements ZeroArgsCommand {
 
-//TODO Support saving in MySQL or something similar
-public class IGuildSettings implements GuildSettings {
+    private LegendaryCheckPlugin plugin;
 
-    Map<String, String> settings = new HashMap<>();
-    @Override
-    public String getWowServerName() {
-        return "Arthas";
+    public MuteLegendaryCheckCommand(LegendaryCheckPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @Override
-    public String getRegionName() {
-        return "US";
+    public void execute(MessageReceivedEvent event, String[] args) {
+        plugin.stopLegendaryCheck(event.getGuild());
+        event.getChannel().sendMessage("Legendary check muted!").queue();
     }
 
     @Override
-    public String getGuildName() {
-        return "Legendary";
-    }
-
-    @Override
-    public String getSetting(String setting) {
-        return settings.get(setting);
-    }
-
-    @Override
-    public void setSetting(String setting, String value) {
-        settings.put(setting,value);
-    }
-
-    @Override
-    public void unsetSetting(String setting) {
-        settings.remove(setting);
+    public String help() {
+        return "!mutelc - Mute the Legendary check (Without destroying the settings)";
     }
 }

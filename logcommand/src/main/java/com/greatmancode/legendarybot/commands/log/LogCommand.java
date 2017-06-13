@@ -49,7 +49,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String request = Utils.doRequest("https://www.warcraftlogs.com:443/v1/reports/guild/"+ getBot().getGuildSettings(event.getGuild()).getSetting("guildName")+"/"+ getBot().getGuildSettings(event.getGuild()).getWowServerName()+"/"+getBot().getGuildSettings(event.getGuild()).getRegionName()+"?api_key=c57da16709187c207c10a92a29db78fb");
+        String request = Utils.doRequest("https://www.warcraftlogs.com:443/v1/reports/guild/"+ getBot().getGuildSettings(event.getGuild()).getGuildName()+"/"+ getBot().getGuildSettings(event.getGuild()).getWowServerName()+"/"+getBot().getGuildSettings(event.getGuild()).getRegionName()+"?api_key=c57da16709187c207c10a92a29db78fb");
 
         try {
             JSONArray jsonArray = (JSONArray) Utils.jsonParser.parse(request);

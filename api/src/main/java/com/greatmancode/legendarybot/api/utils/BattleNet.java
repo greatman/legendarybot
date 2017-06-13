@@ -31,10 +31,8 @@ import org.json.simple.parser.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by greatman on 17-06-10.
- */
 public class BattleNet {
+
     public static Hero getiLvl(String serverName, String character) {
         String urlString = "https://us.api.battle.net/wow/character/"+serverName+"/"+character+"?fields=items&locale=en_US&apikey="+LegendaryBot.getBattlenetKey();
         String result = Utils.doRequest(urlString);

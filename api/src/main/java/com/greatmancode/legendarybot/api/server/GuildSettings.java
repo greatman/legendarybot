@@ -29,7 +29,11 @@ public interface GuildSettings {
 
     String getRegionName();
 
+    String getGuildName();
+
     String getSetting(String setting);
 
     void setSetting(String setting, String value);
+
+    void unsetSetting(String setting);
 }

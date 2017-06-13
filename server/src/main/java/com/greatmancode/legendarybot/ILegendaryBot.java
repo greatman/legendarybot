@@ -75,12 +75,13 @@ public class ILegendaryBot extends LegendaryBot {
         //We register the message listener
         jda.addEventListener(new MessageListener(this));
 
-        //We load all plugins
-        pluginManager.loadPlugins();
-        pluginManager.startPlugins();
 
         //Load the settings for each guild
         jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings()));
+
+        //We load all plugins
+        pluginManager.loadPlugins();
+        pluginManager.startPlugins();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {

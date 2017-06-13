@@ -23,6 +23,7 @@
         <module>logcommand</module>
         <module>tokencommand</module>
         <module>customcommands</module>
+        <module>legendarycheck</module>
     </modules>
 
     <properties>
