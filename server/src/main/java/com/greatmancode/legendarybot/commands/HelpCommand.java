@@ -21,26 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot;
+package com.greatmancode.legendarybot.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import net.dv8tion.jda.core.entities.ChannelType;
+import com.greatmancode.legendarybot.api.commands.PublicCommand;
+import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-public class MessageListener extends ListenerAdapter {
+public class HelpCommand implements PublicCommand,ZeroArgsCommand {
 
     private LegendaryBot bot;
 
-    public MessageListener(LegendaryBot bot) {
+    public HelpCommand(LegendaryBot bot) {
         this.bot = bot;
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.PRIVATE) && event.getAuthor().isBot()) {
-            return;
-        }
-        bot.getCommandHandler().handle(event);
+    public void execute(MessageReceivedEvent event, String[] args) {
+        MessageBuilder builder = new MessageBuilder();
+        builder.append("Available commands ([] - Required, <> - Optional):\n");
+        bot.getCommandHandler().getCommandList().forEach((k,v) -> {
+            if (v.canExecute(event.getMember())) {
+                builder.append(v.help());
+                builder.append("\n");
+            }
+        });
+        event.getAuthor().openPrivateChannel().complete().sendMessage(builder.build()).queue();
+    }
+
+    @Override
+    public String help() {
+        return "!help - Return this help";
     }
 }

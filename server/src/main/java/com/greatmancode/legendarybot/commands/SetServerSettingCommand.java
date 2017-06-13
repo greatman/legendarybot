@@ -53,6 +53,6 @@ public class SetServerSettingCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "!setserversetting <Setting Name> <Setting Value> - Set a server setting";
+        return "!setserversetting [Setting Name] [Setting Value] - Set a server setting";
     }
 }

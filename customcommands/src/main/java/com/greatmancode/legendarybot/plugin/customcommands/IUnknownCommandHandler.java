@@ -21,26 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot;
+package com.greatmancode.legendarybot.plugin.customcommands;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
-import net.dv8tion.jda.core.entities.ChannelType;
+import com.greatmancode.legendarybot.api.commands.UnknownCommandHandler;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-public class MessageListener extends ListenerAdapter {
+public class IUnknownCommandHandler implements UnknownCommandHandler {
 
-    private LegendaryBot bot;
+    private CustomCommandsPlugin plugin;
 
-    public MessageListener(LegendaryBot bot) {
-        this.bot = bot;
+    public IUnknownCommandHandler(CustomCommandsPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.PRIVATE) && event.getAuthor().isBot()) {
-            return;
+    public void handle(MessageReceivedEvent event) {
+        String[] split = event.getMessage().getContent().split(" ");
+        String value = split[0].substring(1).toLowerCase();
+        String result = plugin.getServerCommands(event.getGuild()).get(value);
+        if (result != null) {
+            event.getChannel().sendMessage(result).queue();
         }
-        bot.getCommandHandler().handle(event);
     }
 }

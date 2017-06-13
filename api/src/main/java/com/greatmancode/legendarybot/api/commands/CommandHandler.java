@@ -25,13 +25,14 @@ package com.greatmancode.legendarybot.api.commands;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CommandHandler {
 
     Map<String, Command> commandMap = new LinkedHashMap<>();
-
+    private UnknownCommandHandler unknownCommandHandler = null;
     public void addCommand(String name, Command command) {
         commandMap.put(name, command);
     }
@@ -40,7 +41,7 @@ public class CommandHandler {
         commandMap.remove(name);
     }
 
-    public boolean handle(MessageReceivedEvent event) {
+    public void handle(MessageReceivedEvent event) {
         String text = event.getMessage().getContent();
         if (text.startsWith("!")) {
             String[] commandArray = text.split(" ");
@@ -58,16 +59,23 @@ public class CommandHandler {
                 } else {
                     sendMessage(event,"You can't run this command!");
                 }
-
-                return true;
+            } else if (unknownCommandHandler != null) {
+                unknownCommandHandler.handle(event);
             }
 
         }
-        return false;
     }
 
     private void sendMessage(MessageReceivedEvent event, String message) {
         event.getAuthor().openPrivateChannel().complete().sendMessage(message).queue();
+    }
+
+    public Map<String, Command> getCommandList() {
+        return Collections.unmodifiableMap(commandMap);
+    }
+
+    public void setUnknownCommandHandler(UnknownCommandHandler handler) {
+        this.unknownCommandHandler = handler;
     }
 
 }

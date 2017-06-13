@@ -21,26 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot;
+package com.greatmancode.legendarybot.plugin.customcommands;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
-import net.dv8tion.jda.core.entities.ChannelType;
+import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-public class MessageListener extends ListenerAdapter {
+public class CreateCommand extends AdminCommand {
 
-    private LegendaryBot bot;
+    private CustomCommandsPlugin plugin;
 
-    public MessageListener(LegendaryBot bot) {
-        this.bot = bot;
+    public CreateCommand(CustomCommandsPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.PRIVATE) && event.getAuthor().isBot()) {
-            return;
-        }
-        bot.getCommandHandler().handle(event);
+    public void execute(MessageReceivedEvent event, String[] args) {
+        String[] messages = new String[args.length - 1];
+        System.arraycopy(args, 1, messages,0,args.length - 1);
+        plugin.createCommand(event.getGuild(),args[0].toLowerCase(), String.join(" ", messages));
+        event.getChannel().sendMessage("Message "+args[0]+" set!").queue();
+    }
+
+    @Override
+    public int minArgs() {
+        return 2;
+    }
+
+    @Override
+    public int maxArgs() {
+        return 99999;
+    }
+
+    @Override
+    public String help() {
+        return "!createcmd [name] [args...] - Create a command that the bot will return the stuff in args";
     }
 }

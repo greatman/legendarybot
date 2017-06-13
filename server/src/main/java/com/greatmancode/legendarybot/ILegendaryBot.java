@@ -28,10 +28,7 @@ import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.utils.LogListener;
-import com.greatmancode.legendarybot.commands.LoadCommand;
-import com.greatmancode.legendarybot.commands.ReloadCommand;
-import com.greatmancode.legendarybot.commands.SetServerSettingCommand;
-import com.greatmancode.legendarybot.commands.UnloadCommand;
+import com.greatmancode.legendarybot.commands.*;
 import com.greatmancode.legendarybot.server.IGuildSettings;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -73,6 +70,7 @@ public class ILegendaryBot extends LegendaryBot {
         commandHandler.addCommand("setserversetting", new SetServerSettingCommand(this));
         commandHandler.addCommand("load", new LoadCommand(this));
         commandHandler.addCommand("unload", new UnloadCommand(this));
+        commandHandler.addCommand("help", new HelpCommand(this));
 
         //We register the message listener
         jda.addEventListener(new MessageListener(this));
@@ -145,5 +143,10 @@ public class ILegendaryBot extends LegendaryBot {
             dataSource = new HikariDataSource(config);
         }
         return dataSource;
+    }
+
+    @Override
+    public JDA getJDA() {
+        return jda;
     }
 }

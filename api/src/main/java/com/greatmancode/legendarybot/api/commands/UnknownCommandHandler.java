@@ -21,26 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot;
+package com.greatmancode.legendarybot.api.commands;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
-import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-public class MessageListener extends ListenerAdapter {
+public interface UnknownCommandHandler {
 
-    private LegendaryBot bot;
-
-    public MessageListener(LegendaryBot bot) {
-        this.bot = bot;
-    }
-
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.PRIVATE) && event.getAuthor().isBot()) {
-            return;
-        }
-        bot.getCommandHandler().handle(event);
-    }
+    void handle(MessageReceivedEvent event);
 }

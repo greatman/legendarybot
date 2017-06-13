@@ -27,6 +27,7 @@ import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.mindscapehq.raygun4java.core.RaygunClient;
 import com.zaxxer.hikari.HikariDataSource;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import ro.fortsoft.pf4j.PluginManager;
 
@@ -42,6 +43,7 @@ public abstract class LegendaryBot {
     public abstract GuildSettings getGuildSettings(Guild guild);
     public abstract PluginManager getPluginManager();
     public abstract HikariDataSource getDatabase();
+    public abstract JDA getJDA();
     public static RaygunClient getRaygunClient() {
         return raygunClient;
     }

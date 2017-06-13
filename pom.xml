@@ -22,6 +22,7 @@
         <module>affixcommand</module>
         <module>logcommand</module>
         <module>tokencommand</module>
+        <module>customcommands</module>
     </modules>
 
     <properties>
