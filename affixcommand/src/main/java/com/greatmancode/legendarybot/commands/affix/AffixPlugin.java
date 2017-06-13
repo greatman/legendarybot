@@ -27,9 +27,6 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-/**
- * Created by lebel on 6/11/2017.
- */
 public class AffixPlugin extends LegendaryBotPlugin {
 
 

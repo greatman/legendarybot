@@ -64,7 +64,7 @@ public class ILegendaryBot extends LegendaryBot {
 
     private static Properties props;
 
-    public ILegendaryBot(JDA jda, String raygunKey, String battlenetKey) throws IOException {
+    public ILegendaryBot(JDA jda, String raygunKey, String battlenetKey) {
         super(raygunKey, battlenetKey);
         this.jda = jda;
 
@@ -108,7 +108,7 @@ public class ILegendaryBot extends LegendaryBot {
             jda.shutdown();
 
             File plugins = new File("plugins");
-            Arrays.stream(plugins.listFiles(pathname -> pathname.isDirectory())).forEach(file -> {
+            Arrays.stream(plugins.listFiles(File::isDirectory)).forEach(file -> {
                 try {
                     FileUtils.deleteDirectory(file);
                 } catch (IOException e) {

@@ -24,9 +24,6 @@
 package com.greatmancode.legendarybot.api.utils;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Period;
 import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;

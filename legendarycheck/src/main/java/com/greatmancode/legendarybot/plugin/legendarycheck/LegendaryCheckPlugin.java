@@ -62,7 +62,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             e.printStackTrace();
         }
         log.info("Starting LegendaryCheck plugin.");
-        getBot().getJDA().getGuilds().forEach(g -> startLegendaryCheck(g));
+        getBot().getJDA().getGuilds().forEach(this::startLegendaryCheck);
         getBot().getCommandHandler().addCommand("enablelc", new EnableLegendaryCheckCommand(this));
         getBot().getCommandHandler().addCommand("disablelc", new DisableLegendaryCheckCommand(this));
         getBot().getCommandHandler().addCommand("mutelc", new MuteLegendaryCheckCommand(this));

@@ -25,9 +25,6 @@ package com.greatmancode.legendarybot.api.plugin;
 
 import ro.fortsoft.pf4j.PluginClasspath;
 
-/**
- * Created by greatman on 17-06-10.
- */
 public class LegendaryBotClasspath extends PluginClasspath {
 
     public LegendaryBotClasspath() {

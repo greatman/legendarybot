@@ -25,7 +25,6 @@ package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.utils.Utils;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -97,9 +96,7 @@ public class LegendaryCheck {
                             if (quality == 5) {
                                 System.out.println(name + " just looted a legendary");
                                 //We got a legendary!
-                                MessageBuilder builder = new MessageBuilder();
-                                builder.append(name + " just looted the legendary " + itemObject.get("name")+ "! :tada:  http://www.wowhead.com/item="+itemID);
-                                guild.getTextChannelsByName(channelName, true).get(0).sendMessage(builder.build()).queue();
+                                guild.getTextChannelsByName(channelName, true).get(0).sendMessage(name + " just looted the legendary " + itemObject.get("name")+ "! :tada:  http://www.wowhead.com/item="+itemID).queue();
                             }
                         }
                         if (Thread.interrupted()) {
