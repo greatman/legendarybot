@@ -1,4 +1,5 @@
 #Legendarybot
+
 Originally a Discord bot for alerting of new Legendary drops in a World of Warcraft Guild, it became a fully pledged bot offering multiple features:
 
 - Mythic+ affix displayer (!affix)
@@ -12,6 +13,7 @@ Originally a Discord bot for alerting of new Legendary drops in a World of Warcr
 - Give the current price of the WoW token (!token)
 
 ##How to compile
+
 To compile Legendarybot, simply have JDK 8 & Maven installed and run the following command at the root of the project
 ```
 mvn clean package
@@ -19,9 +21,11 @@ mvn clean package
 This will create the .jar and .zip for the server and every plugins in their respective **target** folder.
 
 ##How to run
+
 To run the bot, it requires some basic configuration
 
 ###Prerequisites
+
 1. You need a MySQL server with a username/password/database prepared for the bot.
 2. You need a Discord bot token. You need to create one here: https://discordapp.com/developers/applications/me
 3. You need a Battle.net API key. You can create one here: https://dev.battle.net/
@@ -51,7 +55,9 @@ java -jar server.jar
 ```
 
 ##It looks hard! Can you run it for me?
+
 Of course! You can add the bot to your server. Simply [click here](https://discordapp.com/oauth2/authorize?client_id=267134720700186626&scope=bot&permissions=0). 
 
 ##I need support, how can I reach you?
+
 Simply [open a ticket](https://github.com/greatman/legendarybot/issues) and I will gladly answer!
