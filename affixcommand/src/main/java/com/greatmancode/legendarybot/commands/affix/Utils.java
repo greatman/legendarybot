@@ -41,6 +41,6 @@ public class Utils {
             {"Teeming", "Necrotic", "Tyrannical"},
             {"Sanguine","Grievous", "Fortified"},
             {"Bolstering", "Explosive", "Tyrannical"},
-            {"Unknown", "Unknown", "Unknown"}
+            {"Bursting", "Quaking", "Fortified"}
     };
 }
