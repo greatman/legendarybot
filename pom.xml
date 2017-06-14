@@ -24,6 +24,7 @@
         <module>tokencommand</module>
         <module>customcommands</module>
         <module>legendarycheck</module>
+        <module>music</module>
     </modules>
 
     <properties>
@@ -85,6 +86,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>1.2.1</version>
         </dependency>
     </dependencies>
 <build>

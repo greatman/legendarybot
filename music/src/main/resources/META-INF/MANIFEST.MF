@@ -1,0 +1,4 @@
+Plugin-Class: com.greatmancode.legendarybot.plugin.music.MusicPlugin
+Plugin-Id: musicPlugin
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1
