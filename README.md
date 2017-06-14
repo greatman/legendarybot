@@ -12,6 +12,24 @@ Originally a Discord bot for alerting of new Legendary drops in a World of Warcr
 - Show the current status of a Warcraft Realm (!server)
 - Give the current price of the WoW token (!token)
 
+## Initial Bot configuration
+
+To be able to work properly, the bot needs 3 things from you:
+
+1. Your Region ```!setserversetting WOW_REGION_NAME US/EU```
+2. Your WoW Realm ```!setserversetting WOW_SERVER_NAME Arthas``` (Arthas is an example)
+3. Your Guild Name ```!setserversetting GUILD_NAME YourGuildName```
+
+Congrats! The bot is now configured for your server.
+
+## Permissions
+
+Legendarybot have several Admin commands. To be able to run those admin commands, you need one of the following conditions:
+1. You need the Admin role on your server
+2. You need the ```legendarybot-admin``` role
+
+Without one of those conditions, you are only allowed *public* commands.
+
 ## How to compile
 
 To compile Legendarybot, simply have JDK 8 & Maven installed and run the following command at the root of the project
