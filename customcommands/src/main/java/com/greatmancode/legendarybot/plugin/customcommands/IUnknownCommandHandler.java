@@ -24,6 +24,7 @@
 package com.greatmancode.legendarybot.plugin.customcommands;
 
 import com.greatmancode.legendarybot.api.commands.UnknownCommandHandler;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class IUnknownCommandHandler implements UnknownCommandHandler {
@@ -40,7 +41,15 @@ public class IUnknownCommandHandler implements UnknownCommandHandler {
         String value = split[0].substring(1).toLowerCase();
         String result = plugin.getServerCommands(event.getGuild()).get(value);
         if (result != null) {
-            event.getChannel().sendMessage(result).queue();
+            if (result.contains(".png") || result.contains(".jpg") || result.contains(".gif")) {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setImage(result);
+                eb.build();
+
+                event.getChannel().sendMessage(eb.build()).queue();
+            } else {
+                event.getChannel().sendMessage(result).queue();
+            }
         }
     }
 }
