@@ -26,6 +26,7 @@
         <module>legendarycheck</module>
         <module>music</module>
         <module>blizzardcscommand</module>
+        <module>streamers</module>
     </modules>
 
     <properties>

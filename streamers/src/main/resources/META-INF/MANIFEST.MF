@@ -1,0 +1,4 @@
+Plugin-Class: com.greatmancode.legendarybot.plugin.streamers.StreamersPlugin
+Plugin-Id: streamersPlugin
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1

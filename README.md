@@ -11,6 +11,8 @@ Originally a Discord bot for alerting of new Legendary drops in a World of Warcr
 - Give the Competitive rank of a player in Overwatch (!owrank) *Only supports US stats.*
 - Show the current status of a Warcraft Realm (!server)
 - Give the current price of the WoW token (!token)
+- Give the latest tweet of the US @blizzardcs Twitter account (!blizzardcs)
+- Manage a streamer list on your server (!addstreamer !removestreamer !streamers). Supports Twitch & Mixer.
 
 ## Initial Bot configuration
 
