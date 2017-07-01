@@ -36,12 +36,16 @@ import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.io.FileInputStream;
 import java.util.Calendar;
+import java.util.Properties;
+import java.util.TimeZone;
 
 //TODO Support EU
 public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, PublicCommand {
 
     private static final Logger log = LoggerFactory.getLogger(LogCommand.class);
+    private Properties props;
 
     public LogCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -49,13 +53,14 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String request = Utils.doRequest("https://www.warcraftlogs.com:443/v1/reports/guild/"+ getBot().getGuildSettings(event.getGuild()).getGuildName()+"/"+ getBot().getGuildSettings(event.getGuild()).getWowServerName()+"/"+getBot().getGuildSettings(event.getGuild()).getRegionName()+"?api_key=c57da16709187c207c10a92a29db78fb");
+        String request = Utils.doRequest("https://www.warcraftlogs.com:443/v1/reports/guild/"+ getBot().getGuildSettings(event.getGuild()).getGuildName()+"/"+ getBot().getGuildSettings(event.getGuild()).getWowServerName()+"/"+getBot().getGuildSettings(event.getGuild()).getRegionName()+"?api_key=" + props.getProperty("warcraftlogs.key"));
 
         try {
             JSONArray jsonArray = (JSONArray) Utils.jsonParser.parse(request);
             JSONObject jsonObject = (JSONObject) jsonArray.stream()
                     .toArray()[jsonArray.size() - 1];
             Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(TimeZone.getTimeZone("America/Montreal"));
             calendar.setTimeInMillis((Long) jsonObject.get("start"));
             event.getChannel().sendMessage("Last Log: " + jsonObject.get("title") + " by " + jsonObject.get("owner") + " at " + calendar.get(Calendar.DAY_OF_MONTH)+"/"+ (calendar.get(Calendar.MONTH) + 1)+ "/"+ calendar.get(Calendar.YEAR)+". https://www.warcraftlogs.com/reports/" + jsonObject.get("id")).queue();
         } catch (ParseException e) {
@@ -70,6 +75,13 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
 
     @Override
     public void start() throws PluginException {
+        //Load the configuration
+        props = new Properties();
+        try {
+            props.load(new FileInputStream("app.properties"));
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
         getBot().getCommandHandler().addCommand("log", this);
         log.info("Command !log loaded");
     }

@@ -57,11 +57,11 @@ public class Utils {
      * @param headers A list of headers to add to the query
      * @return A string containing the result, else null
      */
-    private static String doRequest(String urlString, Map<String, String> headers) {
+    public static String doRequest(String urlString, Map<String, String> headers) {
         return doRequest(urlString,"GET",null,headers);
     }
 
-    private static String doRequest(String urlString, String requestMethod, String body, Map<String, String> headers) {
+    public static String doRequest(String urlString, String requestMethod, String body, Map<String, String> headers) {
         try {
             URL url = new URL(urlString);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();

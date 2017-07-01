@@ -25,6 +25,7 @@
         <module>customcommands</module>
         <module>legendarycheck</module>
         <module>music</module>
+        <module>blizzardcscommand</module>
     </modules>
 
     <properties>
