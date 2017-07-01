@@ -39,6 +39,7 @@ import java.util.Map;
 public class CustomCommandsPlugin extends LegendaryBotPlugin {
 
     private Map<String, Map<String, String>> guildCustomCommands = new HashMap<>();
+    private GuildJoinListener listener = new GuildJoinListener(this);
 
     public CustomCommandsPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -79,6 +80,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
                 e.printStackTrace();
             }
         });
+        getBot().getJDA().addEventListener(listener);
         log.info("Custom commands loaded");
         getBot().getCommandHandler().setUnknownCommandHandler(new IUnknownCommandHandler(this));
         getBot().getCommandHandler().addCommand("createcmd", new CreateCommand(this));
@@ -90,6 +92,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
     public void stop() throws PluginException {
         getBot().getCommandHandler().removeCommand("createcmd");
         getBot().getCommandHandler().setUnknownCommandHandler(null);
+        getBot().getJDA().removeEventListener(listener);
         log.info("Plugin Custom Commands unloaded!");
         log.info("Command !createcmd unloaded!");
     }
@@ -108,6 +111,10 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void joinGuildEvent(Guild guild) {
+        guildCustomCommands.put(guild.getId(), new HashMap<>());
     }
 
     public Map<String,String> getServerCommands(Guild guild) {
