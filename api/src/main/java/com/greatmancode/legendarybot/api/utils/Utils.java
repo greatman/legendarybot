@@ -74,7 +74,7 @@ public class Utils {
             if (body != null) {
                 con.setDoOutput(true);
                 try( DataOutputStream wr = new DataOutputStream( con.getOutputStream())) {
-                    wr.write(body.getBytes());
+                    wr.write(body.getBytes("UTF-8"));
                 }
             }
 

@@ -61,6 +61,7 @@ public class ILegendaryBot extends LegendaryBot {
     private JDA jda;
     private Map<String, GuildSettings> guildSettings = new HashMap<>();
     private HikariDataSource dataSource;
+    private StatsHandler statsHandler;
 
     private static Properties props;
 
@@ -74,6 +75,8 @@ public class ILegendaryBot extends LegendaryBot {
         commandHandler.addCommand("load", new LoadCommand(this));
         commandHandler.addCommand("unload", new UnloadCommand(this));
         commandHandler.addCommand("help", new HelpCommand(this));
+        commandHandler.addCommand("info", new InfoCommand());
+        commandHandler.addCommand("invite", new InviteCommand());
 
         //We register the message listener
         jda.addEventListener(new MessageListener(this));
@@ -101,6 +104,11 @@ public class ILegendaryBot extends LegendaryBot {
         pluginManager.startPlugins();
 
 
+        //
+        if (Boolean.parseBoolean(props.getProperty("stats.enable"))) {
+            statsHandler = new StatsHandler(props, jda);
+        }
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {
                 getPluginManager().unloadPlugin(wrapper.getPluginId());
@@ -115,8 +123,12 @@ public class ILegendaryBot extends LegendaryBot {
                     e.printStackTrace();
                 }
             });
+            if (statsHandler != null) {
+                statsHandler.stop();
+            }
             System.out.println("Legendarybot shutdown.");
         }));
+        jda.getGuilds().size();
     }
 
     public static void main(String[] args) throws IOException, LoginException, InterruptedException, RateLimitedException {
