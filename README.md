@@ -80,4 +80,4 @@ Of course! You can add the bot to your server. Simply [click here](https://disco
 
 ## I need support, how can I reach you?
 
-Simply [open a ticket](https://github.com/greatman/legendarybot/issues) and I will gladly answer!
+Simply [open a ticket](https://github.com/greatman/legendarybot/issues) and I will gladly answer! You also join the [Discord](https://discord.gg/Cr7G28H) server!
