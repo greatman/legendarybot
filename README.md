@@ -76,7 +76,7 @@ java -jar server.jar
 
 ## It looks hard! Can you run it for me?
 
-Of course! You can add the bot to your server. Simply [click here](https://discordapp.com/oauth2/authorize?client_id=267134720700186626&scope=bot&permissions=0). 
+Of course! You can add the bot to your server. Simply [click here](https://discordapp.com/oauth2/authorize?client_id=267134720700186626&scope=bot&permissions=3072). 
 
 ## I need support, how can I reach you?
 
