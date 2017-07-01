@@ -44,6 +44,7 @@ public abstract class LegendaryBot {
     public abstract PluginManager getPluginManager();
     public abstract HikariDataSource getDatabase();
     public abstract JDA getJDA();
+    public abstract void addGuild(Guild guild);
     public static RaygunClient getRaygunClient() {
         return raygunClient;
     }

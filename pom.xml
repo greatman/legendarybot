@@ -27,6 +27,7 @@
         <module>music</module>
         <module>blizzardcscommand</module>
         <module>streamers</module>
+        <module>botstats</module>
     </modules>
 
     <properties>

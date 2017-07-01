@@ -64,8 +64,6 @@ public class CommandHandler {
                     } else {
                         sendMessage(event,commandClass.help());
                     }
-                } else {
-                    sendMessage(event,"You can't run this command!");
                 }
             } else if (unknownCommandHandler != null) {
                 unknownCommandHandler.handle(event);

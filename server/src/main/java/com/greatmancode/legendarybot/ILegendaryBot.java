@@ -177,6 +177,10 @@ public class ILegendaryBot extends LegendaryBot {
     }
 
 
+    public void addGuild(Guild guild) {
+        guildSettings.put(guild.getId(), new IGuildSettings(guild, this));
+    }
+
     @Override
     public JDA getJDA() {
         return jda;
