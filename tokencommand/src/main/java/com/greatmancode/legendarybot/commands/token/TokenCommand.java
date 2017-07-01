@@ -49,6 +49,10 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
         try {
             JSONObject object = (JSONObject) Utils.jsonParser.parse(request);
             String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
+            if (region == null) {
+                event.getChannel().sendMessage("The owner of the server needs to configure the region. Example: !setserversetting WOW_REGION_NAME US");
+                return;
+            }
             if (getBot().getGuildSettings(event.getGuild()).getRegionName().equals("US")) {
                 region = "NA";
             }
