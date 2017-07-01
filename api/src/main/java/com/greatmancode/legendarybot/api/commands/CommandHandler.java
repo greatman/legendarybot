@@ -23,6 +23,7 @@
  */
 package com.greatmancode.legendarybot.api.commands;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -31,8 +32,15 @@ import java.util.Map;
 
 public class CommandHandler {
 
+    private LegendaryBot bot;
+
     Map<String, Command> commandMap = new LinkedHashMap<>();
     private UnknownCommandHandler unknownCommandHandler = null;
+
+    public CommandHandler(LegendaryBot bot) {
+        this.bot = bot;
+    }
+
     public void addCommand(String name, Command command) {
         commandMap.put(name, command);
     }

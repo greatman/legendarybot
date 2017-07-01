@@ -29,10 +29,10 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public class ReloadCommand implements Command {
+public class ReloadPluginsCommand implements Command {
 
     private LegendaryBot bot;
-    public ReloadCommand(LegendaryBot bot) {
+    public ReloadPluginsCommand(LegendaryBot bot) {
         this.bot = bot;
     }
 

@@ -57,7 +57,7 @@ import java.util.Properties;
 public class ILegendaryBot extends LegendaryBot {
 
     private PluginManager pluginManager = new LegendaryBotPluginManager(this);
-    private CommandHandler commandHandler = new CommandHandler();
+    private CommandHandler commandHandler = new CommandHandler(this);
     private JDA jda;
     private Map<String, GuildSettings> guildSettings = new HashMap<>();
     private HikariDataSource dataSource;
@@ -70,7 +70,7 @@ public class ILegendaryBot extends LegendaryBot {
         this.jda = jda;
 
         //Register the server specific commands
-        commandHandler.addCommand("reload", new ReloadCommand(this));
+        commandHandler.addCommand("reloadplugins", new ReloadPluginsCommand(this));
         commandHandler.addCommand("setserversetting", new SetServerSettingCommand(this));
         commandHandler.addCommand("load", new LoadCommand(this));
         commandHandler.addCommand("unload", new UnloadCommand(this));
@@ -175,6 +175,7 @@ public class ILegendaryBot extends LegendaryBot {
         }
         return dataSource;
     }
+
 
     @Override
     public JDA getJDA() {

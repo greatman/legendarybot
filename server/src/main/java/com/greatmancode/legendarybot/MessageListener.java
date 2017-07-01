@@ -27,20 +27,24 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageListener extends ListenerAdapter {
 
     private LegendaryBot bot;
-
+    Logger log = LoggerFactory.getLogger(getClass());
     public MessageListener(LegendaryBot bot) {
         this.bot = bot;
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.PRIVATE) && event.getAuthor().isBot()) {
+        if (event.isFromType(ChannelType.PRIVATE) || event.getAuthor().isBot()) {
             return;
         }
+
+        log.info("[" + event.getGuild().getName() + "]" + event.getAuthor().getName() + ": " + event.getMessage().getContent());
         bot.getCommandHandler().handle(event);
     }
 }
