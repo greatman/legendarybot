@@ -28,8 +28,11 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.awt.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 
 public class BotStatsCommands implements Command {
 
@@ -56,8 +59,13 @@ public class BotStatsCommands implements Command {
         plugin.getBot().getJDA().getGuilds().forEach(g -> membersAmount[0] += g.getMembers().size());
         builder.append("**Amount of members**: ");
         builder.append(membersAmount[0]);
-        builder.append("\n\n");
+        builder.append("\n");
 
+
+        RuntimeMXBean mxBean = ManagementFactory.getRuntimeMXBean();
+        String uptime = DurationFormatUtils.formatDuration(mxBean.getUptime(), "d") + " days " + DurationFormatUtils.formatDuration(mxBean.getUptime()," HH:mm:ss");
+        builder.append("**Uptime**: " + uptime);
+        builder.append("\n\n");
         builder.append("__**Memory**__:\n");
         int mb = 1024*1024;
 

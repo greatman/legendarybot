@@ -37,7 +37,14 @@ public class SetServerSettingCommand extends AdminCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        bot.getGuildSettings(event.getGuild()).setSetting(args[0], args[1]);
+        String[] argsend = new String[args.length - 1];
+        System.arraycopy(args,1,argsend,0,args.length - 1);
+        StringBuilder builder = new StringBuilder();
+        for(String s : argsend) {
+            builder.append(" ").append(s);
+        }
+        String setting = builder.toString().trim();
+        bot.getGuildSettings(event.getGuild()).setSetting(args[0], setting);
         event.getChannel().sendMessage("Setting " + args[0] + " set!").queue();
     }
 
@@ -48,7 +55,7 @@ public class SetServerSettingCommand extends AdminCommand {
 
     @Override
     public int maxArgs() {
-        return 2;
+        return 99;
     }
 
     @Override

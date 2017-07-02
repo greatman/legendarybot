@@ -31,7 +31,7 @@ public class InviteCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        event.getChannel().sendMessage("To make LegendaryBot join your server, follow this link! https://discordapp.com/oauth2/authorize?client_id=267134720700186626&scope=bot&permissions=3072").queue();
+        event.getChannel().sendMessage("To make LegendaryBot join your server, follow this link! https://discordapp.com/oauth2/authorize?client_id=267134720700186626&scope=bot&permissions=19456").queue();
     }
 
     @Override

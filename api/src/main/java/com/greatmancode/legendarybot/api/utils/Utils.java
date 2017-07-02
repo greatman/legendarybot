@@ -63,6 +63,7 @@ public class Utils {
 
     public static String doRequest(String urlString, String requestMethod, String body, Map<String, String> headers) {
         try {
+            urlString = urlString.replaceAll(" ", "%20");
             URL url = new URL(urlString);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             for (Map.Entry<String, String> header : headers.entrySet()) {

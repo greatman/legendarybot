@@ -79,7 +79,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
                 String bearer = (String) authObject.get("access_token");
                 headers.clear();
                 headers.put("Authorization", "Bearer " + bearer);
-                String twitterTimeline = Utils.doRequest("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name="+ username +"&exclude_replies=1", headers);
+                String twitterTimeline = Utils.doRequest("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name="+ username +"&exclude_replies=1&count=100", headers);
                 JSONArray twitterObject = (JSONArray) Utils.jsonParser.parse(twitterTimeline);
                 JSONObject messageObject = (JSONObject) twitterObject.get(0);
 
