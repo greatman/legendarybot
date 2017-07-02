@@ -1,0 +1,4 @@
+Plugin-Class: com.greatmancode.legendarybot.plugin.botplay.BotPlayPlugin
+Plugin-Id: botPlay
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1

@@ -28,6 +28,7 @@
         <module>blizzardcscommand</module>
         <module>streamers</module>
         <module>botstats</module>
+        <module>botplay</module>
     </modules>
 
     <properties>
