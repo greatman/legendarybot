@@ -87,18 +87,15 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(date);
                 cal.setTimeZone(TimeZone.getTimeZone("America/Montreal"));
-                result = cal.get(Calendar.DAY_OF_MONTH) +"/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR) + " " + String.format("%02d",cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d",cal.get(Calendar.MINUTE)) + " : " + (String) messageObject.get("text");
+                result = cal.get(Calendar.DAY_OF_MONTH) +"/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR) + " " + String.format("%02d",cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d",cal.get(Calendar.MINUTE)) + " : " + messageObject.get("text");
             }
-        } catch (ParseException e) {
-            LegendaryBot.getRaygunClient().Send(e);
-            e.printStackTrace();
-        } catch (java.text.ParseException e) {
+        } catch (ParseException | java.text.ParseException e) {
             LegendaryBot.getRaygunClient().Send(e);
             e.printStackTrace();
         }
         return result;
     }
-    public Date getTwitterDate(String date) throws ParseException, java.text.ParseException {
+    public Date getTwitterDate(String date) throws java.text.ParseException {
 
         final String TWITTER="EEE MMM dd HH:mm:ss ZZZZZ yyyy";
         SimpleDateFormat sf = new SimpleDateFormat(TWITTER,Locale.ENGLISH);

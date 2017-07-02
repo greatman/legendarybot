@@ -26,9 +26,6 @@ package com.greatmancode.legendarybot.plugin.customcommands;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-/**
- * Created by lebel on 7/1/2017.
- */
 public class GuildJoinListener extends ListenerAdapter {
 
     private CustomCommandsPlugin plugin;

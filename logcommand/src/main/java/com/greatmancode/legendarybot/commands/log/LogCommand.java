@@ -57,8 +57,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
 
         try {
             JSONArray jsonArray = (JSONArray) Utils.jsonParser.parse(request);
-            JSONObject jsonObject = (JSONObject) jsonArray.stream()
-                    .toArray()[jsonArray.size() - 1];
+            JSONObject jsonObject = (JSONObject) jsonArray.toArray()[jsonArray.size() - 1];
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeZone(TimeZone.getTimeZone("America/Montreal"));
             calendar.setTimeInMillis((Long) jsonObject.get("start"));

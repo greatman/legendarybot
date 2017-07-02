@@ -30,9 +30,6 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-/**
- * Created by lebel on 6/13/2017.
- */
 public class PlayMusicCommand extends AdminCommand {
 
     private MusicPlugin plugin;
