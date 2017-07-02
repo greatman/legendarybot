@@ -30,7 +30,10 @@ Legendarybot have several Admin commands. To be able to run those admin commands
 1. You need the Admin role on your server
 2. You need the ```legendarybot-admin``` role
 
-Without one of those conditions, you are only allowed *public* commands.
+Without one of those conditions, you are only allowed **public** commands.
+
+## Custom prefix
+The default bot prefix is !. You can change it to whatever you want with the following command ```!setserversetting PREFIX What_You_Want```
 
 ## How to compile
 

@@ -38,7 +38,11 @@ public class IUnknownCommandHandler implements UnknownCommandHandler {
     @Override
     public void handle(MessageReceivedEvent event) {
         String[] split = event.getMessage().getContent().split(" ");
-        String value = split[0].substring(1).toLowerCase();
+        String prefix = plugin.getBot().getGuildSettings(event.getGuild()).getSetting("PREFIX");
+        if (prefix == null ) {
+            prefix = "!";
+        }
+        String value = split[0].substring(prefix.length()).toLowerCase();
         String result = plugin.getServerCommands(event.getGuild()).get(value);
         if (result != null) {
             if (result.contains(".png") || result.contains(".jpg") || result.contains(".gif")) {

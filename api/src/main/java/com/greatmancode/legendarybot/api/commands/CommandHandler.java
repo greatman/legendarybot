@@ -51,9 +51,13 @@ public class CommandHandler {
 
     public void handle(MessageReceivedEvent event) {
         String text = event.getMessage().getContent();
-        if (text.startsWith("!")) {
+        String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");
+        if (prefix == null) {
+            prefix = "!";
+        }
+        if (text.startsWith(prefix)) {
             String[] commandArray = text.split(" ");
-            String command = commandArray[0].substring(1).toLowerCase();
+            String command = commandArray[0].substring(prefix.length()).toLowerCase();
             if (commandMap.containsKey(command)) {
                 Command commandClass = commandMap.get(command);
                 if (commandClass.canExecute(event.getMember())) {
