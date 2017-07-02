@@ -41,6 +41,7 @@ public class MusicPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() throws PluginException {
+
         getBot().getCommandHandler().addCommand("addsong", new AddSongCommand(this));
         getBot().getCommandHandler().addCommand("playmusic", new PlayMusicCommand(this));
         getBot().getCommandHandler().addCommand("skipsong", new SkipSongCommand(this));

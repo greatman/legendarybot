@@ -29,6 +29,7 @@
         <module>streamers</module>
         <module>botstats</module>
         <module>botplay</module>
+        <module>botgeneral</module>
     </modules>
 
     <properties>

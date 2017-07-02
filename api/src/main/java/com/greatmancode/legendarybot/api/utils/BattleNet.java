@@ -41,6 +41,9 @@ public class BattleNet {
         }
         try {
             JSONObject object = (JSONObject) Utils.jsonParser.parse(result);
+            if (!object.containsKey("name") || !object.containsKey("class") || !object.containsKey("lebel")) {
+                return null;
+            }
             Hero hero = new Hero((String)object.get("name"), HeroClass.values()[((Long) object.get("class")).intValue()], (Long)object.get("level"));
             hero.setIlvl((Long)((JSONObject)object.get("items")).get("averageItemLevel"));
             hero.setEquipilvl((Long)((JSONObject)object.get("items")).get("averageItemLevelEquipped"));

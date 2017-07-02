@@ -75,8 +75,6 @@ public class ILegendaryBot extends LegendaryBot {
         commandHandler.addCommand("load", new LoadCommand(this));
         commandHandler.addCommand("unload", new UnloadCommand(this));
         commandHandler.addCommand("help", new HelpCommand(this));
-        commandHandler.addCommand("info", new InfoCommand());
-        commandHandler.addCommand("invite", new InviteCommand());
 
         //We register the message listener
         jda.addEventListener(new MessageListener(this));

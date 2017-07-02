@@ -116,6 +116,7 @@ public class MusicManager {
     }
 
     private static void connectToVoiceChannel(AudioManager audioManager, VoiceChannel voiceChannel) {
+        audioManager.setSelfMuted(false);
         if (!audioManager.isConnected() && !audioManager.isAttemptingToConnect()) {
             audioManager.openAudioConnection(voiceChannel);
         }

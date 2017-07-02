@@ -21,21 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.commands;
+package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class InviteCommand implements PublicCommand, ZeroArgsCommand {
-
+public class InfoCommand implements PublicCommand, ZeroArgsCommand {
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        event.getChannel().sendMessage("To make LegendaryBot join your server, follow this link! https://discordapp.com/oauth2/authorize?client_id=267134720700186626&scope=bot&permissions=19456").queue();
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("LegendaryBot");
+        eb.setAuthor("Greatman", "https://github.com/greatman/legendarybot", "https://avatars3.githubusercontent.com/u/95754?v=3&s=460");
+        eb.setDescription("Created using JDA. Type !help for all the commands available to you. https://discordbots.org/bot/267134720700186626");
+        event.getChannel().sendMessage(eb.build()).queue();
     }
 
     @Override
     public String help() {
-        return "!invite - Get the bot invite link.";
+        return "!info - Returns informations about the Bot.";
     }
 }

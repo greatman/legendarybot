@@ -55,6 +55,10 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
     public void execute(MessageReceivedEvent event, String[] args) {
         String request = Utils.doRequest("https://www.warcraftlogs.com:443/v1/reports/guild/"+ getBot().getGuildSettings(event.getGuild()).getGuildName()+"/"+ getBot().getGuildSettings(event.getGuild()).getWowServerName()+"/"+getBot().getGuildSettings(event.getGuild()).getRegionName()+"?api_key=" + props.getProperty("warcraftlogs.key"));
 
+        if (request == null) {
+            event.getChannel().sendMessage("Guild not found on Warcraftlogs!").queue();
+            return;
+        }
         try {
             JSONArray jsonArray = (JSONArray) Utils.jsonParser.parse(request);
             JSONObject jsonObject = (JSONObject) jsonArray.toArray()[jsonArray.size() - 1];
