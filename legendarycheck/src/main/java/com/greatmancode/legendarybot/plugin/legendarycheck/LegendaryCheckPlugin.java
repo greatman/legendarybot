@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import net.dv8tion.jda.core.entities.Guild;
+import org.slf4j.Logger;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
@@ -142,5 +143,9 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public Logger getLog() {
+        return log;
     }
 }
