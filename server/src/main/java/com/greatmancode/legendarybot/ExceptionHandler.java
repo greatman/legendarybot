@@ -21,36 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.api;
+package com.greatmancode.legendarybot;
 
-import com.greatmancode.legendarybot.api.commands.CommandHandler;
-import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import com.zaxxer.hikari.HikariDataSource;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
-import ro.fortsoft.pf4j.PluginManager;
 
-public abstract class LegendaryBot {
+/**
+ * Generic class that sends stacktraces to Raygun
+ */
+public class ExceptionHandler implements Thread.UncaughtExceptionHandler  {
 
-    private static String battlenetKey;
-    private static LegendaryBot instance;
-    public LegendaryBot(String battlenetKey) {
-        LegendaryBot.battlenetKey = battlenetKey;
-        instance = this;
+    private final StacktraceHandler stacktraceHandler;
+
+    public ExceptionHandler(StacktraceHandler stacktraceHandler) {
+        this.stacktraceHandler = stacktraceHandler;
     }
-    public abstract CommandHandler getCommandHandler();
-    public abstract GuildSettings getGuildSettings(Guild guild);
-    public abstract PluginManager getPluginManager();
-    public abstract HikariDataSource getDatabase();
-    public abstract JDA getJDA();
-    public abstract void addGuild(Guild guild);
-    public abstract StacktraceHandler getStacktraceHandler();
 
-    public static LegendaryBot getInstance() {
-        return instance;
-    }
-    public static String getBattlenetKey() {
-        return battlenetKey;
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        stacktraceHandler.sendStacktrace(e);
     }
 }

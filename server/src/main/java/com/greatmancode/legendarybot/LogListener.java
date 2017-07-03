@@ -21,36 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.api;
+package com.greatmancode.legendarybot;
 
-import com.greatmancode.legendarybot.api.commands.CommandHandler;
-import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import com.zaxxer.hikari.HikariDataSource;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
-import ro.fortsoft.pf4j.PluginManager;
+import net.dv8tion.jda.core.utils.SimpleLog;
 
-public abstract class LegendaryBot {
+public class LogListener implements SimpleLog.LogListener {
 
-    private static String battlenetKey;
-    private static LegendaryBot instance;
-    public LegendaryBot(String battlenetKey) {
-        LegendaryBot.battlenetKey = battlenetKey;
-        instance = this;
+    private final StacktraceHandler stacktraceHandler;
+
+    public LogListener(IStacktraceHandler stacktraceHandler) {
+        this.stacktraceHandler = stacktraceHandler;
     }
-    public abstract CommandHandler getCommandHandler();
-    public abstract GuildSettings getGuildSettings(Guild guild);
-    public abstract PluginManager getPluginManager();
-    public abstract HikariDataSource getDatabase();
-    public abstract JDA getJDA();
-    public abstract void addGuild(Guild guild);
-    public abstract StacktraceHandler getStacktraceHandler();
 
-    public static LegendaryBot getInstance() {
-        return instance;
+    @Override
+    public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
+
     }
-    public static String getBattlenetKey() {
-        return battlenetKey;
+
+    @Override
+    public void onError(SimpleLog log, Throwable err) {
+        stacktraceHandler.sendStacktrace(err);
     }
 }

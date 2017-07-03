@@ -41,7 +41,7 @@ public class BattleNet {
         }
         try {
             JSONObject object = (JSONObject) Utils.jsonParser.parse(result);
-            if (!object.containsKey("name") || !object.containsKey("class") || !object.containsKey("lebel")) {
+            if (!object.containsKey("name") || !object.containsKey("class") || !object.containsKey("level")) {
                 return null;
             }
             Hero hero = new Hero((String)object.get("name"), HeroClass.values()[((Long) object.get("class")).intValue()], (Long)object.get("level"));
@@ -50,7 +50,7 @@ public class BattleNet {
             return hero;
         } catch (ParseException e) {
             e.printStackTrace();
-            LegendaryBot.getRaygunClient().Send(e);
+            LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
         }
         return null;
     }
@@ -77,7 +77,7 @@ public class BattleNet {
             }
         } catch (ParseException e) {
             e.printStackTrace();
-            LegendaryBot.getRaygunClient().Send(e);
+            LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
         }
         return map;
 

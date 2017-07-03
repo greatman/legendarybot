@@ -102,6 +102,7 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                 event.getChannel().sendMessage(builder.build()).queue();
             } catch (ParseException e) {
                 e.printStackTrace();
+                getBot().getStacktraceHandler().sendStacktrace(e);
             }
         }).run();
     }

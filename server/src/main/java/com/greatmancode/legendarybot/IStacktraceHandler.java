@@ -21,21 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.api.utils;
+package com.greatmancode.legendarybot;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
-import net.dv8tion.jda.core.utils.SimpleLog;
+import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
+import com.mindscapehq.raygun4java.core.RaygunClient;
 
-public class LogListener implements SimpleLog.LogListener {
+public class IStacktraceHandler implements StacktraceHandler {
 
-    @Override
-    public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
-
+    private final RaygunClient raygunClient;
+    public IStacktraceHandler(String raygunKey) {
+        raygunClient = new RaygunClient(raygunKey);
     }
 
     @Override
-    public void onError(SimpleLog log, Throwable err) {
-        LegendaryBot.getRaygunClient().Send(err);
+    public void sendStacktrace(Throwable e) {
+        raygunClient.Send(e);
         System.out.println("Sent error to raygun");
     }
 }

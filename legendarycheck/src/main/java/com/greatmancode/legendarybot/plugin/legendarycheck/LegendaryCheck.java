@@ -113,16 +113,12 @@ public class LegendaryCheck {
                     }
                     System.out.println("Went through Legendary check for server " + guild.getName());
                 } catch (ParseException e) {
-                    plugin.getLog().error(memberFeedRequest);
-                    plugin.getLog().error(guild.getName() + " bugged in the ParseException.");
                     e.printStackTrace();
-                    LegendaryBot.getRaygunClient().Send(e);
+                    LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
                 }
             } catch (Throwable e) {
-                plugin.getLog().error(memberFeedRequest);
-                plugin.getLog().error(guild.getName() + " bugged out");
                 e.printStackTrace();
-                LegendaryBot.getRaygunClient().Send(e);
+                LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
             }
         };
         scheduler.scheduleAtFixedRate(checkNews, 0,5, TimeUnit.MINUTES);

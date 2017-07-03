@@ -99,7 +99,7 @@ public class Utils {
             return null;
         } catch (IOException e) {
             e.printStackTrace();
-            LegendaryBot.getRaygunClient().Send(e);
+            LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
         }
         return null;
     }

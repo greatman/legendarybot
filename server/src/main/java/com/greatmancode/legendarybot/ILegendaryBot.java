@@ -27,8 +27,10 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
-import com.greatmancode.legendarybot.api.utils.LogListener;
-import com.greatmancode.legendarybot.commands.*;
+import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
+import com.greatmancode.legendarybot.commands.LoadCommand;
+import com.greatmancode.legendarybot.commands.ReloadPluginsCommand;
+import com.greatmancode.legendarybot.commands.UnloadCommand;
 import com.greatmancode.legendarybot.server.IGuildSettings;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -62,19 +64,22 @@ public class ILegendaryBot extends LegendaryBot {
     private Map<String, GuildSettings> guildSettings = new HashMap<>();
     private HikariDataSource dataSource;
     private StatsHandler statsHandler;
-
+    private IStacktraceHandler stacktraceHandler;
     private static Properties props;
 
     public ILegendaryBot(JDA jda, String raygunKey, String battlenetKey) {
-        super(raygunKey, battlenetKey);
+        super(battlenetKey);
         this.jda = jda;
+        this.stacktraceHandler = new IStacktraceHandler(raygunKey);
+
+        //We configure our Stacktrace catchers
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(stacktraceHandler));
+        SimpleLog.getLog("JDA").addListener(new LogListener(stacktraceHandler));
 
         //Register the server specific commands
         commandHandler.addCommand("reloadplugins", new ReloadPluginsCommand(this));
-        commandHandler.addCommand("setserversetting", new SetServerSettingCommand(this));
         commandHandler.addCommand("load", new LoadCommand(this));
         commandHandler.addCommand("unload", new UnloadCommand(this));
-        commandHandler.addCommand("help", new HelpCommand(this));
 
         //We register the message listener
         jda.addEventListener(new MessageListener(this));
@@ -131,13 +136,12 @@ public class ILegendaryBot extends LegendaryBot {
 
     public static void main(String[] args) throws IOException, LoginException, InterruptedException, RateLimitedException {
 
-        //We configure our Stacktrace catchers
-        //Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
-        SimpleLog.getLog("JDA").addListener(new LogListener());
+
 
         //Load the configuration
         props = new Properties();
         props.load(new FileInputStream("app.properties"));
+
 
         //Connect the bot to Discord
         JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
@@ -177,6 +181,11 @@ public class ILegendaryBot extends LegendaryBot {
 
     public void addGuild(Guild guild) {
         guildSettings.put(guild.getId(), new IGuildSettings(guild, this));
+    }
+
+    @Override
+    public StacktraceHandler getStacktraceHandler() {
+        return stacktraceHandler;
     }
 
     @Override

@@ -92,6 +92,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
+                    getBot().getStacktraceHandler().sendStacktrace(e);
                 }
 
                 break;
@@ -106,6 +107,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
+                    getBot().getStacktraceHandler().sendStacktrace(e);
                 }
                 break;
         }

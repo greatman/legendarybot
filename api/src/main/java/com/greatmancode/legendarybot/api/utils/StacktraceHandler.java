@@ -23,15 +23,7 @@
  */
 package com.greatmancode.legendarybot.api.utils;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
+public interface StacktraceHandler {
 
-/**
- * Generic class that sends stacktraces to Raygun
- */
-public class ExceptionHandler implements Thread.UncaughtExceptionHandler  {
-    @Override
-    public void uncaughtException(Thread t, Throwable e) {
-        LegendaryBot.getRaygunClient().Send(e);
-        System.out.println("Sent error to raygun");
-    }
+    void sendStacktrace(Throwable e);
 }

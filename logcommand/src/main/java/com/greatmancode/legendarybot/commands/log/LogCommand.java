@@ -68,6 +68,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
             event.getChannel().sendMessage("Last Log: " + jsonObject.get("title") + " by " + jsonObject.get("owner") + " at " + calendar.get(Calendar.DAY_OF_MONTH)+"/"+ (calendar.get(Calendar.MONTH) + 1)+ "/"+ calendar.get(Calendar.YEAR)+". https://www.warcraftlogs.com/reports/" + jsonObject.get("id")).queue();
         } catch (ParseException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
     }
 
@@ -84,6 +85,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
             props.load(new FileInputStream("app.properties"));
         } catch (java.io.IOException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         getBot().getCommandHandler().addCommand("log", this);
         log.info("Command !log loaded");

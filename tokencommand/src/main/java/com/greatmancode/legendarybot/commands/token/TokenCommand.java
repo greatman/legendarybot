@@ -65,6 +65,7 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
             event.getChannel().sendMessage("Price for 1 WoW Token: " + price + " | Minimum 24H: " + minPrice + " | Maximum 24H: " +maxPrice + " | Percentage 24H range: " + pctPrice + "%").queue();
         } catch (ParseException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
     }
 

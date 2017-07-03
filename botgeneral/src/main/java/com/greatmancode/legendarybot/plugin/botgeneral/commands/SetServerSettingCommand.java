@@ -21,37 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.commands;
+package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
-import net.dv8tion.jda.core.MessageBuilder;
+import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class HelpCommand implements PublicCommand,ZeroArgsCommand {
-
+public class SetServerSettingCommand extends AdminCommand {
     private LegendaryBot bot;
 
-    public HelpCommand(LegendaryBot bot) {
-        this.bot = bot;
+    public SetServerSettingCommand(LegendaryBot legendaryBot) {
+        super();
+        this.bot = legendaryBot;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        MessageBuilder builder = new MessageBuilder();
-        builder.append("Available commands ([] - Required, <> - Optional):\n");
-        bot.getCommandHandler().getCommandList().forEach((k,v) -> {
-            if (v.canExecute(event.getMember())) {
-                builder.append(v.help());
-                builder.append("\n");
-            }
-        });
-        event.getAuthor().openPrivateChannel().complete().sendMessage(builder.build()).queue();
+        String[] argsend = new String[args.length - 1];
+        System.arraycopy(args,1,argsend,0,args.length - 1);
+        StringBuilder builder = new StringBuilder();
+        for(String s : argsend) {
+            builder.append(" ").append(s);
+        }
+        String setting = builder.toString().trim();
+        bot.getGuildSettings(event.getGuild()).setSetting(args[0], setting);
+        event.getChannel().sendMessage("Setting " + args[0] + " set!").queue();
+    }
+
+    @Override
+    public int minArgs() {
+        return 2;
+    }
+
+    @Override
+    public int maxArgs() {
+        return 99;
     }
 
     @Override
     public String help() {
-        return "!help - Return this help";
+        return "!setserversetting [Setting Name] [Setting Value] - Set a server setting";
     }
 }

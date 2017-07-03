@@ -125,6 +125,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         return time;
     }
@@ -142,6 +143,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
     }
 

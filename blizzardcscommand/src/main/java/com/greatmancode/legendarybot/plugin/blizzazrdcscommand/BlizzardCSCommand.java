@@ -90,7 +90,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
                 result = cal.get(Calendar.DAY_OF_MONTH) +"/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR) + " " + String.format("%02d",cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d",cal.get(Calendar.MINUTE)) + " : " + messageObject.get("text");
             }
         } catch (ParseException | java.text.ParseException e) {
-            LegendaryBot.getRaygunClient().Send(e);
+            LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
             e.printStackTrace();
         }
         return result;
