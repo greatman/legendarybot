@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -28,13 +29,24 @@ import com.greatmancode.legendarybot.api.commands.Command;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Unload a plugin
+ */
 public class UnloadCommand implements Command {
 
+    /**
+     * The Bot instance
+     */
     private LegendaryBot bot;
 
+    /**
+     * Create a UnloadCommand instance
+     * @param bot The Bot instance this command is linked to.
+     */
     public UnloadCommand(LegendaryBot bot) {
         this.bot = bot;
     }
+
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         if (bot.getPluginManager().unloadPlugin(args[0])) {

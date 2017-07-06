@@ -21,15 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import net.dv8tion.jda.core.utils.SimpleLog;
 
+/**
+ * Class to support catching errors from JDA threads.
+ */
 public class LogListener implements SimpleLog.LogListener {
 
+    /**
+     * The StacktraceHandler to send the errors to.
+     */
     private final StacktraceHandler stacktraceHandler;
 
+    /**
+     * Create a LogListener to catch errors from JDA threads
+     * @param stacktraceHandler The {@link StacktraceHandler} that we will send the stacktraces to.
+     */
     public LogListener(IStacktraceHandler stacktraceHandler) {
         this.stacktraceHandler = stacktraceHandler;
     }

@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.utils.Utils;
@@ -36,9 +37,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Stats sender to the various bot lists
+ */
 public class StatsHandler  {
+
+    /**
+     * Scheduler to send stats at a specific interval
+     */
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    /**
+     * Create a Stat Handler.
+     * @param properties The app.properties file instance.
+     * @param jda the {@link JDA} instance linked to the {@link com.greatmancode.legendarybot.api.LegendaryBot} instance
+     */
     public StatsHandler(Properties properties, JDA jda) {
         final Runnable postStats = () -> {
             Map<String, String> map = new HashMap<>();
@@ -56,6 +69,9 @@ public class StatsHandler  {
         scheduler.scheduleAtFixedRate(postStats,0, 60, TimeUnit.MINUTES);
     }
 
+    /**
+     * Stop the Stats Handler.
+     */
     public void stop() {
         scheduler.shutdownNow();
     }

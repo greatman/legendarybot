@@ -46,6 +46,7 @@ public class Hero {
      * The Bag iLvl
      */
     private final long ilvl;
+
     /**
      * The equipped iLvl
      */

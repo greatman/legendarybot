@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -56,17 +57,59 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Implementation of a {@link LegendaryBot} bot.
+ */
 public class ILegendaryBot extends LegendaryBot {
 
+    /**
+     * The Plugin Manager
+     */
     private PluginManager pluginManager = new LegendaryBotPluginManager(this);
+
+    /**
+     * The Command handler
+     */
     private CommandHandler commandHandler = new CommandHandler(this);
+
+    /**
+     * The instance of JDA being linked to this Bot.
+     */
     private JDA jda;
+
+    /**
+     * The settings of every guilds that this bot is connected to
+     */
     private Map<String, GuildSettings> guildSettings = new HashMap<>();
+
+    /**
+     * The Database data source
+     */
     private HikariDataSource dataSource;
+
+    /**
+     * Bot-related statistics handler
+     */
+    //TODO: Move it into the BotGeneral plugin
     private StatsHandler statsHandler;
+
+    /**
+     * The instance of the Stacktrace Handler.
+     */
     private IStacktraceHandler stacktraceHandler;
+
+    /**
+     * The app.properties file.
+     */
     private static Properties props;
 
+    /**
+     * Start all the feature of the LegendaryBot
+     * @param jda the JDA instance
+     * @param sentryKey The key for Sentry.io
+     * @param battlenetKey The Battle.Net API key.
+     */
+    //TODO: Remove sentryKey parameter
     public ILegendaryBot(JDA jda, String sentryKey, String battlenetKey) {
         super(battlenetKey);
         this.jda = jda;
@@ -145,6 +188,14 @@ public class ILegendaryBot extends LegendaryBot {
         jda.getGuilds().size();
     }
 
+    /**
+     * Launch the Bot
+     * @param args Command line arguments (unused)
+     * @throws IOException
+     * @throws LoginException
+     * @throws InterruptedException
+     * @throws RateLimitedException
+     */
     public static void main(String[] args) throws IOException, LoginException, InterruptedException, RateLimitedException {
 
 
@@ -160,10 +211,12 @@ public class ILegendaryBot extends LegendaryBot {
         new ILegendaryBot(jda, props.getProperty("sentry.key"), props.getProperty("battlenet.key"));
     }
 
+    @Override
     public CommandHandler getCommandHandler() {
         return commandHandler;
     }
 
+    @Override
     public GuildSettings getGuildSettings(Guild guild) {
         return guildSettings.get(guild.getId());
     }
@@ -178,7 +231,7 @@ public class ILegendaryBot extends LegendaryBot {
         return dataSource;
     }
 
-
+    @Override
     public void addGuild(Guild guild) {
         guildSettings.put(guild.getId(), new IGuildSettings(guild, this));
     }

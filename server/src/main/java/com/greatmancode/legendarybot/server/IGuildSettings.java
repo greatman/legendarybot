@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.server;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -34,12 +35,31 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A representation of Discord Guild settings. Use a MySQL database to save the parameters
+ */
 public class IGuildSettings implements GuildSettings {
 
+    /**
+     * A instance of the bot.
+     */
     private LegendaryBot bot;
+
+    /**
+     * The ID of the Guild
+     */
     private String guildId;
+
+    /**
+     * A cache of the Guild settings
+     */
     private Map<String, String> settings = new HashMap<>();
 
+    /**
+     * Create a {@link GuildSettings} instance
+     * @param guild The Guild those settings are being linked to.
+     * @param bot A {@link LegendaryBot} instance.
+     */
     public IGuildSettings(Guild guild, LegendaryBot bot) {
         this.bot = bot;
         this.guildId = guild.getId();

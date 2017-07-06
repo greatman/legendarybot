@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -29,9 +30,20 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+/**
+ * Reload all plugins
+ */
 public class ReloadPluginsCommand implements Command {
 
+    /**
+     * The Bot instance
+     */
     private LegendaryBot bot;
+
+    /**
+     * Create a ReloadPluginsCommand instance
+     * @param bot The Bot instance this command is linked to.
+     */
     public ReloadPluginsCommand(LegendaryBot bot) {
         this.bot = bot;
     }

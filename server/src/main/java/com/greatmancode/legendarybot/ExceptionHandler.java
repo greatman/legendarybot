@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
@@ -30,8 +31,16 @@ import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
  */
 public class ExceptionHandler implements Thread.UncaughtExceptionHandler  {
 
+    /**
+     * A instance of a {@link StacktraceHandler}
+     */
     private final StacktraceHandler stacktraceHandler;
 
+
+    /**
+     * Create a Uncaught Exception handler
+     * @param stacktraceHandler The StacktraceHandler that will handle the uncaught exceptions.
+     */
     public ExceptionHandler(StacktraceHandler stacktraceHandler) {
         this.stacktraceHandler = stacktraceHandler;
     }

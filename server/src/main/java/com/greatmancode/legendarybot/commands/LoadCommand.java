@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -28,9 +29,20 @@ import com.greatmancode.legendarybot.api.commands.Command;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Command to load all plugins.
+ */
 public class LoadCommand implements Command {
+
+    /**
+     * The Bot instance
+     */
     private LegendaryBot bot;
 
+    /**
+     * Create a LoadCommand instance
+     * @param bot The Bot instance this command is linked to.
+     */
     public LoadCommand(LegendaryBot bot) {
         this.bot = bot;
     }

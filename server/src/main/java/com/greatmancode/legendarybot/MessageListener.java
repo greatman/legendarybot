@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -31,13 +32,29 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Handle all messages coming from the text channels
+ */
 public class MessageListener extends ListenerAdapter {
 
+    /**
+     * The {@link LegendaryBot} instance.
+     */
     private LegendaryBot bot;
+
+    /**
+     * A instance of {@link Logger} to send logs to
+     */
     private Logger log = LoggerFactory.getLogger(getClass());
+
+    /**
+     * Create a Message Listener
+     * @param bot The {@link LegendaryBot} instance this Message Listener is linked to.
+     */
     public MessageListener(LegendaryBot bot) {
         this.bot = bot;
     }
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
