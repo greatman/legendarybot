@@ -23,7 +23,14 @@
  */
 package com.greatmancode.legendarybot.api.utils;
 
+/**
+ * Handle unhandled Stacktraces during runtime
+ */
 public interface StacktraceHandler {
 
+    /**
+     * Send a {@link Throwable} to the Handler for further processing (Send to a aggregator, etc.)
+     * @param e the {@link Throwable} instance
+     */
     void sendStacktrace(Throwable e);
 }

@@ -30,25 +30,55 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Handle commands sent by the user
+ */
 public class CommandHandler {
 
+    /**
+     * The Bot instance
+     */
     private LegendaryBot bot;
 
-    Map<String, Command> commandMap = new LinkedHashMap<>();
+    /**
+     * The list of all the commands registered to the bot
+     */
+    private Map<String, Command> commandMap = new LinkedHashMap<>();
+
+    /**
+     * An instance of a {@link UnknownCommandHandler} to handle commands that are unknown
+     */
     private UnknownCommandHandler unknownCommandHandler = null;
 
+    /**
+     * Build a CommandHandler
+     * @param bot An instance of a Bot.
+     */
     public CommandHandler(LegendaryBot bot) {
         this.bot = bot;
     }
 
+    /**
+     * Add a command to the commands registered
+     * @param name The trigger of the command
+     * @param command The {@link Command} instance related to the trigger
+     */
     public void addCommand(String name, Command command) {
         commandMap.put(name, command);
     }
 
+    /**
+     * Remove a command from the bot
+     * @param name The trigger of the command
+     */
     public void removeCommand(String name) {
         commandMap.remove(name);
     }
 
+    /**
+     * Handle a message from Discord
+     * @param event The {@link MessageReceivedEvent} from JDA.
+     */
     public void handle(MessageReceivedEvent event) {
         String text = event.getMessage().getContent();
         String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");
@@ -76,14 +106,27 @@ public class CommandHandler {
         }
     }
 
+    /**
+     * Send a private message to the author of the Message event
+     * @param event The {@link MessageReceivedEvent} from JDA
+     * @param message The message to send to the author.
+     */
     private void sendMessage(MessageReceivedEvent event, String message) {
         event.getAuthor().openPrivateChannel().complete().sendMessage(message).queue();
     }
 
+    /**
+     * Get a unmodifiable map of the registered commands.
+     * @return a {@link Map} containing as a key the command trigger and the value the Command handler.
+     */
     public Map<String, Command> getCommandList() {
         return Collections.unmodifiableMap(commandMap);
     }
 
+    /**
+     * Set the {@link UnknownCommandHandler}.
+     * @param handler The {@link UnknownCommandHandler} to set to.
+     */
     public void setUnknownCommandHandler(UnknownCommandHandler handler) {
         this.unknownCommandHandler = handler;
     }

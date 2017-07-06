@@ -35,7 +35,11 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Several utilities used in the bot.
+ */
 public class Utils {
+
 
     /**
      * Generic instance to parse JSON
@@ -61,10 +65,18 @@ public class Utils {
         return doRequest(urlString,"GET",null,headers);
     }
 
+    /**
+     * Do a web request that returns a string response
+     * @param urlString the URL to query
+     * @param requestMethod The request method to send. Ex: POST/GET
+     * @param body The request body to send.
+     * @param headers The headers to use for the Query.
+     * @return A string containing the result, else null
+     */
     public static String doRequest(String urlString, String requestMethod, String body, Map<String, String> headers) {
         try {
-            urlString = urlString.replaceAll(" ", "%20");
-            URL url = new URL(urlString);
+            String finalURL = urlString.replaceAll(" ", "%20");
+            URL url = new URL(finalURL);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             for (Map.Entry<String, String> header : headers.entrySet()) {
                 con.setRequestProperty(header.getKey(), header.getValue());

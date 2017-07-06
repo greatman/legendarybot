@@ -33,6 +33,12 @@ import java.util.Map;
 
 public class BattleNet {
 
+    /**
+     * Retrieve the iLvl of a World of Warcraft character.
+     * @param serverName The server name the character belongs to.
+     * @param character The character name
+     * @return A {@link Hero} containing the Name, the {@link HeroClass}, the level, the equipped iLvl and the unequipped (bag) iLvl.
+     */
     public static Hero getiLvl(String serverName, String character) {
         String urlString = "https://us.api.battle.net/wow/character/"+serverName+"/"+character+"?fields=items&locale=en_US&apikey="+LegendaryBot.getBattlenetKey();
         String result = Utils.doRequest(urlString);
@@ -67,9 +73,7 @@ public class BattleNet {
             if (!object.containsKey("name") || !object.containsKey("class") || !object.containsKey("level")) {
                 return null;
             }
-            Hero hero = new Hero((String)object.get("name"), HeroClass.values()[((Long) object.get("class")).intValue()], (Long)object.get("level"));
-            hero.setIlvl((Long)((JSONObject)object.get("items")).get("averageItemLevel"));
-            hero.setEquipilvl((Long)((JSONObject)object.get("items")).get("averageItemLevelEquipped"));
+            Hero hero = new Hero((String)object.get("name"), HeroClass.values()[((Long) object.get("class")).intValue()], (Long)object.get("level"), (Long)((JSONObject)object.get("items")).get("averageItemLevel"), (Long)((JSONObject)object.get("items")).get("averageItemLevelEquipped"));
             return hero;
         } catch (ParseException e) {
             e.printStackTrace();
@@ -78,12 +82,29 @@ public class BattleNet {
         return null;
     }
 
+    /**
+     * Checks if a Guild exist in World of Warcraft
+     * @param serverName The server name where the guild belongs to
+     * @param guildName The guild name
+     * @return true if the guild exist.
+     */
     public static boolean guildExist(String serverName, String guildName) {
         String urlString = "https://us.api.battle.net/wow/guild/"+serverName+"/"+guildName+"?locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
         String result = Utils.doRequest(urlString);
         return result != null;
     }
 
+    /**
+     * Retrieve the server status of a World of Warcraft realm
+     * The Map returned will have the following values:
+     * name -> Realm Name
+     * status -> Online/Offline
+     * queue -> Yes/No
+     * population -> The population of the Realm (Low/Medium/High/Full)
+     * @param serverName The server name
+     * @return A {@link Map} containing the values above if it is found. Else an empty map.
+     *
+     */
     public static Map<String, String> getServerStatus(String serverName) {
         Map<String,String> map = new HashMap<>();
         String url = "https://us.api.battle.net/wow/realm/status?locale=en_US&realms="+serverName+"&apikey="+LegendaryBot.getBattlenetKey();

@@ -27,6 +27,9 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import ro.fortsoft.pf4j.DefaultPluginManager;
 import ro.fortsoft.pf4j.PluginClasspath;
 
+/**
+ * The Plugin Manager for LegendaryBot. This is a slightly modified version of {@link DefaultPluginManager} from pf4j to modify the ClassPath.
+ */
 public class LegendaryBotPluginManager extends DefaultPluginManager {
 
     private final LegendaryBot bot;

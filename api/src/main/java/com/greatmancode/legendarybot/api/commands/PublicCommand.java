@@ -25,6 +25,9 @@ package com.greatmancode.legendarybot.api.commands;
 
 import net.dv8tion.jda.core.entities.Member;
 
+/**
+ * Represents a Public {@link Command}. Those commands can be run by anybody.
+ */
 public interface PublicCommand extends Command {
 
     @Override

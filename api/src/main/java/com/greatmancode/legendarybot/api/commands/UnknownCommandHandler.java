@@ -25,7 +25,14 @@ package com.greatmancode.legendarybot.api.commands;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * A UnknownCommandHandler handles commands when no pre-defined commands are matched
+ */
 public interface UnknownCommandHandler {
 
+    /**
+     * Handle a unknown command.
+     * @param event The {@link MessageReceivedEvent} from JDA.
+     */
     void handle(MessageReceivedEvent event);
 }

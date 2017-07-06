@@ -72,6 +72,17 @@ public class ILegendaryBot extends LegendaryBot {
         this.jda = jda;
         this.stacktraceHandler = new IStacktraceHandler(sentryKey);
 
+        //Load the database
+        HikariConfig config = new HikariConfig();
+        config.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+        config.addDataSourceProperty("serverName", System.getenv("MYSQL_ADDRESS") != null ? System.getenv("MYSQL_ADDRESS") : props.getProperty("mysql.address"));
+        config.addDataSourceProperty("port", System.getenv("MYSQL_PORT") != null ? System.getenv("MYSQL_PORT") : props.getProperty("mysql.port"));
+        config.addDataSourceProperty("databaseName", System.getenv("MYSQL_DATABASE") != null ? System.getenv("MYSQL_DATABASE") : props.getProperty("mysql.database"));
+        config.addDataSourceProperty("user", System.getenv("MYSQL_USER") != null ? System.getenv("MYSQL_USER") : props.getProperty("mysql.user"));
+        config.addDataSourceProperty("password", System.getenv("MYSQL_PASSWORD") != null ? System.getenv("MYSQL_PASSWORD") : props.getProperty("mysql.password"));
+        config.setConnectionTimeout(5000);
+        dataSource = new HikariDataSource(config);
+
         //We configure our Stacktrace catchers
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(stacktraceHandler));
         SimpleLog.getLog("JDA").addListener(new LogListener(stacktraceHandler));
@@ -164,17 +175,6 @@ public class ILegendaryBot extends LegendaryBot {
 
     @Override
     public HikariDataSource getDatabase() {
-        if (dataSource == null) {
-            HikariConfig config = new HikariConfig();
-            config.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
-            config.addDataSourceProperty("serverName", System.getenv("MYSQL_ADDRESS") != null ? System.getenv("MYSQL_ADDRESS") : props.getProperty("mysql.address"));
-            config.addDataSourceProperty("port", System.getenv("MYSQL_PORT") != null ? System.getenv("MYSQL_PORT") : props.getProperty("mysql.port"));
-            config.addDataSourceProperty("databaseName", System.getenv("MYSQL_DATABASE") != null ? System.getenv("MYSQL_DATABASE") : props.getProperty("mysql.database"));
-            config.addDataSourceProperty("user", System.getenv("MYSQL_USER") != null ? System.getenv("MYSQL_USER") : props.getProperty("mysql.user"));
-            config.addDataSourceProperty("password", System.getenv("MYSQL_PASSWORD") != null ? System.getenv("MYSQL_PASSWORD") : props.getProperty("mysql.password"));
-            config.setConnectionTimeout(5000);
-            dataSource = new HikariDataSource(config);
-        }
         return dataSource;
     }
 

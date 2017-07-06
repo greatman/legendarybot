@@ -34,12 +34,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-//TODO Support saving in MySQL or something similar
 public class IGuildSettings implements GuildSettings {
 
     private LegendaryBot bot;
     private String guildId;
-    Map<String, String> settings = new HashMap<>();
+    private Map<String, String> settings = new HashMap<>();
 
     public IGuildSettings(Guild guild, LegendaryBot bot) {
         this.bot = bot;

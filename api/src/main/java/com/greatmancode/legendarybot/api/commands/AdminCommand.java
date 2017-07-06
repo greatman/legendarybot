@@ -27,6 +27,9 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 
+/**
+ * Represents a {@link Command} that can only be run by Guild administrators, guild members with the legendarybot-admin rank or the bot creator itself.
+ */
 public abstract class AdminCommand implements Command {
 
     @Override

@@ -28,9 +28,16 @@ import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+/**
+ * Represents a Plugin for the Bot
+ */
 public abstract class LegendaryBotPlugin extends Plugin {
 
+    /**
+     * An instance of the {@link LegendaryBot} class
+     */
     private final LegendaryBot bot;
+
     public LegendaryBotPlugin(PluginWrapper wrapper) {
         super(wrapper);
         bot = ((LegendaryBotPluginManager)wrapper.getPluginManager()).getBot();
@@ -42,6 +49,10 @@ public abstract class LegendaryBotPlugin extends Plugin {
     @Override
     public abstract void stop() throws PluginException;
 
+    /**
+     * Retrieve the {@link LegendaryBot} instance
+     * @return the {@link LegendaryBot} instance.
+     */
     public LegendaryBot getBot() {
         return bot;
     }

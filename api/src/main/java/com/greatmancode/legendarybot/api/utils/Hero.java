@@ -23,60 +23,87 @@
  */
 package com.greatmancode.legendarybot.api.utils;
 
+/**
+ * Represents a World of Warcraft character
+ */
 public class Hero {
 
 
+    /**
+     * The Character name
+     */
     private final String name;
+    /**
+     * The Character class
+     */
     private final HeroClass heroClass;
+    /**
+     * The Character level (Currently goes from 1 to 110)
+     */
     private final long level;
-    private long ilvl;
-    private long equipilvl;
-    private String legendary;
 
-    public Hero(String name, HeroClass heroClass, long level) {
-        this.name = name;
-        this.heroClass = heroClass;
-        this.level = level;
-    }
+    /**
+     * The Bag iLvl
+     */
+    private final long ilvl;
+    /**
+     * The equipped iLvl
+     */
+    private final long equipilvl;
 
-    public Hero(String name, HeroClass heroClass, long level, long ilvl, long equipilvl, String legendary) {
+    /**
+     * Instantiate a World of Warcraft character
+     * @param name The Character name
+     * @param heroClass The Character class
+     * @param level The Character level
+     * @param ilvl The character bag ilvl
+     * @param equipilvl The character equipped iLvl
+     */
+    public Hero(String name, HeroClass heroClass, long level, long ilvl, long equipilvl) {
         this.name = name;
         this.heroClass = heroClass;
         this.level = level;
         this.ilvl = ilvl;
         this.equipilvl = equipilvl;
-        this.legendary = legendary;
     }
 
+    /**
+     * Returns the name of the Character
+     * @return the Name of the Character
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Return the Class of the Character
+     * @return a {@link HeroClass} of the Character
+     */
     public HeroClass getHeroClass() {
         return heroClass;
     }
 
+    /**
+     * Return the level of the character
+     * @return The lever of the character. Currently being between 1 and 110.
+     */
     public long getLevel() {
         return level;
     }
 
+    /**
+     * Return the bag iLvl of a Character.
+     * @return The bag iLvl of a Character
+     */
     public long getIlvl() {
         return ilvl;
     }
 
+    /**
+     * Return the equipped iLvl of a Character.
+     * @return The equipped iLvl of a Character
+     */
     public long getEquipilvl() {
         return equipilvl;
-    }
-
-    public String getLegendary() {
-        return legendary;
-    }
-
-    public void setIlvl(long ilvl) {
-        this.ilvl = ilvl;
-    }
-
-    public void setEquipilvl(long equipilvl) {
-        this.equipilvl = equipilvl;
     }
 }

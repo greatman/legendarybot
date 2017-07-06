@@ -31,25 +31,85 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import ro.fortsoft.pf4j.PluginManager;
 
+/**
+ * Represents a LegendaryBot bot
+ */
 public abstract class LegendaryBot {
 
+    /**
+     * the Battle.net API key to use for the requests
+     */
     private static String battlenetKey;
+
+    /**
+     * An instance of the bot.
+     */
     private static LegendaryBot instance;
+
+    /**
+     * Create an instance of the Bot
+     * @param battlenetKey The battle.net API key to use for Battle.net requests
+     */
     public LegendaryBot(String battlenetKey) {
         LegendaryBot.battlenetKey = battlenetKey;
         instance = this;
     }
+
+    /**
+     * Retrieve the {@link CommandHandler}
+     * @return The {@link CommandHandler} currently loaded
+     */
     public abstract CommandHandler getCommandHandler();
+
+    /**
+     * Retrieve the {@link GuildSettings} instance for a Discord Guild.
+     * @param guild the Discord Guild to retrieve the Settings from
+     * @return A {@link GuildSettings} instance to access the Guild settings.
+     */
     public abstract GuildSettings getGuildSettings(Guild guild);
+
+    /**
+     * The Plugin Manager that handles all Plugins.
+     * @return the {@link PluginManager} instance.
+     */
     public abstract PluginManager getPluginManager();
+
+    /**
+     * Retrieve the Database handler
+     * @return A instance of the {@link HikariDataSource} class.
+     */
     public abstract HikariDataSource getDatabase();
+
+    /**
+     * Retrieve the Discord Bot library
+     * @return An instance of the {@link JDA} class
+     */
     public abstract JDA getJDA();
+
+    /**
+     * Add a Guild to the bot.
+     * @param guild The Discord Guild being added
+     */
     public abstract void addGuild(Guild guild);
+
+    /**
+     * Retrieve the unhandler StacktraceHandler
+     * @return The {@link StacktraceHandler} instance
+     */
     public abstract StacktraceHandler getStacktraceHandler();
 
+    /**
+     * Retrieve the current bot instance
+     * @return A {@link LegendaryBot} instance
+     */
     public static LegendaryBot getInstance() {
         return instance;
     }
+
+    /**
+     * Retrieve the Battle.net API key.
+     * @return A string containing the Battle.net API key.
+     */
     public static String getBattlenetKey() {
         return battlenetKey;
     }

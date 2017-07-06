@@ -110,6 +110,8 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                     getBot().getStacktraceHandler().sendStacktrace(e);
                 }
                 break;
+            default:
+                break;
         }
         return map;
     }
@@ -124,6 +126,8 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                 break;
             case MIXER:
                 result = Utils.doRequest("https://mixer.com/api/v1/channels/" + username) != null;
+                break;
+            default:
                 break;
 
         }
@@ -144,11 +148,9 @@ public class StreamersPlugin extends LegendaryBotPlugin {
 
     public void removeStreamer(Guild guild, String username, StreamPlatform platform) {
         String settings = getBot().getGuildSettings(guild).getSetting(CONFIG_KEY);
-        if (settings != null) {
-            if (settings.contains(username + "," + platform)) {
-                settings = settings.replaceAll(username + "," + platform, "").replaceAll(";;", ";");
-                getBot().getGuildSettings(guild).setSetting(CONFIG_KEY, settings);
-            }
+        if (settings != null && settings.contains(username + "," + platform)) {
+            settings = settings.replaceAll(username + "," + platform, "").replaceAll(";;", ";");
+            getBot().getGuildSettings(guild).setSetting(CONFIG_KEY, settings);
         }
     }
 }

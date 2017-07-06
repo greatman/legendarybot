@@ -36,7 +36,7 @@ public class LogListener implements SimpleLog.LogListener {
 
     @Override
     public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
-
+        //Do nothing
     }
 
     @Override

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class MessageListener extends ListenerAdapter {
 
     private LegendaryBot bot;
-    Logger log = LoggerFactory.getLogger(getClass());
+    private Logger log = LoggerFactory.getLogger(getClass());
     public MessageListener(LegendaryBot bot) {
         this.bot = bot;
     }

@@ -32,7 +32,7 @@ import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 public class BotGeneralPlugin extends LegendaryBotPlugin {
-    MessageListener listener = new MessageListener();
+    private MessageListener listener = new MessageListener();
     public BotGeneralPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }

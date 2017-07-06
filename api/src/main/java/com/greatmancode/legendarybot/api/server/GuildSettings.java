@@ -23,17 +23,46 @@
  */
 package com.greatmancode.legendarybot.api.server;
 
+/**
+ * Settings for a specific Discord Guild
+ */
 public interface GuildSettings {
 
+    /**
+     * Retrieve the World of Warcraft server name of the Discord guild.
+     * @return the server name of the guild
+     */
     String getWowServerName();
 
+    /**
+     * Retrieve the Battle.Net region of the DiscordGuild. Usually US or EU
+     * @return the region of the Guild. Usually US or EU
+     */
     String getRegionName();
 
+    /**
+     * Retrieve the name of the Guild in World of Warcraft.
+     * @return The Guild name in World of Warcraft
+     */
     String getGuildName();
 
+    /**
+     * Retrieve a specific setting for the Guild.
+     * @param setting The setting key
+     * @return The setting value
+     */
     String getSetting(String setting);
 
+    /**
+     * Set a specific setting for the Guild
+     * @param setting The setting key
+     * @param value The setting value
+     */
     void setSetting(String setting, String value);
 
+    /**
+     * Remove a setting from the Guild
+     * @param setting The setting key
+     */
     void unsetSetting(String setting);
 }

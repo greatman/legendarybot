@@ -26,6 +26,9 @@ package com.greatmancode.legendarybot.api.commands;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Represents a command
+ */
 public interface Command {
 
     /**

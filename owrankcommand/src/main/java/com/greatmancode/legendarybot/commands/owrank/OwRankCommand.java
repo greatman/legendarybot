@@ -104,7 +104,7 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                 e.printStackTrace();
                 getBot().getStacktraceHandler().sendStacktrace(e);
             }
-        }).run();
+        }).start();
     }
 
     @Override

@@ -23,6 +23,9 @@
  */
 package com.greatmancode.legendarybot.api.commands;
 
+/**
+ * Represents a {@link Command} that doesn't require any arguments
+ */
 public interface ZeroArgsCommand extends Command {
 
     @Override
