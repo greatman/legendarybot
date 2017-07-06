@@ -50,13 +50,17 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
             JSONObject object = (JSONObject) Utils.jsonParser.parse(request);
             String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
             if (region == null) {
-                event.getChannel().sendMessage("The owner of the server needs to configure the region. Example: !setserversetting WOW_REGION_NAME US");
+                event.getChannel().sendMessage("The owner of the server needs to configure the region. Example: !setserversetting WOW_REGION_NAME US").queue();
                 return;
             }
             if (getBot().getGuildSettings(event.getGuild()).getRegionName().equals("US")) {
                 region = "NA";
             }
             JSONObject naserver = (JSONObject) object.get(region);
+            if (naserver == null) {
+                event.getChannel().sendMessage("The region isn't set properly or WowToken is having issues. Please use !setserversetting WOW_REGION_NAME US/EU .").queue();
+                return;
+            }
             JSONObject prices = (JSONObject) naserver.get("formatted");
             String price = (String) prices.get("buy");
             String minPrice = (String) prices.get("24min");

@@ -24,18 +24,17 @@
 package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import com.mindscapehq.raygun4java.core.RaygunClient;
+import io.sentry.Sentry;
 
 public class IStacktraceHandler implements StacktraceHandler {
 
-    private final RaygunClient raygunClient;
-    public IStacktraceHandler(String raygunKey) {
-        raygunClient = new RaygunClient(raygunKey);
+    public IStacktraceHandler(String sentryKey) {
+        Sentry.init(sentryKey);
     }
 
     @Override
     public void sendStacktrace(Throwable e) {
-        raygunClient.Send(e);
-        System.out.println("Sent error to raygun");
+        Sentry.capture(e);
+        System.out.println("Sent error to Sentry");
     }
 }

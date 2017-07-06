@@ -46,7 +46,11 @@ public class LegendaryCheck {
             try {
                 String serverName = plugin.getBot().getGuildSettings(guild).getWowServerName();
                 String regionName = plugin.getBot().getGuildSettings(guild).getRegionName();
-                String urlString = "https://" + regionName + ".api.battle.net/wow/guild/" + serverName + "/" + plugin.getBot().getGuildSettings(guild).getGuildName() + "?fields=members&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
+                String guildName = plugin.getBot().getGuildSettings(guild).getGuildName();
+                if (regionName == null || serverName == null || guildName == null) {
+                    return;
+                }
+                String urlString = "https://" + regionName + ".api.battle.net/wow/guild/" + serverName + "/" + guildName + "?fields=members&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
                 String channelName = plugin.getBot().getGuildSettings(guild).getSetting(LegendaryCheckPlugin.SETTING_NAME);
                 String request = Utils.doRequest(urlString);
                 if (request == null) {
@@ -64,7 +68,7 @@ public class LegendaryCheck {
                         if (level != 110) {
                             continue;
                         }
-                        String memberURL = "https://us.api.battle.net/wow/character/" + serverName + "/" + name + "?fields=feed&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
+                        String memberURL = "https://" + regionName + ".api.battle.net/wow/character/" + serverName + "/" + name + "?fields=feed&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
                         memberFeedRequest = Utils.doRequest(memberURL);
                         if (memberFeedRequest == null) {
                             continue;

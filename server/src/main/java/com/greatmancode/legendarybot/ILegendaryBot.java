@@ -67,10 +67,10 @@ public class ILegendaryBot extends LegendaryBot {
     private IStacktraceHandler stacktraceHandler;
     private static Properties props;
 
-    public ILegendaryBot(JDA jda, String raygunKey, String battlenetKey) {
+    public ILegendaryBot(JDA jda, String sentryKey, String battlenetKey) {
         super(battlenetKey);
         this.jda = jda;
-        this.stacktraceHandler = new IStacktraceHandler(raygunKey);
+        this.stacktraceHandler = new IStacktraceHandler(sentryKey);
 
         //We configure our Stacktrace catchers
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(stacktraceHandler));
@@ -146,7 +146,7 @@ public class ILegendaryBot extends LegendaryBot {
         //Connect the bot to Discord
         JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
         //We launch the bot
-        new ILegendaryBot(jda, props.getProperty("raygun.key"), props.getProperty("battlenet.key"));
+        new ILegendaryBot(jda, props.getProperty("sentry.key"), props.getProperty("battlenet.key"));
     }
 
     public CommandHandler getCommandHandler() {
