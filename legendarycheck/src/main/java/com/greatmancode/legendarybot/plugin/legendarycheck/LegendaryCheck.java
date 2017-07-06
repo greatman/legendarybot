@@ -64,11 +64,12 @@ public class LegendaryCheck {
                     for (Object memberObject : membersArray) {
                         JSONObject member = (JSONObject) ((JSONObject) memberObject).get("character");
                         String name = (String) member.get("name");
+                        String realm = (String) member.get("realm");
                         long level = (Long) member.get("level");
                         if (level != 110) {
                             continue;
                         }
-                        String memberURL = "https://" + regionName + ".api.battle.net/wow/character/" + serverName + "/" + name + "?fields=feed&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
+                        String memberURL = "https://" + regionName + ".api.battle.net/wow/character/" + realm + "/" + name + "?fields=feed&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
                         memberFeedRequest = Utils.doRequest(memberURL);
                         if (memberFeedRequest == null) {
                             continue;

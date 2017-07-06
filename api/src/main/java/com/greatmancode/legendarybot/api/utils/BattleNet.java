@@ -37,7 +37,30 @@ public class BattleNet {
         String urlString = "https://us.api.battle.net/wow/character/"+serverName+"/"+character+"?fields=items&locale=en_US&apikey="+LegendaryBot.getBattlenetKey();
         String result = Utils.doRequest(urlString);
         if (result == null) {
-            return null;
+            //We received a empty result. Is he part of a connected realm?
+            urlString = "https://us.api.battle.net/wow/realm/status?locale=en_US&realms="+serverName+"&apikey=" + LegendaryBot.getBattlenetKey();
+            result = Utils.doRequest(urlString);
+            if (result != null) {
+                try {
+                    JSONObject json = (JSONObject) Utils.jsonParser.parse(result);
+                    JSONArray array = (JSONArray) json.get("realms");
+                    JSONObject realm = (JSONObject) array.get(0);
+                    JSONArray realms = (JSONArray)realm.get("connected_realms");
+                    for (Object realmEntry: realms) {
+                        String url = "https://us.api.battle.net/wow/character/"+realmEntry+"/"+character+"?fields=items&locale=en_US&apikey="+LegendaryBot.getBattlenetKey();
+                        result = Utils.doRequest(url);
+                        if (result != null) {
+                            break;
+                        }
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            if (result == null) {
+                return null;
+            }
         }
         try {
             JSONObject object = (JSONObject) Utils.jsonParser.parse(result);
