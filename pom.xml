@@ -30,6 +30,8 @@
         <module>botstats</module>
         <module>botplay</module>
         <module>botgeneral</module>
+        <module>gifcommand</module>
+        <module>wprank</module>
     </modules>
 
     <properties>

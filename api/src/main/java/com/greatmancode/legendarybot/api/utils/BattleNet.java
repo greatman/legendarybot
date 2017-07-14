@@ -35,12 +35,13 @@ public class BattleNet {
 
     /**
      * Retrieve the iLvl of a World of Warcraft character.
+     * @param region The Region the server is hosted in.
      * @param serverName The server name the character belongs to.
      * @param character The character name
      * @return A {@link Hero} containing the Name, the {@link HeroClass}, the level, the equipped iLvl and the unequipped (bag) iLvl.
      */
-    public static Hero getiLvl(String serverName, String character) {
-        String urlString = "https://us.api.battle.net/wow/character/"+serverName+"/"+character+"?fields=items&locale=en_US&apikey="+LegendaryBot.getBattlenetKey();
+    public static Hero getiLvl(String region, String serverName, String character) {
+        String urlString = "https://"+region+".api.battle.net/wow/character/"+serverName+"/"+character+"?fields=items&locale=en_US&apikey="+LegendaryBot.getBattlenetKey();
         String result = Utils.doRequest(urlString);
         if (result == null) {
             //We received a empty result. Is he part of a connected realm?
@@ -83,12 +84,13 @@ public class BattleNet {
 
     /**
      * Checks if a Guild exist in World of Warcraft
+     * @param region The Region the server is hosted in.
      * @param serverName The server name where the guild belongs to
      * @param guildName The guild name
      * @return true if the guild exist.
      */
-    public static boolean guildExist(String serverName, String guildName) {
-        String urlString = "https://us.api.battle.net/wow/guild/"+serverName+"/"+guildName+"?locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
+    public static boolean guildExist(String region, String serverName, String guildName) {
+        String urlString = "https://"+region+".api.battle.net/wow/guild/"+serverName+"/"+guildName+"?locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
         String result = Utils.doRequest(urlString);
         return result != null;
     }
@@ -100,13 +102,14 @@ public class BattleNet {
      * status -> Online/Offline
      * queue -> Yes/No
      * population -> The population of the Realm (Low/Medium/High/Full)
+     * @param region The Region the server is hosted in.
      * @param serverName The server name
      * @return A {@link Map} containing the values above if it is found. Else an empty map.
      *
      */
-    public static Map<String, String> getServerStatus(String serverName) {
+    public static Map<String, String> getServerStatus(String region, String serverName) {
         Map<String,String> map = new HashMap<>();
-        String url = "https://us.api.battle.net/wow/realm/status?locale=en_US&realms="+serverName+"&apikey="+LegendaryBot.getBattlenetKey();
+        String url = "https://"+region+".api.battle.net/wow/realm/status?locale=en_US&realms="+serverName+"&apikey="+LegendaryBot.getBattlenetKey();
         String result = Utils.doRequest(url);
         try {
             JSONObject object = (JSONObject) Utils.jsonParser.parse(result);

@@ -60,14 +60,14 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         Map<String,String> map;
         if (args.length == 1) {
-            map = BattleNet.getServerStatus(args[0]);
+            map = BattleNet.getServerStatus(getBot().getGuildSettings(event.getGuild()).getRegionName(), args[0]);
         } else {
             String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
             if (serverName == null) {
                 event.getChannel().sendMessage("No server set. You are required to type a server.").queue();
                 return;
             }
-            map = BattleNet.getServerStatus(serverName);
+            map = BattleNet.getServerStatus(getBot().getGuildSettings(event.getGuild()).getRegionName(), serverName);
         }
         MessageBuilder builder = new MessageBuilder();
         if (map.size() == 4) {

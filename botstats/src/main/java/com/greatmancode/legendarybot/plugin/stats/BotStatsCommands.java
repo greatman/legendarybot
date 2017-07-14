@@ -77,13 +77,21 @@ public class BotStatsCommands implements Command {
         builder.append("**Available Memory**: " + runtime.totalMemory() / mb + " MB\n");
         builder.append("**Max Memory**: " + runtime.maxMemory() / mb + " MB\n");
         builder.append("\n\n");
-
-        builder.append("__**Per-Server stats**__: \n");
-        plugin.getBot().getJDA().getGuilds().forEach(g -> builder.append("Guild **" + g.getName() + "** Members: **" + g.getMembers().size() + "**\n"));
-
-
         eb.setDescription(builder.getStringBuilder());
         event.getChannel().sendMessage(eb.build()).queue();
+
+        final MessageBuilder messageBuilder = new MessageBuilder();
+        messageBuilder.append("__**Per-Server stats**__: \n");
+        plugin.getBot().getJDA().getGuilds().forEach(g ->  {
+            messageBuilder.append("**" + g.getName() + "** | M: **" + g.getMembers().size() + "**\n");
+            if (messageBuilder.length()>= 1500) {
+                event.getChannel().sendMessage(messageBuilder.build()).queue();
+                messageBuilder.getStringBuilder().setLength(0);
+            }
+        });
+        event.getChannel().sendMessage(messageBuilder.build()).queue();
+
+
     }
 
     @Override

@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.botgeneral;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public class MessageListener extends ListenerAdapter {
@@ -39,6 +40,15 @@ public class MessageListener extends ListenerAdapter {
         builder.append("That is all you need for the bot to run properly! If you have any questions, feel free to see the documentation here: https://github.com/greatman/legendarybot");
         event.getGuild().getPublicChannel().sendMessage(builder.build()).queue();
 
+
+        //We log the event
+        event.getJDA().getGuildsByName("LegendaryBot",false).get(0).getTextChannelsByName("logs-guild",true).get(0).sendMessage(":robot: Joined guild " + event.getGuild().getName() + ". Members: " + event.getGuild().getMembers().size()).queue();
+    }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        //We log the event
+        event.getJDA().getGuildsByName("LegendaryBot",false).get(0).getTextChannelsByName("logs-guild",true).get(0).sendMessage(":broken_heart: Left guild " + event.getGuild().getName() + ".").queue();
     }
 
 }
