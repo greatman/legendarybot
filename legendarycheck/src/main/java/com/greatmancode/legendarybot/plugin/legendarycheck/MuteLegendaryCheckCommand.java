@@ -43,6 +43,6 @@ public class MuteLegendaryCheckCommand extends AdminCommand implements ZeroArgsC
 
     @Override
     public String help() {
-        return "!mutelc - Mute the Legendary check (Without destroying the settings)";
+        return "mutelc - Mute the Legendary check (Without destroying the settings)";
     }
 }

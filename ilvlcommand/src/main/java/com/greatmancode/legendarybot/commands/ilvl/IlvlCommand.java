@@ -80,6 +80,6 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
     }
 
     public String help() {
-        return  "!ilvl <Server Name> [Character Name] - Retrieve a character iLvl";
+        return  "ilvl <Server Name> [Character Name] - Retrieve a character iLvl";
     }
 }

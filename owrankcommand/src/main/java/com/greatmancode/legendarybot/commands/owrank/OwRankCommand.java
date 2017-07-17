@@ -119,6 +119,6 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public String help() {
-        return "!owrank [BattleTag] - Get a player's Overwatch competitive rank. The BattleTag format is Username-numbers. Example: Greatman-1189.";
+        return "owrank [BattleTag] - Get a player's Overwatch competitive rank. The BattleTag format is Username-numbers. Example: Greatman-1189.";
     }
 }

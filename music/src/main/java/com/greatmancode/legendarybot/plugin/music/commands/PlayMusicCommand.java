@@ -77,6 +77,6 @@ public class PlayMusicCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "!playmusic [Link] [Channel] - Play music in a channel.";
+        return "playmusic [Link] [Channel] - Play music in a channel.";
     }
 }

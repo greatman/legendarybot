@@ -57,6 +57,6 @@ public class RemoveStreamerCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "!removestreamer [Streamer username] [Platform (Twitch/Mixer)] - Remove a streamer from the streamer list!";
+        return "removestreamer [Streamer username] [Platform (Twitch/Mixer)] - Remove a streamer from the streamer list!";
     }
 }

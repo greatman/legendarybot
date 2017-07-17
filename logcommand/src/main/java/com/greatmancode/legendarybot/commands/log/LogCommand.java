@@ -74,7 +74,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
 
     @Override
     public String help() {
-        return "!log - Retrieve the last log of the guild";
+        return "log - Retrieve the last log of the guild";
     }
 
     @Override

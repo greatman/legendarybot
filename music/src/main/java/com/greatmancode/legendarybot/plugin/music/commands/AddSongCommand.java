@@ -56,6 +56,6 @@ public class AddSongCommand implements PublicCommand {
 
     @Override
     public String help() {
-        return "!addsong [url] - Add a song to the queue.";
+        return "addsong [url] - Add a song to the queue.";
     }
 }

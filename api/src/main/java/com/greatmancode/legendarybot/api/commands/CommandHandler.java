@@ -96,7 +96,7 @@ public class CommandHandler {
                         System.arraycopy(commandArray, 1, args,0,commandArray.length - 1);
                         commandClass.execute(event, args);
                     } else {
-                        sendMessage(event,commandClass.help());
+                        sendMessage(event,prefix + commandClass.help());
                     }
                 }
             } else if (unknownCommandHandler != null) {

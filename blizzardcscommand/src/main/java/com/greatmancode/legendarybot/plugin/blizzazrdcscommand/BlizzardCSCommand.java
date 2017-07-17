@@ -111,6 +111,6 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
 
     @Override
     public String help() {
-        return "!blizzardcs - Get the last tweet of Blizzardcs US";
+        return "blizzardcs - Get the last tweet of Blizzardcs US";
     }
 }

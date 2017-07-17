@@ -57,6 +57,6 @@ public class EnableLegendaryCheckCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "!enablelc [Channel Name] - Enable the Legendary checker for the channel provided.";
+        return "enablelc [Channel Name] - Enable the Legendary checker for the channel provided.";
     }
 }

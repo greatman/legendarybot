@@ -97,7 +97,7 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public String help() {
-        return "!server <Server Name> - Retrieve a server status.";
+        return "server <Server Name> - Retrieve a server status.";
     }
 
 

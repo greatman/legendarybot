@@ -54,6 +54,6 @@ public class CreateCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "!createcmd [name] [args...] - Create a command that the bot will return the stuff in args";
+        return "createcmd [name] [args...] - Create a command that the bot will return the stuff in args";
     }
 }

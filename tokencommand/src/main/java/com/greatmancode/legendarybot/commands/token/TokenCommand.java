@@ -75,7 +75,7 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
 
     @Override
     public String help() {
-        return "!token - Return the WoW token price";
+        return "token - Return the WoW token price";
     }
 
     @Override

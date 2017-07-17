@@ -40,6 +40,6 @@ public class InfoCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "!info - Returns informations about the Bot.";
+        return "info - Returns informations about the Bot.";
     }
 }

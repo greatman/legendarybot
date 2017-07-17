@@ -71,6 +71,6 @@ public class StreamersCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "!streamers - Return the list of streamers of this Discord server and their status";
+        return "streamers - Return the list of streamers of this Discord server and their status";
     }
 }

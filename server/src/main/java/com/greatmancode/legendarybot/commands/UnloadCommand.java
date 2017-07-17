@@ -73,6 +73,6 @@ public class UnloadCommand implements Command {
 
     @Override
     public String help() {
-        return "!unload [pluginID] - Unload a plugin";
+        return "unload [pluginID] - Unload a plugin";
     }
 }

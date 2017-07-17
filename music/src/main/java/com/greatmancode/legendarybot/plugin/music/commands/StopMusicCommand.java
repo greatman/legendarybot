@@ -43,6 +43,6 @@ public class StopMusicCommand extends AdminCommand implements ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "!stopmusic - Stop the music.";
+        return "stopmusic - Stop the music.";
     }
 }

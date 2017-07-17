@@ -70,6 +70,6 @@ public class LoadCommand implements Command {
 
     @Override
     public String help() {
-        return "!load - Load the plugins";
+        return "load - Load the plugins";
     }
 }

@@ -71,7 +71,7 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
 
     @Override
     public String help() {
-        return "!invasion - Say if there's currently an invasion running on WoW US!";
+        return "invasion - Say if there's currently an invasion running on WoW US!";
     }
 
     public boolean isInvasionTime(DateTime current) {

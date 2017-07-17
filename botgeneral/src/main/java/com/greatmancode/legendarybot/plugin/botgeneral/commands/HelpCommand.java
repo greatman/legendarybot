@@ -40,10 +40,15 @@ public class HelpCommand implements PublicCommand,ZeroArgsCommand {
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         MessageBuilder builder = new MessageBuilder();
+        String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");
+        if (prefix == null) {
+            prefix = "!";
+        }
         builder.append("Available commands ([] - Required, <> - Optional):\n");
-        bot.getCommandHandler().getCommandList().forEach((k,v) -> {
+        String finalPrefix = prefix;
+        bot.getCommandHandler().getCommandList().forEach((k, v) -> {
             if (v.canExecute(event.getMember())) {
-                builder.append(v.help());
+                builder.append(finalPrefix + v.help());
                 builder.append("\n");
             }
         });
@@ -52,6 +57,6 @@ public class HelpCommand implements PublicCommand,ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "!help - Return this help";
+        return "help - Return this help";
     }
 }

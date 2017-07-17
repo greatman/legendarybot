@@ -43,6 +43,6 @@ public class SkipSongCommand extends AdminCommand implements ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "!skipsong - Skip the current track";
+        return "skipsong - Skip the current track";
     }
 }

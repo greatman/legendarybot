@@ -77,7 +77,7 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public String help() {
-        return "!wprank - Retrive the guild's rank on WowProgress";
+        return "wprank - Retrive the guild's rank on WowProgress";
     }
 
     @Override
