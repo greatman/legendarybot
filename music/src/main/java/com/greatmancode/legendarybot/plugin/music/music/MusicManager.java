@@ -36,8 +36,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AudioManager;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MusicManager {
 
@@ -48,12 +47,16 @@ public class MusicManager {
         AudioSourceManagers.registerLocalSource(playerManager);
         AudioSourceManagers.registerRemoteSources(playerManager);
     }
+
+    public synchronized Map<Long,GuildMusicManager> getGuildsMusicManager() {
+        return Collections.unmodifiableMap(musicManagers);
+    }
+
     private synchronized GuildMusicManager getGuildAudioPlayer(Guild guild) {
         long guildId = Long.parseLong(guild.getId());
         GuildMusicManager musicManager = musicManagers.computeIfAbsent(guildId, k -> new GuildMusicManager(playerManager));
 
         guild.getAudioManager().setSendingHandler(musicManager.getSendHandler());
-
 
         return musicManager;
     }

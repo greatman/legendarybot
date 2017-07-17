@@ -80,4 +80,8 @@ public class TrackScheduler extends AudioEventAdapter {
     public void stopAll() {
         queue.clear();
     }
+
+    public int getQueueLength() {
+        return queue.size();
+    }
 }

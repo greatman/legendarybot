@@ -150,4 +150,8 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
     public Logger getLog() {
         return log;
     }
+
+    public int getLegendaryCheckEnabledCount() {
+        return legendaryCheckMap.size();
+    }
 }

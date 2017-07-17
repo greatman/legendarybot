@@ -123,6 +123,7 @@ public class LegendaryCheck {
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
+                System.out.println("Crashed for guild " + guild.getName() + ":" + guild.getId());
                 LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
             }
         };
