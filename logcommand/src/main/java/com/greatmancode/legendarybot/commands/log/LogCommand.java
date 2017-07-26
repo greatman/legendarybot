@@ -61,6 +61,10 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
         }
         try {
             JSONArray jsonArray = (JSONArray) Utils.jsonParser.parse(request);
+            if (jsonArray.size() == 0) {
+                event.getChannel().sendMessage("No logs found for the Guild on Warcraftlogs!").queue();
+                return;
+            }
             JSONObject jsonObject = (JSONObject) jsonArray.toArray()[jsonArray.size() - 1];
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeZone(TimeZone.getTimeZone("America/Montreal"));

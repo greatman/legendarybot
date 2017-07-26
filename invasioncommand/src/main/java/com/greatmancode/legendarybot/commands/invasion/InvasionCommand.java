@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.commands.invasion;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -39,7 +40,7 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
 
     //Start date of the Invasion
     private final static DateTime startDateInvasion = new DateTime(2017,4,14,17,0, DateTimeZone.forID("America/Montreal"));
-
+    private final static DateTime startDateInvasionEu = new DateTime(2017,7,9,21,0, DateTimeZone.UTC);
     private static final Logger log = LoggerFactory.getLogger(InvasionCommand.class);
 
     public InvasionCommand(PluginWrapper wrapper) {
@@ -61,23 +62,45 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        int[] timeleft = timeLeftBeforeNextInvasion(new DateTime(DateTimeZone.forID("America/Montreal")));
-        if (isInvasionTime(new DateTime(DateTimeZone.forID("America/Montreal")))) {
-            event.getChannel().sendMessage("There is currently an invasion active on the Broken Isles! End of the invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")").queue();
+        DateTime current;
+        DateTime startDate;
+        if (getBot().getGuildSettings(event.getGuild()).getRegionName().equalsIgnoreCase("US")) {
+            current = new DateTime(DateTimeZone.forID("America/Montreal"));
+            startDate = startDateInvasion;
         } else {
-            event.getChannel().sendMessage("There is no invasions currently active on the Broken Isle. Next invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")").queue();
+            current = new DateTime(DateTimeZone.forID("UTC"));
+            startDate = startDateInvasionEu;
         }
+        int[] timeleft = timeLeftBeforeNextInvasion(startDate,current);
+        MessageBuilder builder = new MessageBuilder();
+        if (isInvasionTime(startDate,current)) {
+            builder.append("There is currently an invasion active on the Broken Isles! End of the invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+"");
+            if (startDate.equals(startDateInvasion)) {
+                builder.append(" EST)");
+            } else {
+                builder.append(" UTC)");
+            }
+
+        } else {
+            builder.append("There is no invasions currently active on the Broken Isle. Next invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+"");
+            if (startDate.equals(startDateInvasion)) {
+                builder.append(" EST)");
+            } else {
+                builder.append(" UTC)");
+            }
+        }
+        event.getChannel().sendMessage(builder.build()).queue();
     }
 
     @Override
     public String help() {
-        return "invasion - Say if there's currently an invasion running on WoW US!";
+        return "invasion - Say if there's currently an invasion running on WoW!";
     }
 
-    public boolean isInvasionTime(DateTime current) {
+    public boolean isInvasionTime(DateTime startDate, DateTime current) {
         //For the record, the invasion times themselves are NOT random. They are 6 hours on, 12.5 hours off, repeating forever.
         //This gives an invasion happening at every possible hour of the day over a 3 day period.
-        DateTime start = new DateTime(startDateInvasion);
+        DateTime start = new DateTime(startDate);
         boolean loop = true;
         boolean enabled = true;
         while (loop) {
@@ -101,10 +124,10 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
         return enabled;
     }
 
-    public int[] timeLeftBeforeNextInvasion(DateTime current) {
+    public int[] timeLeftBeforeNextInvasion(DateTime startDate, DateTime current) {
         //For the record, the invasion times themselves are NOT random. They are 6 hours on, 12.5 hours off, repeating forever.
         //This gives an invasion happening at every possible hour of the day over a 3 day period.
-        DateTime start = new DateTime(startDateInvasion);
+        DateTime start = new DateTime(startDate);
         boolean loop = true;
         boolean enabled = true;
         Period p = null;
