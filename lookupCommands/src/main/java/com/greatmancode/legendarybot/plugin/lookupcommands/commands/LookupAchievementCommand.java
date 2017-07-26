@@ -39,27 +39,26 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.Collections;
 
-public class LookupItemCommand implements PublicCommand {
+public class LookupAchievementCommand implements PublicCommand {
 
     private LookupCommandsPlugin plugin;
 
-    public LookupItemCommand(LookupCommandsPlugin plugin) {
+    public LookupAchievementCommand(LookupCommandsPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-
         try {
-            HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+String.join(" ", args)+"\" } } }", ContentType.APPLICATION_JSON);
-            Response response = plugin.getElasticSearch().performRequest("POST", "/wow/item/_search", Collections.emptyMap(), entity);
+            HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"title\" : \""+String.join(" ", args)+"\" } } }", ContentType.APPLICATION_JSON);
+            Response response = plugin.getElasticSearch().performRequest("POST", "/wow/achievement/_search", Collections.emptyMap(), entity);
 
             JSONParser jsonParser = new JSONParser();
             try {
                 JSONObject obj = (JSONObject) jsonParser.parse(EntityUtils.toString(response.getEntity()));
                 JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
                 JSONObject firstItem = (JSONObject) hit.get(0);
-                event.getChannel().sendMessage("http://www.wowhead.com/item=" + firstItem.get("_id")).queue();
+                event.getChannel().sendMessage("http://www.wowhead.com/achievement=" + firstItem.get("_id")).queue();
             } catch (ParseException e) {
                 e.printStackTrace();
                 event.getChannel().sendMessage("No item found!").queue();
@@ -82,6 +81,6 @@ public class LookupItemCommand implements PublicCommand {
 
     @Override
     public String help() {
-        return "lookupitem [Item] - Lookup an item in the WoW database. Supports partial queries.";
+        return "lookupachievement [Achievement] - Lookup an achievement on World of Warcraft. Supports partial queries.";
     }
 }
