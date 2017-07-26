@@ -32,6 +32,7 @@
         <module>botgeneral</module>
         <module>gifcommand</module>
         <module>wprank</module>
+        <module>lookupCommands</module>
     </modules>
 
     <properties>
@@ -92,6 +93,11 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>2.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>rest</artifactId>
+            <version>5.5.1</version>
         </dependency>
     </dependencies>
 <build>

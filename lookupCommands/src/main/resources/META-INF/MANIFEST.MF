@@ -1,0 +1,4 @@
+Plugin-Class: com.greatmancode.legendarybot.plugin.lookupcommands.LookupCommandsPlugin
+Plugin-Id: lookupCommands
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1

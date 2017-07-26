@@ -2,6 +2,7 @@
 
 Originally a Discord bot for alerting of new Legendary drops in a World of Warcraft Guild, it became a fully pledged bot offering multiple features:
 
+- Lookup an item (!lookupitem)
 - Mythic+ affix displayer (!affix)
 - Give a player iLVL (!ilvl)
 - Say if an invasion is on Broken Shore (!invasion)
