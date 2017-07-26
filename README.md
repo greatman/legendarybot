@@ -2,7 +2,7 @@
 
 Originally a Discord bot for alerting of new Legendary drops in a World of Warcraft Guild, it became a fully pledged bot offering multiple features:
 
-- Lookup an item (!lookupitem)
+- Lookup an item/Achievement (!lookupitem !lookupachievement)
 - Mythic+ affix displayer (!affix)
 - Give a player iLVL (!ilvl)
 - Say if an invasion is on Broken Shore (!invasion)
@@ -28,8 +28,9 @@ Congrats! The bot is now configured for your server.
 ## Permissions
 
 Legendarybot have several Admin commands. To be able to run those admin commands, you need one of the following conditions:
-1. You need the Admin role on your server
-2. You need the ```legendarybot-admin``` role
+1. You are Owner of the Discord server.
+2. You need the Admin role on your server.
+3. You need the ```legendarybot-admin``` role.
 
 Without one of those conditions, you are only allowed **public** commands.
 
