@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugin.lookupcommands;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupAchievementCommand;
 import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupItemCommand;
+import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupQuestCommand;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import ro.fortsoft.pf4j.PluginException;
@@ -47,6 +48,8 @@ public class LookupCommandsPlugin extends LegendaryBotPlugin {
         log.info("Command !lookupitem loaded!");
         getBot().getCommandHandler().addCommand("lookupachievement", new LookupAchievementCommand(this));
         log.info("Command !lookupachievement loaded!");
+        getBot().getCommandHandler().addCommand("lookupquest", new LookupQuestCommand(this));
+        log.info("Command !lookupquest loaded!");
     }
 
     @Override
@@ -55,6 +58,8 @@ public class LookupCommandsPlugin extends LegendaryBotPlugin {
         log.info("Command !lookupitem unloaded!");
         getBot().getCommandHandler().removeCommand("lookupachievement");
         log.info("Command !lookupachievement unloaded!");
+        getBot().getCommandHandler().removeCommand("lookupquest");
+        log.info("Command !lookupquest unloaded!");
     }
 
     public RestClient getElasticSearch() {
