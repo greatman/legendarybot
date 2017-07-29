@@ -26,11 +26,16 @@ package com.greatmancode.legendarybot.commands.invasion;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginException;
@@ -64,32 +69,31 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
     public void execute(MessageReceivedEvent event, String[] args) {
         DateTime current;
         DateTime startDate;
-        if (getBot().getGuildSettings(event.getGuild()).getRegionName().equalsIgnoreCase("US")) {
-            current = new DateTime(DateTimeZone.forID("America/Montreal"));
-            startDate = startDateInvasion;
-        } else {
-            current = new DateTime(DateTimeZone.forID("UTC"));
-            startDate = startDateInvasionEu;
-        }
-        int[] timeleft = timeLeftBeforeNextInvasion(startDate,current);
-        MessageBuilder builder = new MessageBuilder();
-        if (isInvasionTime(startDate,current)) {
-            builder.append("There is currently an invasion active on the Broken Isles! End of the invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+"");
-            if (startDate.equals(startDateInvasion)) {
-                builder.append(" EST)");
+        String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
+        String realm = getBot().getGuildSettings(event.getGuild()).getWowServerName();
+        String request = Utils.doRequest("https://"+region+".api.battle.net/wow/realm/status?locale=en_US&apikey="+getBot().getBattlenetKey()+"&realms="+realm);
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject jsonObject = (JSONObject) parser.parse(request);
+            JSONArray realmArray = (JSONArray) jsonObject.get("realms");
+            String timezone = (String) ((JSONObject)realmArray.get(0)).get("timezone");
+            if (region.equalsIgnoreCase("us")) {
+                startDate = startDateInvasion;
             } else {
-                builder.append(" UTC)");
+                startDate = startDateInvasionEu;
             }
-
-        } else {
-            builder.append("There is no invasions currently active on the Broken Isle. Next invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+"");
-            if (startDate.equals(startDateInvasion)) {
-                builder.append(" EST)");
+            current = new DateTime(DateTimeZone.forID(timezone));
+            int[] timeleft = timeLeftBeforeNextInvasion(startDate,current);
+            MessageBuilder builder = new MessageBuilder();
+            if (isInvasionTime(startDate,current)) {
+                builder.append("There is currently an invasion active on the Broken Isles! End of the invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
             } else {
-                builder.append(" UTC)");
+                builder.append("There is no invasions currently active on the Broken Isle. Next invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
             }
+            event.getChannel().sendMessage(builder.build()).queue();
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
-        event.getChannel().sendMessage(builder.build()).queue();
     }
 
     @Override

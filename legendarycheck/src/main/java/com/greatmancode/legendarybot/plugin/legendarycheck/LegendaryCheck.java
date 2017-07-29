@@ -39,7 +39,7 @@ import java.util.stream.LongStream;
 public class LegendaryCheck {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private long[] itemIDIgnore = {147451};
+    private long[] itemIDIgnore = {147451,151462};
     public LegendaryCheck(Guild guild, LegendaryCheckPlugin plugin) {
         final Runnable checkNews = () -> {
             String memberFeedRequest = null;
@@ -65,6 +65,9 @@ public class LegendaryCheck {
                         JSONObject member = (JSONObject) ((JSONObject) memberObject).get("character");
                         String name = (String) member.get("name");
                         String realm = (String) member.get("realm");
+                        if (realm == null) {
+                            realm = (String) member.get("guildRealm");
+                        }
                         long level = (Long) member.get("level");
                         if (level != 110) {
                             continue;
@@ -127,7 +130,7 @@ public class LegendaryCheck {
                 LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
             }
         };
-        scheduler.scheduleAtFixedRate(checkNews, 0,5, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(checkNews, 0,10, TimeUnit.MINUTES);
     }
 
     public void shutdown() {
