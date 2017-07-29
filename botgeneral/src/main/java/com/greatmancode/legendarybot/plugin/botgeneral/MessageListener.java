@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.botgeneral;
 
 import net.dv8tion.jda.core.MessageBuilder;
@@ -28,6 +29,9 @@ import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+/**
+ * Event listener for general bot things. Currently announce how to configure on join and log join/leave in the bot's discord server.
+ */
 public class MessageListener extends ListenerAdapter {
 
     @Override

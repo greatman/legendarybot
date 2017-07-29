@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.botgeneral;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
@@ -31,8 +32,17 @@ import com.greatmancode.legendarybot.plugin.botgeneral.commands.SetServerSetting
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+/**
+ * Plugin containing some general commands for the bot.
+ */
 public class BotGeneralPlugin extends LegendaryBotPlugin {
+
+    /**
+     * A Event Listener to log to the bot's discord log channel.
+     */
     private MessageListener listener = new MessageListener();
+
+
     public BotGeneralPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }

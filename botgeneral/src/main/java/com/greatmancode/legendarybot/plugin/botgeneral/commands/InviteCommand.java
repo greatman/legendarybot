@@ -21,12 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Command to get the invite link of the bot.
+ */
 public class InviteCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override

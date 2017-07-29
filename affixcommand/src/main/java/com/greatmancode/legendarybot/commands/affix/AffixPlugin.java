@@ -21,12 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands.affix;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+/**
+ * Plugin that provides the current and next's week affix.
+ */
 public class AffixPlugin extends LegendaryBotPlugin {
 
 

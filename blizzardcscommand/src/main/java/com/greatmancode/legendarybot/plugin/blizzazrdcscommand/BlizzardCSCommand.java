@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.blizzazrdcscommand;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -39,8 +40,14 @@ import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Command that gives the latest tweet of the @blizzardcs account.
+ */
 public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCommand, PublicCommand{
 
+    /**
+     * A instance of the bot's configuration file
+     */
     private Properties props;
 
     public BlizzardCSCommand(PluginWrapper wrapper) {
@@ -66,6 +73,11 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
         log.info("Command !blizzardcs unloaded!");
     }
 
+    /**
+     * Retrieve the latest tweet of a username that is not a mention
+     * @param username The twitter username to look
+     * @return The latest tweet of the user.
+     */
     public String getLastTweet(String username) {
         String result = "";
         Map<String, String> headers = new HashMap<>();
@@ -95,6 +107,13 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
         }
         return result;
     }
+
+    /**
+     * Convert a Twitter formatted date to a Java format
+     * @param date The twitter date
+     * @return a {@link Date} instance of the twitter date
+     * @throws java.text.ParseException If we can't parse the date
+     */
     public Date getTwitterDate(String date) throws java.text.ParseException {
 
         final String TWITTER="EEE MMM dd HH:mm:ss ZZZZZ yyyy";
@@ -106,6 +125,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
+        //TODO Support EU.
         event.getChannel().sendMessage(getLastTweet("blizzardcs")).queue();
     }
 

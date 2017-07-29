@@ -21,17 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Command to set guild's specific settings to the bot.
+ */
 public class SetServerSettingCommand extends AdminCommand {
+
+    /**
+     * A instance of the Bot
+     */
     private LegendaryBot bot;
 
+    /**
+     * Instantiate a class of the setserversetting command
+     * @param legendaryBot A {@link LegendaryBot} instance of the bot.
+     */
     public SetServerSettingCommand(LegendaryBot legendaryBot) {
-        super();
         this.bot = legendaryBot;
     }
 

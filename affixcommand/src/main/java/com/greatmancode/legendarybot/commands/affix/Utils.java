@@ -21,15 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands.affix;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+/**
+ * Several utils to calculate what affixes are current online
+ */
 public class Utils {
 
-    public final static DateTime startDateMythicPlus = new DateTime(2017,3,28,0,0, DateTimeZone.forID("America/Montreal"));
-    public final static String[][] mythicPlusAffixes = {
+    /**
+     * The start date of Mythic+ dungeons, helps to know which week we are.
+     */
+    public static final DateTime startDateMythicPlus = new DateTime(2017,3,28,0,0, DateTimeZone.forID("America/Montreal"));
+
+    /**
+     * All the Mythic+ affixes groups.
+     */
+    public static final String[][] mythicPlusAffixes = {
             {"Raging","Volcanic","Tyrannical"},
             {"Teeming","Explosive","Fortified"},
             {"Bolstering","Grievous","Tyrannical"},

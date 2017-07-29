@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.botplay;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
@@ -33,8 +34,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Plugin to set the "play" field of Discord to the amount of servers the bot is joined to.
+ */
 public class BotPlayPlugin extends LegendaryBotPlugin {
 
+    /**
+     * Scheduler to update the server count
+     */
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public BotPlayPlugin(PluginWrapper wrapper) {

@@ -42,7 +42,6 @@ public class LegendaryCheck {
     private long[] itemIDIgnore = {147451,151462};
     public LegendaryCheck(Guild guild, LegendaryCheckPlugin plugin) {
         final Runnable checkNews = () -> {
-            String memberFeedRequest = null;
             try {
                 String serverName = plugin.getBot().getGuildSettings(guild).getWowServerName();
                 String regionName = plugin.getBot().getGuildSettings(guild).getRegionName();
@@ -56,7 +55,6 @@ public class LegendaryCheck {
                 if (request == null) {
                     return;
                 }
-                memberFeedRequest = null;
                 try {
                     System.out.println("Starting Legendary check for server " + guild.getName());
                     JSONObject object = (JSONObject) new JSONParser().parse(request);
@@ -73,7 +71,7 @@ public class LegendaryCheck {
                             continue;
                         }
                         String memberURL = "https://" + regionName + ".api.battle.net/wow/character/" + realm + "/" + name + "?fields=feed&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
-                        memberFeedRequest = Utils.doRequest(memberURL);
+                        String memberFeedRequest = Utils.doRequest(memberURL);
                         if (memberFeedRequest == null) {
                             continue;
                         }

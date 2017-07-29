@@ -74,9 +74,7 @@ public class BotStatsCommands implements Command {
         eb.addField(":speaker:Audio connections", i[0] + "", true);
 
         i[0] = 0;
-        ((MusicPlugin)plugin.getBot().getPluginManager().getPlugin("musicPlugin").getPlugin()).getMusicManager().getGuildsMusicManager().forEach((k,v) -> {
-            i[0] += v.scheduler.getQueueLength();
-        });
+        ((MusicPlugin)plugin.getBot().getPluginManager().getPlugin("musicPlugin").getPlugin()).getMusicManager().getGuildsMusicManager().forEach((k,v) -> i[0] += v.scheduler.getQueueLength());
 
         eb.addField(":musical_note: Song Queue", i[0] + "", true);
 

@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands.affix;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
@@ -31,6 +32,9 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Weeks;
 
+/**
+ * Command that provides this week's Mythic+ Affixes
+ */
 public class AffixCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override

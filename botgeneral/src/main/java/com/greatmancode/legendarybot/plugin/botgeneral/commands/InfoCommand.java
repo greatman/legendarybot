@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
@@ -28,18 +29,22 @@ import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Command to give general information about the bot
+ */
 public class InfoCommand implements PublicCommand, ZeroArgsCommand {
+
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("LegendaryBot");
         eb.setAuthor("Greatman", "https://github.com/greatman/legendarybot", "https://avatars3.githubusercontent.com/u/95754?v=3&s=460");
-        eb.setDescription("Created using JDA. Type !help for all the commands available to you. https://discordbots.org/bot/267134720700186626");
+        eb.setDescription("Created using JDA. Type !help for all the commands available to you. https://discordbots.org/bot/Legendarybot");
         event.getChannel().sendMessage(eb.build()).queue();
     }
 
     @Override
     public String help() {
-        return "info - Returns informations about the Bot.";
+        return "info - Returns information about the Bot.";
     }
 }

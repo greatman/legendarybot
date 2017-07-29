@@ -180,6 +180,7 @@ public class ILegendaryBot extends LegendaryBot {
                     e.printStackTrace();
                 }
             });
+
             if (statsHandler != null) {
                 statsHandler.stop();
             }

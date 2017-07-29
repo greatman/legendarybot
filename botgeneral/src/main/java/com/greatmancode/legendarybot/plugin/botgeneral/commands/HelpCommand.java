@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -29,10 +30,20 @@ import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Command to show all the command's help available to the executor.
+ */
 public class HelpCommand implements PublicCommand,ZeroArgsCommand {
 
+    /**
+     * A instance of the bot
+     */
     private LegendaryBot bot;
 
+    /**
+     * Instantiate a version of the help command
+     * @param bot A {@link LegendaryBot} instance of the bot.
+     */
     public HelpCommand(LegendaryBot bot) {
         this.bot = bot;
     }
