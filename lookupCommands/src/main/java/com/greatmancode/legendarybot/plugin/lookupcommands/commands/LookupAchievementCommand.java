@@ -51,7 +51,7 @@ public class LookupAchievementCommand implements PublicCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         try {
             HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"title\" : \""+String.join(" ", args)+"\" } } }", ContentType.APPLICATION_JSON);
-            Response response = plugin.getElasticSearch().performRequest("POST", "/wow/achievement/_search", Collections.emptyMap(), entity);
+            Response response = plugin.getBot().getElasticSearch().performRequest("POST", "/wow/achievement/_search", Collections.emptyMap(), entity);
 
             JSONParser jsonParser = new JSONParser();
             try {

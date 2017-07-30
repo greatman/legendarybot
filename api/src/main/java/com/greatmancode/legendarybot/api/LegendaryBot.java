@@ -29,6 +29,7 @@ import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.zaxxer.hikari.HikariDataSource;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
+import org.elasticsearch.client.RestClient;
 import ro.fortsoft.pf4j.PluginManager;
 
 /**
@@ -97,6 +98,9 @@ public abstract class LegendaryBot {
      * @return The {@link StacktraceHandler} instance
      */
     public abstract StacktraceHandler getStacktraceHandler();
+
+
+    public abstract RestClient getElasticSearch();
 
     /**
      * Retrieve the current bot instance

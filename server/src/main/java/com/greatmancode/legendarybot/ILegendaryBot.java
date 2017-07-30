@@ -42,6 +42,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 import ro.fortsoft.pf4j.PluginManager;
 import ro.fortsoft.pf4j.PluginWrapper;
 
@@ -97,6 +99,8 @@ public class ILegendaryBot extends LegendaryBot {
      * The instance of the Stacktrace Handler.
      */
     private IStacktraceHandler stacktraceHandler;
+
+    private RestClient restClient;
 
     /**
      * The app.properties file.
@@ -184,9 +188,13 @@ public class ILegendaryBot extends LegendaryBot {
             if (statsHandler != null) {
                 statsHandler.stop();
             }
+            try {
+                restClient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             System.out.println("Legendarybot shutdown.");
         }));
-        jda.getGuilds().size();
     }
 
     /**
@@ -240,6 +248,15 @@ public class ILegendaryBot extends LegendaryBot {
     @Override
     public StacktraceHandler getStacktraceHandler() {
         return stacktraceHandler;
+    }
+
+    @Override
+    public RestClient getElasticSearch() {
+        if (restClient == null) {
+            restClient = RestClient.builder(
+                    new HttpHost("localhost", 9200, "http")).build();
+        }
+        return restClient;
     }
 
     @Override

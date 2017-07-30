@@ -34,16 +34,12 @@ import ro.fortsoft.pf4j.PluginWrapper;
 
 public class LookupCommandsPlugin extends LegendaryBotPlugin {
 
-    private RestClient restClient;
-
     public LookupCommandsPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
     public void start() throws PluginException {
-        restClient = RestClient.builder(
-                new HttpHost("localhost", 9200, "http")).build();
         getBot().getCommandHandler().addCommand("lookupitem", new LookupItemCommand(this));
         log.info("Command !lookupitem loaded!");
         getBot().getCommandHandler().addCommand("lookupachievement", new LookupAchievementCommand(this));
@@ -60,9 +56,5 @@ public class LookupCommandsPlugin extends LegendaryBotPlugin {
         log.info("Command !lookupachievement unloaded!");
         getBot().getCommandHandler().removeCommand("lookupquest");
         log.info("Command !lookupquest unloaded!");
-    }
-
-    public RestClient getElasticSearch() {
-        return restClient;
     }
 }

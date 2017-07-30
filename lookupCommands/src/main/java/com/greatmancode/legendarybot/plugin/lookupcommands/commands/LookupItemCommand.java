@@ -52,7 +52,7 @@ public class LookupItemCommand implements PublicCommand {
 
         try {
             HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+String.join(" ", args)+"\" } } }", ContentType.APPLICATION_JSON);
-            Response response = plugin.getElasticSearch().performRequest("POST", "/wow/item/_search", Collections.emptyMap(), entity);
+            Response response = plugin.getBot().getElasticSearch().performRequest("POST", "/wow/item/_search", Collections.emptyMap(), entity);
 
             JSONParser jsonParser = new JSONParser();
             try {
