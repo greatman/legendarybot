@@ -254,7 +254,7 @@ public class ILegendaryBot extends LegendaryBot {
     public RestClient getElasticSearch() {
         if (restClient == null) {
             restClient = RestClient.builder(
-                    new HttpHost("localhost", 9200, "http")).build();
+                    new HttpHost(props.getProperty("elasticsearch.address"), Integer.parseInt(props.getProperty("elasticsearch.port")), props.getProperty("elasticsearch.scheme"))).build();
         }
         return restClient;
     }
