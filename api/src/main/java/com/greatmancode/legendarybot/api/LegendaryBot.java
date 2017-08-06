@@ -49,10 +49,8 @@ public abstract class LegendaryBot {
 
     /**
      * Create an instance of the Bot
-     * @param battlenetKey The battle.net API key to use for Battle.net requests
      */
-    public LegendaryBot(String battlenetKey) {
-        LegendaryBot.battlenetKey = battlenetKey;
+    public LegendaryBot() {
         instance = this;
     }
 
@@ -108,13 +106,5 @@ public abstract class LegendaryBot {
      */
     public static LegendaryBot getInstance() {
         return instance;
-    }
-
-    /**
-     * Retrieve the Battle.net API key.
-     * @return A string containing the Battle.net API key.
-     */
-    public static String getBattlenetKey() {
-        return battlenetKey;
     }
 }

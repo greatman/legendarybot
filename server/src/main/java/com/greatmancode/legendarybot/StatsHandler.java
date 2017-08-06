@@ -24,12 +24,13 @@
 
 package com.greatmancode.legendarybot;
 
-import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.JDA;
+import okhttp3.*;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -41,7 +42,8 @@ import java.util.concurrent.TimeUnit;
  * Stats sender to the various bot lists
  */
 public class StatsHandler  {
-
+    private static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+    private OkHttpClient client = new OkHttpClient();
     /**
      * Scheduler to send stats at a specific interval
      */
@@ -59,11 +61,27 @@ public class StatsHandler  {
             logger.info("Sending stats");
             JSONObject object = new JSONObject();
             object.put("server_count", jda.getGuilds().size());
-            map.put("Content-Type", "application/json; charset=utf-8");
-            map.put("Authorization", properties.getProperty("stats.botsdiscordpw"));
-            Utils.doRequest("https://bots.discord.pw/api/bots/267134720700186626/stats", "POST", object.toJSONString(),map);
-            map.put("Authorization", properties.getProperty("stats.discordbotorg"));
-            Utils.doRequest("https://discordbots.org/api/bots/267134720700186626/stats", "POST", object.toJSONString(), map);
+            HttpUrl url = new HttpUrl.Builder().scheme("https")
+                    .addPathSegments("/api/bots/267134720700186626/stats")
+                    .build();
+            Request request = new Request.Builder().url("https://bots.discord.pw/api/bots/267134720700186626/stats")
+                    .post(RequestBody.create(MEDIA_TYPE_JSON, object.toJSONString()))
+                    .addHeader("Authorization",properties.getProperty("stats.botsdiscordpw")).build();
+            try {
+                if (client.newCall(request).execute().isSuccessful()) {
+                    System.out.println("Sent stats to Discord PW");
+                } else {
+                    System.out.println("Error while sending stats to Discord PW");
+                }
+                request = request.newBuilder().header("Authorization",properties.getProperty("stats.discordbotorg")).url("https://discordbots.org/api/bots/267134720700186626/stats").build();
+                if (client.newCall(request).execute().isSuccessful()) {
+                    System.out.println("Sent stats to Discordbots.org");
+                } else {
+                    System.out.println("Error while sending stats to Discordbots.org");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             logger.info("Stats sent.");
         };
         scheduler.scheduleAtFixedRate(postStats,0, 60, TimeUnit.MINUTES);

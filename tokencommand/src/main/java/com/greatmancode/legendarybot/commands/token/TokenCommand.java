@@ -26,14 +26,20 @@ package com.greatmancode.legendarybot.commands.token;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.io.IOException;
+
 public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,PublicCommand {
+
+    private OkHttpClient client = new OkHttpClient();
 
     public TokenCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -41,13 +47,17 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String request = Utils.doRequest("https://wowtoken.info/snapshot.json");
-        if (request == null) {
-            event.getChannel().sendMessage("An error occured. Please try again later!").queue();
-            return;
-        }
+        Request webRequest = new Request.Builder().url("https://wowtoken.info/snapshot.json").build();
+
+
         try {
-            JSONObject object = (JSONObject) Utils.jsonParser.parse(request);
+            String request = client.newCall(webRequest).execute().body().string();
+            if (request == null) {
+                event.getChannel().sendMessage("An error occured. Please try again later!").queue();
+                return;
+            }
+            JSONParser parser = new JSONParser();
+            JSONObject object = (JSONObject) parser.parse(request);
             String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
             if (region == null) {
                 event.getChannel().sendMessage("The owner of the server needs to configure the region. Example: !setserversetting WOW_REGION_NAME US").queue();
@@ -67,9 +77,10 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
             String maxPrice = (String) prices.get("24max");
             double pctPrice = Double.parseDouble(prices.get("24pct").toString());
             event.getChannel().sendMessage("Price for 1 WoW Token: " + price + " | Minimum 24H: " + minPrice + " | Maximum 24H: " +maxPrice + " | Percentage 24H range: " + pctPrice + "%").queue();
-        } catch (ParseException e) {
+        } catch (ParseException | IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
+            event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
     }
 

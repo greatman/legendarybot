@@ -24,20 +24,24 @@
 package com.greatmancode.legendarybot.plugin.streamers;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.entities.Guild;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 public class StreamersPlugin extends LegendaryBotPlugin {
 
+    private OkHttpClient client = new OkHttpClient();
     private Properties props;
 
     public static final String STATUS_KEY = "status";
@@ -77,35 +81,40 @@ public class StreamersPlugin extends LegendaryBotPlugin {
 
     public Map<String, String> isStreaming(String username, StreamPlatform platform) {
         Map<String, String> map = new HashMap<>();
+        JSONParser parser = new JSONParser();
         switch (platform) {
             case TWITCH:
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Client-ID", props.getProperty("twitch.key"));
-                String result = Utils.doRequest("https://api.twitch.tv/kraken/streams/"+username, headers);
+                Request request = new Request.Builder()
+                        .url("https://api.twitch.tv/kraken/streams/"+username)
+                        .addHeader("Client-ID", props.getProperty("twitch.key"))
+                        .build();
                 try {
-                    JSONObject json = (JSONObject) Utils.jsonParser.parse(result);
+                    String result = client.newCall(request).execute().body().string();
+
+                    JSONObject json = (JSONObject) parser.parse(result);
                     JSONObject stream = (JSONObject) json.get("stream");
                     if (stream != null) {
                         map.put(STATUS_KEY, (String) ((JSONObject)stream.get("channel")).get("status"));
                         map.put(GAME_KEY, (String) stream.get("game"));
                         map.put("created_at", (String) stream.get("created_at"));
                     }
-                } catch (ParseException e) {
+                } catch (ParseException | IOException e) {
                     e.printStackTrace();
                     getBot().getStacktraceHandler().sendStacktrace(e);
                 }
 
                 break;
             case MIXER:
-                result = Utils.doRequest("https://mixer.com/api/v1/channels/" + username);
+                request = new Request.Builder().url("https://mixer.com/api/v1/channels/" + username).build();
                 try {
-                    JSONObject json = (JSONObject) Utils.jsonParser.parse(result);
+                    String result = client.newCall(request).execute().body().string();
+                    JSONObject json = (JSONObject) parser.parse(result);
                     if ((boolean)json.get("online")) {
                         JSONObject stream = (JSONObject) json.get("type");
                         map.put(STATUS_KEY, (String) json.get("name"));
                         map.put(GAME_KEY, (String) stream.get("name"));
                     }
-                } catch (ParseException e) {
+                } catch (ParseException | IOException e) {
                     e.printStackTrace();
                     getBot().getStacktraceHandler().sendStacktrace(e);
                 }
@@ -116,16 +125,30 @@ public class StreamersPlugin extends LegendaryBotPlugin {
         return map;
     }
 
+    //TODO Improve this, duplicate code
     public boolean streamerExist(String username, StreamPlatform platform) {
         boolean result = false;
         switch (platform) {
             case TWITCH:
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Client-ID", props.getProperty("twitch.key"));
-                result = Utils.doRequest("https://api.twitch.tv/kraken/channels/"+username, headers) != null;
+                Request request = new Request.Builder()
+                        .url("https://api.twitch.tv/kraken/channels/"+username)
+                        .addHeader("Client-ID", props.getProperty("twitch.key"))
+                        .build();
+                try {
+                    result = client.newCall(request).execute().body().string() != null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             case MIXER:
-                result = Utils.doRequest("https://mixer.com/api/v1/channels/" + username) != null;
+                request = new Request.Builder()
+                        .url("https://mixer.com/api/v1/channels/" + username)
+                        .build();
+                try {
+                    result = client.newCall(request).execute().body().string() != null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             default:
                 break;

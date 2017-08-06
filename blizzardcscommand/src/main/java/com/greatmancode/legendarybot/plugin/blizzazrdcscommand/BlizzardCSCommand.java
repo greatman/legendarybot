@@ -24,19 +24,20 @@
 
 package com.greatmancode.legendarybot.plugin.blizzazrdcscommand;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -45,6 +46,7 @@ import java.util.*;
  */
 public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCommand, PublicCommand{
 
+    private OkHttpClient client = new OkHttpClient();
     /**
      * A instance of the bot's configuration file
      */
@@ -80,19 +82,29 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
      */
     public String getLastTweet(String username) {
         String result = "";
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
         byte[] key = Base64.getEncoder().encode((props.getProperty("twitter.key") + ":" + props.getProperty("twitter.secret")).getBytes());
-        headers.put("Authorization", "Basic " + new String(key));
-        String auth = Utils.doRequest("https://api.twitter.com/oauth2/token","POST","grant_type=client_credentials", headers);
+        Request request = new Request.Builder()
+                .url("https://api.twitter.com/oauth2/token")
+                .post(RequestBody.create(MediaType.parse( "application/x-www-form-urlencoded;charset=UTF-8"), "grant_type=client_credentials"))
+                .addHeader("Authorization","Basic " + new String(key))
+                .build();
+
         try {
-            org.json.simple.JSONObject authObject = (org.json.simple.JSONObject) Utils.jsonParser.parse(auth);
+            String auth = client.newCall(request).execute().body().string();
+            JSONParser parser = new JSONParser();
+            org.json.simple.JSONObject authObject = (org.json.simple.JSONObject) parser.parse(auth);
             if (authObject.containsKey("token_type")) {
                 String bearer = (String) authObject.get("access_token");
-                headers.clear();
-                headers.put("Authorization", "Bearer " + bearer);
-                String twitterTimeline = Utils.doRequest("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name="+ username +"&exclude_replies=1&count=100", headers);
-                JSONArray twitterObject = (JSONArray) Utils.jsonParser.parse(twitterTimeline);
+                HttpUrl url = new HttpUrl.Builder().scheme("https")
+                        .host("api.twitter.com")
+                        .addPathSegments("1.1/statuses/user_timeline.json")
+                        .addQueryParameter("screen_name", username)
+                        .addQueryParameter("exclude_replies", "1")
+                        .addQueryParameter("count", "100")
+                        .build();
+                request = new Request.Builder().url(url).addHeader("Authorization","Bearer " + bearer).build();
+                String twitterTimeline = client.newCall(request).execute().body().string();
+                JSONArray twitterObject = (JSONArray) parser.parse(twitterTimeline);
                 JSONObject messageObject = (JSONObject) twitterObject.get(0);
 
                 Date date = getTwitterDate((String)messageObject.get("created_at"));
@@ -102,8 +114,11 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
                 result = cal.get(Calendar.DAY_OF_MONTH) +"/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR) + " " + String.format("%02d",cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d",cal.get(Calendar.MINUTE)) + " : " + messageObject.get("text");
             }
         } catch (ParseException | java.text.ParseException e) {
-            LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e);
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         return result;
     }

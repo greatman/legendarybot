@@ -27,8 +27,6 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupAchievementCommand;
 import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupItemCommand;
 import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupQuestCommand;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 

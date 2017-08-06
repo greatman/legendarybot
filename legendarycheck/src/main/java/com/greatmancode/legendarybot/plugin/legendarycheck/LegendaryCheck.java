@@ -24,8 +24,11 @@
 package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import com.greatmancode.legendarybot.api.utils.Utils;
+import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import net.dv8tion.jda.core.entities.Guild;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -39,6 +42,10 @@ import java.util.stream.LongStream;
 public class LegendaryCheck {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(new BattleNetAPIInterceptor())
+            .build();
+
     private long[] itemIDIgnore = {147451,151462};
     public LegendaryCheck(Guild guild, LegendaryCheckPlugin plugin, String battleNetKey) {
         final Runnable checkNews = () -> {
@@ -46,12 +53,19 @@ public class LegendaryCheck {
                 String serverName = plugin.getBot().getGuildSettings(guild).getWowServerName();
                 String regionName = plugin.getBot().getGuildSettings(guild).getRegionName();
                 String guildName = plugin.getBot().getGuildSettings(guild).getGuildName();
-                if (regionName == null || serverName == null || guildName == null) {
+                String channelName = plugin.getBot().getGuildSettings(guild).getSetting(LegendaryCheckPlugin.SETTING_NAME);
+                if (regionName == null || serverName == null || guildName == null || channelName == null) {
                     return;
                 }
-                String urlString = "https://" + regionName + ".api.battle.net/wow/guild/" + serverName + "/" + guildName + "?fields=members&locale=en_US&apikey=" + battleNetKey;
-                String channelName = plugin.getBot().getGuildSettings(guild).getSetting(LegendaryCheckPlugin.SETTING_NAME);
-                String request = Utils.doRequest(urlString);
+
+                HttpUrl url = new HttpUrl.Builder().scheme("https")
+                        .host(regionName + ".api.battle.net")
+                        .addPathSegments("wow/guild/" + serverName + "/" + guildName)
+                        .addQueryParameter("fields", "members")
+                        .build();
+                Request webRequest = new Request.Builder().url(url).build();
+
+                String request = client.newCall(webRequest).execute().body().string();
                 if (request == null) {
                     return;
                 }
@@ -70,8 +84,13 @@ public class LegendaryCheck {
                         if (level != 110) {
                             continue;
                         }
-                        String memberURL = "https://" + regionName + ".api.battle.net/wow/character/" + realm + "/" + name + "?fields=feed&locale=en_US&apikey=" + battleNetKey;
-                        String memberFeedRequest = Utils.doRequest(memberURL);
+                        url = new HttpUrl.Builder().scheme("https")
+                                .host(regionName + ".api.battle.net")
+                                .addPathSegment("/wow/character/" + realm + "/" + name)
+                                .addQueryParameter("fields", "feed")
+                                .build();
+                        webRequest = new Request.Builder().url(url).build();
+                        String memberFeedRequest = client.newCall(webRequest).execute().body().string();
                         if (memberFeedRequest == null) {
                             continue;
                         }
@@ -96,8 +115,12 @@ public class LegendaryCheck {
                                 if (LongStream.of(itemIDIgnore).anyMatch(x -> x == itemID)) {
                                     continue;
                                 }
-                                String urlItem = "https://" + regionName + ".api.battle.net/wow/item/" + itemID + "?locale=en_US&apikey=" + battleNetKey;
-                                String itemRequest = Utils.doRequest(urlItem);
+                                url = new HttpUrl.Builder().scheme("https")
+                                        .host(regionName + ".api.battle.net")
+                                        .addPathSegment("/wow/item/" + itemID)
+                                        .build();
+                                webRequest = new Request.Builder().url(url).build();
+                                String itemRequest = client.newCall(webRequest).execute().body().string();
                                 if (itemRequest == null) {
                                     continue;
                                 }

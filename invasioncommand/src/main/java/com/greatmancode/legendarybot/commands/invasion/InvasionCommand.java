@@ -26,9 +26,12 @@ package com.greatmancode.legendarybot.commands.invasion;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.Utils;
+import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
@@ -41,12 +44,17 @@ import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.io.IOException;
+
 public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand, ZeroArgsCommand {
 
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(new BattleNetAPIInterceptor())
+            .build();
     //Start date of the Invasion
-    private final static DateTime startDateInvasion = new DateTime(2017,4,14,17,0, DateTimeZone.forID("America/Montreal"));
-    private final static DateTime startDateInvasionEu = new DateTime(2017,7,9,21,0, DateTimeZone.UTC);
-    private static final Logger log = LoggerFactory.getLogger(InvasionCommand.class);
+    private final DateTime startDateInvasion = new DateTime(2017,4,14,17,0, DateTimeZone.forID("America/Montreal"));
+    private final DateTime startDateInvasionEu = new DateTime(2017,7,9,21,0, DateTimeZone.UTC);
+    private final Logger log = LoggerFactory.getLogger(InvasionCommand.class);
 
     public InvasionCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -71,10 +79,16 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
         DateTime startDate;
         String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
         String realm = getBot().getGuildSettings(event.getGuild()).getWowServerName();
-        String request = Utils.doRequest("https://"+region+".api.battle.net/wow/realm/status?locale=en_US&apikey="+getBot().getBattlenetKey()+"&realms="+realm);
+        //String request = Utils.doRequest("https://"+region+".api.battle.net/wow/realm/status?locale=en_US&apikey="+getBot().getBattlenetKey()+"&realms="+realm);
+        HttpUrl url = new HttpUrl.Builder().scheme("https")
+                .host(region + ".api.battle.net")
+                .addPathSegments("/wow/realm/status")
+                .addQueryParameter("realms", realm)
+                .build();
+        Request request = new Request.Builder().url(url).build();
         JSONParser parser = new JSONParser();
         try {
-            JSONObject jsonObject = (JSONObject) parser.parse(request);
+            JSONObject jsonObject = (JSONObject) parser.parse(client.newCall(request).execute().body().string());
             JSONArray realmArray = (JSONArray) jsonObject.get("realms");
             String timezone = (String) ((JSONObject)realmArray.get(0)).get("timezone");
             if (region.equalsIgnoreCase("us")) {
@@ -91,8 +105,9 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
                 builder.append("There is no invasions currently active on the Broken Isle. Next invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
             }
             event.getChannel().sendMessage(builder.build()).queue();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        } catch (IOException | ParseException e) {
+            getBot().getStacktraceHandler().sendStacktrace(e);
+            event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
     }
 

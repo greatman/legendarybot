@@ -25,20 +25,22 @@ package com.greatmancode.legendarybot.commands.owrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
+
+import java.io.IOException;
 
 //TODO: Support EU
 public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
-    private static final Logger log = LoggerFactory.getLogger(OwRankCommand.class);
+    private OkHttpClient client = new OkHttpClient();
 
     public OwRankCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -59,15 +61,18 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         String user = args[0].substring(0, 1).toUpperCase() + args[0].substring(1);
         new Thread(() -> {
-            String request = Utils.doRequest("https://owapi.net/api/v3/u/"+user+"/stats");
-            if (request == null) {
-                MessageBuilder builder = new MessageBuilder();
-                builder.append("User ").append(args[0]).append(" not found!");
-                event.getChannel().sendMessage(builder.build()).queue();
-                return;
-            }
+            Request webRequest = new Request.Builder().url("https://owapi.net/api/v3/u/"+user+"/stats").build();
+
             try {
-                JSONObject json = (JSONObject) Utils.jsonParser.parse(request);
+                String output = client.newCall(webRequest).execute().body().string();
+                if (output == null) {
+                    MessageBuilder builder = new MessageBuilder();
+                    builder.append("User ").append(args[0]).append(" not found!");
+                    event.getChannel().sendMessage(builder.build()).queue();
+                    return;
+                }
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(output);
                 if (json.containsKey("error")) {
                     MessageBuilder builder = new MessageBuilder();
                     builder.append("User ").append(args[0]).append(" not found!");
@@ -100,6 +105,8 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                         .append(competitiveStats.get("win_rate"))
                         .append("%");
                 event.getChannel().sendMessage(builder.build()).queue();
+            } catch (IOException e) {
+                e.printStackTrace();
             } catch (ParseException e) {
                 e.printStackTrace();
                 getBot().getStacktraceHandler().sendStacktrace(e);

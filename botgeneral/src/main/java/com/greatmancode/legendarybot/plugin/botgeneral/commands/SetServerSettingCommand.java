@@ -108,9 +108,15 @@ public class SetServerSettingCommand extends AdminCommand {
         if (args[0].equalsIgnoreCase("GUILD_NAME")) {
             if (bot.getGuildSettings(event.getGuild()).getRegionName() != null &&
                     bot.getGuildSettings(event.getGuild()).getWowServerName() != null) {
-                if (!BattleNet.guildExist(bot.getGuildSettings(event.getGuild()).getRegionName(),bot.getGuildSettings(event.getGuild()).getWowServerName(), setting)) {
-                    event.getChannel().sendMessage("Guild not found! Check if your region and/or your server name is properly configured!").queue();
-                    return;
+                try {
+                    if (!BattleNet.guildExist(bot.getGuildSettings(event.getGuild()).getRegionName(),bot.getGuildSettings(event.getGuild()).getWowServerName(), setting)) {
+                        event.getChannel().sendMessage("Guild not found! Check if your region and/or your server name is properly configured!").queue();
+                        return;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    bot.getStacktraceHandler().sendStacktrace(e);
+                    event.getChannel().sendMessage("An error occured. Try again later!");
                 }
             } else {
                 event.getChannel().sendMessage("Please fill out the WOW_SERVER_NAME and the WOW_REGION_NAME first.").queue();

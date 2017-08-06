@@ -111,11 +111,9 @@ public class ILegendaryBot extends LegendaryBot {
      * Start all the feature of the LegendaryBot
      * @param jda the JDA instance
      * @param sentryKey The key for Sentry.io
-     * @param battlenetKey The Battle.Net API key.
      */
     //TODO: Remove sentryKey parameter
-    public ILegendaryBot(JDA jda, String sentryKey, String battlenetKey) {
-        super(battlenetKey);
+    public ILegendaryBot(JDA jda, String sentryKey) {
         this.jda = jda;
         this.stacktraceHandler = new IStacktraceHandler(sentryKey);
 
@@ -207,8 +205,6 @@ public class ILegendaryBot extends LegendaryBot {
      */
     public static void main(String[] args) throws IOException, LoginException, InterruptedException, RateLimitedException {
 
-
-
         //Load the configuration
         props = new Properties();
         props.load(new FileInputStream("app.properties"));
@@ -217,7 +213,7 @@ public class ILegendaryBot extends LegendaryBot {
         //Connect the bot to Discord
         JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
         //We launch the bot
-        new ILegendaryBot(jda, props.getProperty("sentry.key"), props.getProperty("battlenet.key"));
+        new ILegendaryBot(jda, props.getProperty("sentry.key"));
     }
 
     @Override

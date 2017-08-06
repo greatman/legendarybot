@@ -25,15 +25,19 @@ package com.greatmancode.legendarybot.commands.gif;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -41,25 +45,34 @@ import java.util.Properties;
  */
 public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
 
+    private OkHttpClient client = new OkHttpClient();
     private Properties props;
 
     public GifCommand(PluginWrapper wrapper) {
         super(wrapper);
     }
 
-    //4bd92fa73acc4d1696705c57363585f7
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         StringBuilder builder = new StringBuilder();
         for(String s : args) {
             builder.append(" ").append(s);
         }
-        String url = "http://api.giphy.com/v1/gifs/search?q="+builder.toString()+"&api_key="+props.getProperty("giphy.key")+"&limit=1&rating=pg";
-        String result = Utils.doRequest(url);
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("http")
+                .host("api.giphy.com")
+                .addPathSegments("/v1/gifs/search")
+                .addQueryParameter("q", builder.toString())
+                .addQueryParameter("api_key", props.getProperty("giphy.key"))
+                .addQueryParameter("limit", "1")
+                .addQueryParameter("rating", "pg")
+                .build();
+        Request request = new Request.Builder().url(url).build();
         try {
-
+            String result = client.newCall(request).execute().body().string();
             try {
-                JSONObject json = (JSONObject) Utils.jsonParser.parse(result);
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(result);
                 JSONArray array = (JSONArray) json.get("data");
                 JSONObject obj = (JSONObject) array.get(0);
                 String gif = (String) ((JSONObject)((JSONObject)obj.get("images")).get("fixed_height")).get("url");
@@ -68,8 +81,9 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
                 event.getChannel().sendMessage("No gif found for " + builder.toString() + "!").queue();
             }
 
-        } catch (ParseException e) {
+        } catch (ParseException | IOException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
     }
 

@@ -26,14 +26,20 @@ package com.greatmancode.legendarybot.commands.wprank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.Utils;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.io.IOException;
+
 public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
+
+    private OkHttpClient client = new OkHttpClient();
 
     public WPRankCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -49,18 +55,28 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
             return;
         }
 
-        String result = Utils.doRequest("https://www.wowprogress.com/guild/"+region+"/"+serverName+"/"+guild+"/json_rank");
-        if (result.equals("null")) {
-            event.getChannel().sendMessage("Guild not found on WowProgress!").queue();
-            return;
+        Request request = new Request.Builder().url("https://www.wowprogress.com/guild/"+region+"/"+serverName+"/"+guild+"/json_rank").build();
+        String result = null;
+        try {
+            result = client.newCall(request).execute().body().string();
+            if (result.equals("null")) {
+                event.getChannel().sendMessage("Guild not found on WowProgress!").queue();
+                return;
+            }
+
+            try {
+                JSONParser parser = new JSONParser();
+                JSONObject obj = (JSONObject) parser.parse(result);
+                event.getChannel().sendMessage("Guild **" + guild + "** | World: **" + obj.get("world_rank") + "** | Region Rank: **" + obj.get("area_rank") + "** | Realm rank: **" + obj.get("realm_rank") + "**").queue();
+            } catch (ParseException e) {
+                e.printStackTrace();
+                getBot().getStacktraceHandler().sendStacktrace(e);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
 
-        try {
-            JSONObject obj = (JSONObject) Utils.jsonParser.parse(result);
-            event.getChannel().sendMessage("Guild **" + guild + "** | World: **" + obj.get("world_rank") + "** | Region Rank: **" + obj.get("area_rank") + "** | Realm rank: **" + obj.get("realm_rank") + "**").queue();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
 
     }
 
