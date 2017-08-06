@@ -42,12 +42,14 @@ import java.util.stream.LongStream;
 public class LegendaryCheck {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private LegendaryBot bot;
     private OkHttpClient client = new OkHttpClient.Builder()
             .addInterceptor(new BattleNetAPIInterceptor())
             .build();
 
     private long[] itemIDIgnore = {147451,151462};
-    public LegendaryCheck(Guild guild, LegendaryCheckPlugin plugin, String battleNetKey) {
+    public LegendaryCheck(LegendaryBot bot, Guild guild, LegendaryCheckPlugin plugin, String battleNetKey) {
+        this.bot = bot;
         final Runnable checkNews = () -> {
             try {
                 String serverName = plugin.getBot().getGuildSettings(guild).getWowServerName();
@@ -143,12 +145,12 @@ public class LegendaryCheck {
                     System.out.println("Went through Legendary check for server " + guild.getName());
                 } catch (ParseException e) {
                     e.printStackTrace();
-                    LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
+                    bot.getStacktraceHandler().sendStacktrace(e);
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
                 System.out.println("Crashed for guild " + guild.getName() + ":" + guild.getId());
-                LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
+                bot.getStacktraceHandler().sendStacktrace(e);
             }
         };
         scheduler.scheduleAtFixedRate(checkNews, 0,10, TimeUnit.MINUTES);

@@ -149,7 +149,7 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
             }
         } catch (ParseException e) {
             e.printStackTrace();
-            LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         return map;
 

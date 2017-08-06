@@ -161,7 +161,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
             return new Hero((String)object.get("name"), HeroClass.values()[((Long) object.get("class")).intValue()], (Long)object.get("level"), (Long)((JSONObject)object.get("items")).get("averageItemLevel"), (Long)((JSONObject)object.get("items")).get("averageItemLevelEquipped"));
         } catch (ParseException e) {
             e.printStackTrace();
-            LegendaryBot.getInstance().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         return null;
     }

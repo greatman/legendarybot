@@ -111,11 +111,11 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
-        getBot().getInstance().getCommandHandler().addCommand("gif", this);
+        getBot().getCommandHandler().addCommand("gif", this);
     }
 
     @Override
     public void stop() throws PluginException {
-        getBot().getInstance().getCommandHandler().removeCommand("gif");
+        getBot().getCommandHandler().removeCommand("gif");
     }
 }

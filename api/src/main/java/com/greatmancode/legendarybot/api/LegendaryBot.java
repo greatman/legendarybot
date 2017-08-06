@@ -43,18 +43,6 @@ public abstract class LegendaryBot {
     private static String battlenetKey;
 
     /**
-     * An instance of the bot.
-     */
-    private static LegendaryBot instance;
-
-    /**
-     * Create an instance of the Bot
-     */
-    public LegendaryBot() {
-        instance = this;
-    }
-
-    /**
      * Retrieve the {@link CommandHandler}
      * @return The {@link CommandHandler} currently loaded
      */
@@ -99,12 +87,4 @@ public abstract class LegendaryBot {
 
 
     public abstract RestClient getElasticSearch();
-
-    /**
-     * Retrieve the current bot instance
-     * @return A {@link LegendaryBot} instance
-     */
-    public static LegendaryBot getInstance() {
-        return instance;
-    }
 }

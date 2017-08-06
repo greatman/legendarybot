@@ -104,7 +104,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             if (battleNetKey.size() > 1) {
                 key = (new Random().nextInt() % 2 == 0) ? battleNetKey.get(0) : battleNetKey.get(1);
             }
-            legendaryCheckMap.put(guild.getId(), new LegendaryCheck(guild,this, key));
+            legendaryCheckMap.put(guild.getId(), new LegendaryCheck(getBot(), guild,this, key));
             log.info("Started check for guild " + guild.getName());
         }
     }
