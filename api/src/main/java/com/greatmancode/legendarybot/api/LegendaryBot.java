@@ -38,11 +38,6 @@ import ro.fortsoft.pf4j.PluginManager;
 public abstract class LegendaryBot {
 
     /**
-     * the Battle.net API key to use for the requests
-     */
-    private static String battlenetKey;
-
-    /**
      * Retrieve the {@link CommandHandler}
      * @return The {@link CommandHandler} currently loaded
      */
