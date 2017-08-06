@@ -40,7 +40,7 @@ public class LegendaryCheck {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private long[] itemIDIgnore = {147451,151462};
-    public LegendaryCheck(Guild guild, LegendaryCheckPlugin plugin) {
+    public LegendaryCheck(Guild guild, LegendaryCheckPlugin plugin, String battleNetKey) {
         final Runnable checkNews = () -> {
             try {
                 String serverName = plugin.getBot().getGuildSettings(guild).getWowServerName();
@@ -49,7 +49,7 @@ public class LegendaryCheck {
                 if (regionName == null || serverName == null || guildName == null) {
                     return;
                 }
-                String urlString = "https://" + regionName + ".api.battle.net/wow/guild/" + serverName + "/" + guildName + "?fields=members&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
+                String urlString = "https://" + regionName + ".api.battle.net/wow/guild/" + serverName + "/" + guildName + "?fields=members&locale=en_US&apikey=" + battleNetKey;
                 String channelName = plugin.getBot().getGuildSettings(guild).getSetting(LegendaryCheckPlugin.SETTING_NAME);
                 String request = Utils.doRequest(urlString);
                 if (request == null) {
@@ -70,7 +70,7 @@ public class LegendaryCheck {
                         if (level != 110) {
                             continue;
                         }
-                        String memberURL = "https://" + regionName + ".api.battle.net/wow/character/" + realm + "/" + name + "?fields=feed&locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
+                        String memberURL = "https://" + regionName + ".api.battle.net/wow/character/" + realm + "/" + name + "?fields=feed&locale=en_US&apikey=" + battleNetKey;
                         String memberFeedRequest = Utils.doRequest(memberURL);
                         if (memberFeedRequest == null) {
                             continue;
@@ -96,7 +96,7 @@ public class LegendaryCheck {
                                 if (LongStream.of(itemIDIgnore).anyMatch(x -> x == itemID)) {
                                     continue;
                                 }
-                                String urlItem = "https://" + regionName + ".api.battle.net/wow/item/" + itemID + "?locale=en_US&apikey=" + LegendaryBot.getBattlenetKey();
+                                String urlItem = "https://" + regionName + ".api.battle.net/wow/item/" + itemID + "?locale=en_US&apikey=" + battleNetKey;
                                 String itemRequest = Utils.doRequest(urlItem);
                                 if (itemRequest == null) {
                                     continue;

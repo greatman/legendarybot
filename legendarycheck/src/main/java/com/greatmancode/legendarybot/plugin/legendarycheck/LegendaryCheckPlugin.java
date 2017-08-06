@@ -29,17 +29,18 @@ import org.slf4j.Logger;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class LegendaryCheckPlugin extends LegendaryBotPlugin{
 
     public static final String SETTING_NAME = "legendary_check";
     private Map<String, LegendaryCheck> legendaryCheckMap = new HashMap<>();
+    private List<String> battleNetKey = new ArrayList<>();
 
     public LegendaryCheckPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -63,6 +64,17 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             e.printStackTrace();
         }
         log.info("Starting LegendaryCheck plugin.");
+        //Load the configuration
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream("app.properties"));
+            battleNetKey.add(props.getProperty("battlenet.key"));
+            if (props.containsKey("battlenet2.key")) {
+                battleNetKey.add(props.getProperty("battlenet2.key"));
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
         getBot().getJDA().getGuilds().forEach(this::startLegendaryCheck);
         getBot().getCommandHandler().addCommand("enablelc", new EnableLegendaryCheckCommand(this));
         getBot().getCommandHandler().addCommand("disablelc", new DisableLegendaryCheckCommand(this));
@@ -88,7 +100,11 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
                 legendaryCheckMap.get(guild.getId()).shutdown();
                 legendaryCheckMap.remove(guild.getId());
             }
-            legendaryCheckMap.put(guild.getId(), new LegendaryCheck(guild,this));
+            String key = battleNetKey.get(0);
+            if (battleNetKey.size() > 1) {
+                key = (new Random().nextInt() % 2 == 0) ? battleNetKey.get(0) : battleNetKey.get(1);
+            }
+            legendaryCheckMap.put(guild.getId(), new LegendaryCheck(guild,this, key));
             log.info("Started check for guild " + guild.getName());
         }
     }

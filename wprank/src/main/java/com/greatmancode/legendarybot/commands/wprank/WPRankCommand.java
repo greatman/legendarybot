@@ -45,12 +45,11 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
         String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
         String guild = getBot().getGuildSettings(event.getGuild()).getGuildName();
         if (serverName == null || region == null || guild == null) {
-            event.getChannel().sendMessage("The server name, the region and the guild must be configurated for this command to work!").queue();
+            event.getChannel().sendMessage("The server name, the region and the guild must be configured for this command to work!").queue();
             return;
         }
 
         String result = Utils.doRequest("https://www.wowprogress.com/guild/"+region+"/"+serverName+"/"+guild+"/json_rank");
-        System.out.println(result);
         if (result.equals("null")) {
             event.getChannel().sendMessage("Guild not found on WowProgress!").queue();
             return;
