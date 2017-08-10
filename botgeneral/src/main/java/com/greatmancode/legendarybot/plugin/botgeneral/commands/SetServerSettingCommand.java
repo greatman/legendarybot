@@ -81,7 +81,7 @@ public class SetServerSettingCommand extends AdminCommand {
             }
             try {
                 HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+setting+"\" } } }", ContentType.APPLICATION_JSON);
-                Response response = bot.getElasticSearch().performRequest("POST", "/wow/realm_"+bot.getGuildSettings(event.getGuild()).getRegionName()+"/_search", Collections.emptyMap(), entity);
+                Response response = bot.getElasticSearch().performRequest("POST", "/wow/realm_"+bot.getGuildSettings(event.getGuild()).getRegionName().toLowerCase()+"/_search", Collections.emptyMap(), entity);
                 String jsonResponse = EntityUtils.toString(response.getEntity());
                 JSONParser jsonParser = new JSONParser();
                 JSONObject obj = (JSONObject) jsonParser.parse(jsonResponse);

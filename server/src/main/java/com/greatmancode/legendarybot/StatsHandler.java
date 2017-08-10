@@ -24,6 +24,7 @@
 
 package com.greatmancode.legendarybot;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import net.dv8tion.jda.core.JDA;
 import okhttp3.*;
 import org.json.simple.JSONObject;
@@ -54,7 +55,9 @@ public class StatsHandler  {
      * @param properties The app.properties file instance.
      * @param jda the {@link JDA} instance linked to the {@link com.greatmancode.legendarybot.api.LegendaryBot} instance
      */
-    public StatsHandler(Properties properties, JDA jda) {
+    public StatsHandler(Properties properties, LegendaryBot bot) {
+        JDA jda = bot.getJDA();
+
         final Runnable postStats = () -> {
             Map<String, String> map = new HashMap<>();
             Logger logger = LoggerFactory.getLogger(getClass());

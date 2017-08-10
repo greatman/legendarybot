@@ -94,6 +94,7 @@ public class CommandHandler {
                     String[] args = new String[commandArray.length - 1];
                     if (args.length >= commandClass.minArgs() && args.length <= commandClass.maxArgs()) {
                         System.arraycopy(commandArray, 1, args,0,commandArray.length - 1);
+                        bot.getStatsClient().incrementCounter("legendarybot.commands","command:"+command);
                         commandClass.execute(event, args);
                     } else {
                         sendMessage(event,prefix + commandClass.help());

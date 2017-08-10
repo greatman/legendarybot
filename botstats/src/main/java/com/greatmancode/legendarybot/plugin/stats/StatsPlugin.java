@@ -24,11 +24,15 @@
 package com.greatmancode.legendarybot.plugin.stats;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.plugin.legendarycheck.LegendaryCheckPlugin;
+import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 public class StatsPlugin extends LegendaryBotPlugin {
 
+    private DashboardStatsHandler dashboardStatsHandler;
+    private MessageListener messageListener;
     public StatsPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -36,12 +40,57 @@ public class StatsPlugin extends LegendaryBotPlugin {
     @Override
     public void start() throws PluginException {
         getBot().getCommandHandler().addCommand("botstats", new BotStatsCommands(this));
+        dashboardStatsHandler = new DashboardStatsHandler(this);
+        messageListener = new MessageListener(this);
+        getBot().getJDA().addEventListener(messageListener);
         log.info("Command !botstats loaded!");
     }
 
     @Override
     public void stop() throws PluginException {
         getBot().getCommandHandler().removeCommand("botstats");
+        dashboardStatsHandler.stop();
+        getBot().getJDA().removeEventListener(messageListener);
         log.info("Command !botstats unloaded!");
+    }
+
+    public int getMemberCount() {
+        final int[] membersAmount = new int[1];
+        getBot().getJDA().getGuilds().forEach(g -> membersAmount[0] += g.getMembers().stream().filter((m) -> !m.getUser().isBot()).count());
+        return membersAmount[0];
+    }
+
+    public long getUsedRam() {
+        Runtime runtime = Runtime.getRuntime();
+        int mb = 1024*1024;
+        return (runtime.totalMemory() - runtime.freeMemory()) / mb;
+    }
+
+    public int getAudioConnections() {
+        final int[] i = {0};
+        getBot().getJDA().getGuilds().forEach(g -> i[0] += g.getAudioManager().isConnected() ? 1 : 0);
+        return i[0];
+    }
+
+    public int getSongQueue() {
+        final int[] i = {0};
+        ((MusicPlugin)getBot().getPluginManager().getPlugin("musicPlugin").getPlugin()).getMusicManager().getGuildsMusicManager().forEach((k, v) -> i[0] += v.scheduler.getQueueLength());
+        return i[0];
+    }
+
+    public int getTextChannelCount() {
+        return getBot().getJDA().getTextChannels().size();
+    }
+
+    public int getVoiceChannelCount() {
+        return getBot().getJDA().getVoiceChannels().size();
+    }
+
+    public int getLegendaryCount() {
+        return ((LegendaryCheckPlugin)getBot().getPluginManager().getPlugin("legendaryCheckPlugin").getPlugin()).getLegendaryCheckEnabledCount();
+    }
+
+    public int getGuildCount() {
+        return getBot().getJDA().getGuilds().size();
     }
 }

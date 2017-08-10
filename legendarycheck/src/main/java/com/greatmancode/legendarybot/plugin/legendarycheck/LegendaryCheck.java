@@ -70,6 +70,8 @@ public class LegendaryCheck {
                 String request = client.newCall(webRequest).execute().body().string();
                 if (request == null) {
                     return;
+                } else if (request.contains("nok")) {
+                    return;
                 }
                 try {
                     System.out.println("Starting Legendary check for server " + guild.getName());
@@ -88,12 +90,15 @@ public class LegendaryCheck {
                         }
                         url = new HttpUrl.Builder().scheme("https")
                                 .host(regionName + ".api.battle.net")
-                                .addPathSegment("/wow/character/" + realm + "/" + name)
+                                .addPathSegments("/wow/character/" + realm + "/" + name)
                                 .addQueryParameter("fields", "feed")
                                 .build();
                         webRequest = new Request.Builder().url(url).build();
                         String memberFeedRequest = client.newCall(webRequest).execute().body().string();
                         if (memberFeedRequest == null) {
+                            continue;
+                        } else if (!memberFeedRequest.contains("lastModified")) {
+                            System.out.println("Guild " + guild.getName() + "("+guild.getId()+") Member " + name + " with realm " + realm + " not found for WoW guild " + guildName + "-" + regionName);
                             continue;
                         }
                         JSONObject memberJson = (JSONObject) new JSONParser().parse(memberFeedRequest);
@@ -119,7 +124,7 @@ public class LegendaryCheck {
                                 }
                                 url = new HttpUrl.Builder().scheme("https")
                                         .host(regionName + ".api.battle.net")
-                                        .addPathSegment("/wow/item/" + itemID)
+                                        .addPathSegments("/wow/item/" + itemID)
                                         .build();
                                 webRequest = new Request.Builder().url(url).build();
                                 String itemRequest = client.newCall(webRequest).execute().body().string();
@@ -146,9 +151,15 @@ public class LegendaryCheck {
                 } catch (ParseException e) {
                     e.printStackTrace();
                     bot.getStacktraceHandler().sendStacktrace(e);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                    System.out.println("Received null?!");
+                    System.out.println("Server is: " + serverName + ", region" + regionName + " guild" + guildName + " discord" + guild.getName());
+                    System.out.println();
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
+
                 System.out.println("Crashed for guild " + guild.getName() + ":" + guild.getId());
                 bot.getStacktraceHandler().sendStacktrace(e);
             }

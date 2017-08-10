@@ -21,37 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.api.utils;
+package com.greatmancode.legendarybot.plugin.stats;
 
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
-public class BattleNet {
-
-    private static OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(new BattleNetAPIInterceptor())
-            .build();
-
+public class MessageListener extends ListenerAdapter {
 
     /**
-     * Checks if a Guild exist in World of Warcraft
-     * @param region The Region the server is hosted in.
-     * @param serverName The server name where the guild belongs to
-     * @param guildName The guild name
-     * @return true if the guild exist.
+     * The {@link StatsPlugin} instance.
      */
-    public static boolean guildExist(String region, String serverName, String guildName) throws IOException {
-        HttpUrl url = new HttpUrl.Builder().scheme("https")
-                .host(region + ".api.battle.net")
-                .addPathSegments("/wow/guild/" + serverName + "/" + guildName)
-                .build();
-        Request request = new Request.Builder().url(url).build();
-        String result = client.newCall(request).execute().body().string();
-        return result != null && !result.contains("nok");
+    private StatsPlugin plugin;
+
+    /**
+     * A instance of {@link Logger} to send logs to
+     */
+    private Logger log = LoggerFactory.getLogger(getClass());
+
+    /**
+     * Create a Message Listener
+     * @param plugin The {@link StatsPlugin} instance this Message Listener is linked to.
+     */
+    public MessageListener(StatsPlugin plugin) {
+        this.plugin = plugin;
     }
 
 
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        plugin.getBot().getStatsClient().incrementCounter("legendarybot.message.received");
+    }
 }

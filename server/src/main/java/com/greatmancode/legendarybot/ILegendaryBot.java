@@ -33,6 +33,8 @@ import com.greatmancode.legendarybot.commands.LoadCommand;
 import com.greatmancode.legendarybot.commands.ReloadPluginsCommand;
 import com.greatmancode.legendarybot.commands.UnloadCommand;
 import com.greatmancode.legendarybot.server.IGuildSettings;
+import com.timgroup.statsd.NonBlockingStatsDClient;
+import com.timgroup.statsd.StatsDClient;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.dv8tion.jda.core.AccountType;
@@ -102,10 +104,13 @@ public class ILegendaryBot extends LegendaryBot {
 
     private RestClient restClient;
 
+    private StatsDClient statsClient;
+
     /**
      * The app.properties file.
      */
     private static Properties props;
+
 
     /**
      * Start all the feature of the LegendaryBot
@@ -165,7 +170,7 @@ public class ILegendaryBot extends LegendaryBot {
 
         //
         if (Boolean.parseBoolean(props.getProperty("stats.enable"))) {
-            statsHandler = new StatsHandler(props, jda);
+            statsHandler = new StatsHandler(props, this);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -253,6 +258,14 @@ public class ILegendaryBot extends LegendaryBot {
                     new HttpHost(props.getProperty("elasticsearch.address"), Integer.parseInt(props.getProperty("elasticsearch.port")), props.getProperty("elasticsearch.scheme"))).build();
         }
         return restClient;
+    }
+
+    @Override
+    public StatsDClient getStatsClient() {
+        if (statsClient == null) {
+            statsClient = new NonBlockingStatsDClient(null, props.getProperty("statsd.address"), Integer.parseInt(props.getProperty("statsd.port")));
+        }
+        return statsClient;
     }
 
     @Override

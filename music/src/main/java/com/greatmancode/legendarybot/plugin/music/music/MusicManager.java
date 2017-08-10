@@ -54,7 +54,7 @@ public class MusicManager {
 
     private synchronized GuildMusicManager getGuildAudioPlayer(Guild guild) {
         long guildId = Long.parseLong(guild.getId());
-        GuildMusicManager musicManager = musicManagers.computeIfAbsent(guildId, k -> new GuildMusicManager(playerManager));
+        GuildMusicManager musicManager = musicManagers.computeIfAbsent(guildId, k -> new GuildMusicManager(playerManager,guild));
 
         guild.getAudioManager().setSendingHandler(musicManager.getSendHandler());
 

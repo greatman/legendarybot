@@ -48,8 +48,6 @@ public class BotStatsCommands implements Command {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setColor(Color.getHSBColor(217,65,0));
         eb.setAuthor("LegendaryBot Stats","https://github.com/greatman/legendarybot","https://cdn.discordapp.com/app-icons/267134720700186626/ba3e3856b551e0c425280571db7746ef.jpg");
-        final int[] membersAmount = new int[1];
-        plugin.getBot().getJDA().getGuilds().forEach(g -> membersAmount[0] += g.getMembers().size());
 
         RuntimeMXBean mxBean = ManagementFactory.getRuntimeMXBean();
         String uptime = DurationFormatUtils.formatDuration(mxBean.getUptime(), "d") + " days " + DurationFormatUtils.formatDuration(mxBean.getUptime()," HH:mm:ss");
@@ -58,25 +56,18 @@ public class BotStatsCommands implements Command {
         Runtime runtime = Runtime.getRuntime();
         int mb = 1024*1024;
 
-        final int[] i = {0};
-        plugin.getBot().getJDA().getGuilds().forEach(g -> i[0] += g.getAudioManager().isConnected() ? 1 : 0);
 
-        eb.addField(":homes:Guilds", plugin.getBot().getJDA().getGuilds().size() + "",true);
-        eb.addField(":busts_in_silhouette: Members", membersAmount[0] + "", true);
-        eb.addField(":notepad_spiral:Text Channels", plugin.getBot().getJDA().getTextChannels().size() + "", true);
-        eb.addField(":loudspeaker:Voice Channels", plugin.getBot().getJDA().getVoiceChannels().size() + "", true);
-        eb.addField("Legendary checks",((LegendaryCheckPlugin)plugin.getBot().getPluginManager().getPlugin("legendaryCheckPlugin").getPlugin()).getLegendaryCheckEnabledCount() + "", true);
+        eb.addField(":homes:Guilds", plugin.getGuildCount() + "",true);
+        eb.addField(":busts_in_silhouette: Members", plugin.getMemberCount() + "", true);
+        eb.addField(":notepad_spiral:Text Channels", plugin.getTextChannelCount() + "", true);
+        eb.addField(":loudspeaker:Voice Channels", plugin.getVoiceChannelCount() + "", true);
+        eb.addField("Legendary checks", plugin.getLegendaryCount() + "", true);
         eb.addField(":timer:Uptime", uptime, true);
 
-        eb.addField(":computer:Memory", "U: " +(runtime.totalMemory() - runtime.freeMemory()) / mb + "MB / M: " + runtime.maxMemory() / mb + "MB", true);
-        eb.addField(":speaker:Audio connections", i[0] + "", true);
+        eb.addField(":computer:Memory", "U: " +plugin.getUsedRam() + "MB / M: " + runtime.maxMemory() / mb + "MB", true);
+        eb.addField(":speaker:Audio connections", plugin.getAudioConnections() + "", true);
 
-        i[0] = 0;
-        ((MusicPlugin)plugin.getBot().getPluginManager().getPlugin("musicPlugin").getPlugin()).getMusicManager().getGuildsMusicManager().forEach((k,v) -> i[0] += v.scheduler.getQueueLength());
-
-        eb.addField(":musical_note: Song Queue", i[0] + "", true);
-
-        i[0] =0;
+        eb.addField(":musical_note: Song Queue", plugin.getSongQueue() + "", true);
 
         eb.setColor(Color.BLUE);
 

@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.music.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import net.dv8tion.jda.core.entities.Guild;
 
 public class GuildMusicManager {
     /**
@@ -39,10 +40,11 @@ public class GuildMusicManager {
     /**
      * Creates a player and a track scheduler.
      * @param manager Audio player manager to use for creating the player.
+     * @param guild
      */
-    public GuildMusicManager(AudioPlayerManager manager) {
+    public GuildMusicManager(AudioPlayerManager manager, Guild guild) {
         player = manager.createPlayer();
-        scheduler = new TrackScheduler(player);
+        scheduler = new TrackScheduler(player, guild);
         player.addListener(scheduler);
     }
 
