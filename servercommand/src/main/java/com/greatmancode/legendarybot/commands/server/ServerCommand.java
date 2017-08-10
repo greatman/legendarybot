@@ -45,8 +45,8 @@ import java.util.Map;
 
 public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
 
-    private static OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(new BattleNetAPIInterceptor())
+    private OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(new BattleNetAPIInterceptor(getBot()))
             .build();
 
     public ServerCommand(PluginWrapper wrapper) {

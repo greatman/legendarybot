@@ -23,7 +23,6 @@
  */
 package com.greatmancode.legendarybot.commands.ilvl;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
@@ -45,7 +44,7 @@ import java.io.IOException;
 public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
 
     private final OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(new BattleNetAPIInterceptor())
+            .addInterceptor(new BattleNetAPIInterceptor(getBot()))
             .build();
 
     public IlvlCommand(PluginWrapper wrapper) {

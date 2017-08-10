@@ -23,6 +23,7 @@
  */
 package com.greatmancode.legendarybot.api.utils;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -37,8 +38,9 @@ import java.util.Properties;
 public class BattleNetAPIInterceptor implements Interceptor {
 
     private final List<String> battleNetKey = new ArrayList<>();
-
-    public BattleNetAPIInterceptor() {
+    private LegendaryBot bot;
+    public BattleNetAPIInterceptor(LegendaryBot bot) {
+        this.bot = bot;
         Properties props = new Properties();
         try {
             props.load(new FileInputStream("app.properties"));
@@ -55,6 +57,7 @@ public class BattleNetAPIInterceptor implements Interceptor {
     }
     @Override
     public Response intercept(Chain chain) throws IOException {
+        bot.getStatsClient().incrementCounter("legendarybot.battlenet.query");
         int keyid = 0;
         HttpUrl url = chain.request().url().newBuilder()
                 .addQueryParameter("apikey", battleNetKey.get(0))

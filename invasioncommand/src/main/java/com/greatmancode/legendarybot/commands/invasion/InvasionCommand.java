@@ -49,7 +49,7 @@ import java.io.IOException;
 public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand, ZeroArgsCommand {
 
     private final OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(new BattleNetAPIInterceptor())
+            .addInterceptor(new BattleNetAPIInterceptor(getBot()))
             .build();
     //Start date of the Invasion
     private final DateTime startDateInvasion = new DateTime(2017,4,14,17,0, DateTimeZone.forID("America/Montreal"));

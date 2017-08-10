@@ -26,8 +26,11 @@ package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
-import com.greatmancode.legendarybot.api.utils.BattleNet;
+import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
@@ -46,6 +49,7 @@ import java.util.Collections;
  */
 public class SetServerSettingCommand extends AdminCommand {
 
+    private OkHttpClient client;
     /**
      * A instance of the Bot
      */
@@ -57,6 +61,9 @@ public class SetServerSettingCommand extends AdminCommand {
      */
     public SetServerSettingCommand(LegendaryBot legendaryBot) {
         this.bot = legendaryBot;
+        client = new OkHttpClient.Builder()
+                .addInterceptor(new BattleNetAPIInterceptor(bot))
+                        .build();
     }
 
     @Override
@@ -109,7 +116,7 @@ public class SetServerSettingCommand extends AdminCommand {
             if (bot.getGuildSettings(event.getGuild()).getRegionName() != null &&
                     bot.getGuildSettings(event.getGuild()).getWowServerName() != null) {
                 try {
-                    if (!BattleNet.guildExist(bot.getGuildSettings(event.getGuild()).getRegionName(),bot.getGuildSettings(event.getGuild()).getWowServerName(), setting)) {
+                    if (!guildExist(bot.getGuildSettings(event.getGuild()).getRegionName(),bot.getGuildSettings(event.getGuild()).getWowServerName(), setting)) {
                         event.getChannel().sendMessage("Guild not found! Check if your region and/or your server name is properly configured!").queue();
                         return;
                     }
@@ -142,5 +149,22 @@ public class SetServerSettingCommand extends AdminCommand {
     @Override
     public String help() {
         return "setserversetting [Setting Name] [Setting Value] - Set a server setting";
+    }
+
+    /**
+     * Checks if a Guild exist in World of Warcraft
+     * @param region The Region the server is hosted in.
+     * @param serverName The server name where the guild belongs to
+     * @param guildName The guild name
+     * @return true if the guild exist.
+     */
+    public boolean guildExist(String region, String serverName, String guildName) throws IOException {
+        HttpUrl url = new HttpUrl.Builder().scheme("https")
+                .host(region + ".api.battle.net")
+                .addPathSegments("/wow/guild/" + serverName + "/" + guildName)
+                .build();
+        Request request = new Request.Builder().url(url).build();
+        String result = client.newCall(request).execute().body().string();
+        return result != null && !result.contains("nok");
     }
 }
