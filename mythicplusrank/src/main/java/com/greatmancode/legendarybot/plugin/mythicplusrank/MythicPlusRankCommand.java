@@ -57,6 +57,10 @@ public class MythicPlusRankCommand extends LegendaryBotPlugin implements PublicC
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
+        if (getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
+            event.getChannel().sendMessage("A region must be set with the !setserversetting WOW_REGION_NAME US/EU first before using this command.").queue();
+            return;
+        }
         try {
             if (args.length == 2) {
                 HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+args[1]+"\" } } }", ContentType.APPLICATION_JSON);
@@ -94,9 +98,6 @@ public class MythicPlusRankCommand extends LegendaryBotPlugin implements PublicC
             builder.append("**" + character.get("name") + "**");
             builder.append(" Mythic+ Score: ");
             builder.append("Global: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("all")).get("score"))) + "** ");
-            builder.append("Tank: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("tank")).get("score"))) + "** ");
-            builder.append("Heal: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("healer")).get("score"))) + "** ");
-            builder.append("DPS: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("dps")).get("score"))) + "** ");
             event.getChannel().sendMessage(builder.build()).queue();
         } catch (IOException | ParseException e) {
             e.printStackTrace();
