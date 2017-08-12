@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.plugin.mythicplusrank;
+package com.greatmancode.legendarybot.plugin.raidrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
@@ -35,6 +35,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -43,18 +45,19 @@ import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
 
-public class MythicPlusRankCommand extends LegendaryBotPlugin implements PublicCommand{
+public class RaidRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     private OkHttpClient client = new OkHttpClient();
 
-    public MythicPlusRankCommand(PluginWrapper wrapper) {
+    public RaidRankCommand(PluginWrapper wrapper) {
         super(wrapper);
     }
 
-    //https://raider.io/api/characters/us/arthas/Kugruon
-    @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
         try {
@@ -89,14 +92,33 @@ public class MythicPlusRankCommand extends LegendaryBotPlugin implements PublicC
             }
             JSONObject characterDetails = (JSONObject)jsonObject.get("characterDetails");
             JSONObject character = (JSONObject) characterDetails.get("character");
-            JSONObject mplusScores = (JSONObject) characterDetails.get("mythicPlusScores");
+            if (((JSONArray)characterDetails.get("raidProgress")).size() == 0) {
+                event.getChannel().sendMessage("The character didn't do any progress this tier!").queue();
+                return;
+            }
+            JSONObject raidProgress = (JSONObject) ((JSONArray)characterDetails.get("raidProgress")).get(0);
+            JSONArray normal = (JSONArray) ((JSONObject)raidProgress.get("encountersDefeated")).get("normal");
+            JSONArray heroic = (JSONArray) ((JSONObject)raidProgress.get("encountersDefeated")).get("heroic");
+            JSONArray mythic = (JSONArray) ((JSONObject)raidProgress.get("encountersDefeated")).get("mythic");
+            DateTime aotc = null;
+            DateTime cuttingEdge = null;
+            String aotcText = "No";
+            String cuttingEdgeText = "No";
+            if (raidProgress.get("aotc") != null ){
+                aotc = new DateTime(raidProgress.get("aotc"), DateTimeZone.UTC);
+                aotcText = "Yes (" + aotc.dayOfMonth().get() + "/" + aotc.monthOfYear().get() + "/" + aotc.year().get() + ")";
+            }
+            if (raidProgress.get("cuttingEdge") != null) {
+                aotc = new DateTime(raidProgress.get("cuttingEdge"), DateTimeZone.UTC);
+                aotcText = "**Yes (" + cuttingEdge.dayOfMonth().get() + "/" + cuttingEdge.monthOfYear().get() + "/" + cuttingEdge.year().get() + ")**";
+            }
+
             MessageBuilder builder = new MessageBuilder();
             builder.append("**" + character.get("name") + "**");
-            builder.append(" Mythic+ Score: ");
-            builder.append("Global: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("all")).get("score"))) + "** ");
-            builder.append("Tank: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("tank")).get("score"))) + "** ");
-            builder.append("Heal: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("healer")).get("score"))) + "** ");
-            builder.append("DPS: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("dps")).get("score"))) + "** ");
+            builder.append(" Raid Rank: \n");
+            builder.append("AOTC: " + aotcText + " | ");
+            builder.append("Cutting Edge: " +cuttingEdgeText + "\n");
+            builder.append("Runs: N: **" + normal.size() + "**/9 | H: **" + heroic.size() + "**/9 | M: **" + mythic.size() + "**/9");
             event.getChannel().sendMessage(builder.build()).queue();
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -116,16 +138,16 @@ public class MythicPlusRankCommand extends LegendaryBotPlugin implements PublicC
 
     @Override
     public String help() {
-        return "mplusrank [Player Name] <Realm> - Retrieve the Mythic+ rank of a player (Based on Raider.io).";
+        return "raidrank [Character] <Realm> - Retrieve the latest tier Raid information about a player.";
     }
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("mplusrank", this);
+        getBot().getCommandHandler().addCommand("raidrank", this);
     }
 
     @Override
     public void stop() throws PluginException {
-        getBot().getCommandHandler().removeCommand("mplusrank");
+        getBot().getCommandHandler().removeCommand("raidrank");
     }
 }

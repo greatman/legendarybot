@@ -1,0 +1,5 @@
+Plugin-Class: com.greatmancode.legendarybot.plugin.raidrank.RaidRankCommand
+Plugin-Id: raidRankCommand
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1
+
