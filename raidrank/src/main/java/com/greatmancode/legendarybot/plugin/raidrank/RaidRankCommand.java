@@ -60,6 +60,10 @@ public class RaidRankCommand extends LegendaryBotPlugin implements PublicCommand
 
     public void execute(MessageReceivedEvent event, String[] args) {
         String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
+        if (getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
+            event.getChannel().sendMessage("A region must be set with the !setserversetting WOW_REGION_NAME US/EU first before using this command.").queue();
+            return;
+        }
         try {
             if (args.length == 2) {
                 HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+args[1]+"\" } } }", ContentType.APPLICATION_JSON);
