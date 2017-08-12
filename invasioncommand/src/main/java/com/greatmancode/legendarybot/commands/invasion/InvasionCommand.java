@@ -54,7 +54,6 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
     //Start date of the Invasion
     private final DateTime startDateInvasion = new DateTime(2017,4,14,17,0, DateTimeZone.forID("America/Montreal"));
     private final DateTime startDateInvasionEu = new DateTime(2017,7,9,21,0, DateTimeZone.UTC);
-    private final Logger log = LoggerFactory.getLogger(InvasionCommand.class);
 
     public InvasionCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -106,7 +105,7 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
             }
             event.getChannel().sendMessage(builder.build()).queue();
         } catch (IOException | ParseException e) {
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "region:" + region, "realm:" + realm);
             event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
     }

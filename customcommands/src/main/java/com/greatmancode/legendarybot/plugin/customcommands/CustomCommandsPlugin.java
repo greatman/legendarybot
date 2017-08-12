@@ -79,7 +79,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
                 guildCustomCommands.put(g.getId(), result);
             } catch (SQLException e) {
                 e.printStackTrace();
-                getBot().getStacktraceHandler().sendStacktrace(e);
+                getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + g.getId());
             }
         });
         getBot().getJDA().addEventListener(listener);
@@ -112,7 +112,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
             guildCustomCommands.get(guild.getId()).put(commandName, value);
         } catch (SQLException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "guildID:" + guild.getId(), "commandName:" + commandName, "commandValue:" + value);
         }
     }
 

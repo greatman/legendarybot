@@ -64,6 +64,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
             props.load(new FileInputStream("app.properties"));
         } catch (java.io.IOException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         getBot().getCommandHandler().addCommand("blizzardcs", this);
         log.info("Command !blizzardcs loaded!");
@@ -114,11 +115,11 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
                 result = cal.get(Calendar.DAY_OF_MONTH) +"/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR) + " " + String.format("%02d",cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d",cal.get(Calendar.MINUTE)) + " : " + messageObject.get("text");
             }
         } catch (ParseException | java.text.ParseException e) {
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "twitterusername:" + username);
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "twitterusername:" + username);
         }
         return result;
     }

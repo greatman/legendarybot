@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.api.utils;
 
 /**
@@ -32,5 +33,5 @@ public interface StacktraceHandler {
      * Send a {@link Throwable} to the Handler for further processing (Send to a aggregator, etc.)
      * @param e the {@link Throwable} instance
      */
-    void sendStacktrace(Throwable e);
+    void sendStacktrace(Throwable e, String... tags);
 }

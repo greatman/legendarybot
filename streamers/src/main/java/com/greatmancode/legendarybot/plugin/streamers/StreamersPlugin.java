@@ -60,6 +60,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
             props.load(new FileInputStream("app.properties"));
         } catch (java.io.IOException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         getBot().getCommandHandler().addCommand("streamers", new StreamersCommand(this));
         log.info("Command !streamers loaded!");
@@ -100,7 +101,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                     }
                 } catch (ParseException | IOException e) {
                     e.printStackTrace();
-                    getBot().getStacktraceHandler().sendStacktrace(e);
+                    getBot().getStacktraceHandler().sendStacktrace(e, "username:" + username, "platform:" + platform);
                 }
 
                 break;
@@ -116,7 +117,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                     }
                 } catch (ParseException | IOException e) {
                     e.printStackTrace();
-                    getBot().getStacktraceHandler().sendStacktrace(e);
+                    getBot().getStacktraceHandler().sendStacktrace(e, "username:" + username, "platform:" + platform);
                 }
                 break;
             default:
@@ -138,6 +139,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                     result = client.newCall(request).execute().body().string() != null;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    getBot().getStacktraceHandler().sendStacktrace(e, "username:" + username, "platform:" + platform);
                 }
                 break;
             case MIXER:
@@ -148,6 +150,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                     result = client.newCall(request).execute().body().string() != null;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    getBot().getStacktraceHandler().sendStacktrace(e, "username:" + username, "platform:" + platform);
                 }
                 break;
             default:

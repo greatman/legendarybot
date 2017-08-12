@@ -44,7 +44,7 @@ public class LegendaryCheck {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private long[] itemIDIgnore = {147451,151462};
-    public LegendaryCheck(LegendaryBot bot, Guild guild, LegendaryCheckPlugin plugin, String battleNetKey) {
+    public LegendaryCheck(LegendaryBot bot, Guild guild, LegendaryCheckPlugin plugin) {
         final Runnable checkNews = () -> {
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(new BattleNetAPIInterceptor(bot))
@@ -148,18 +148,16 @@ public class LegendaryCheck {
                     System.out.println("Went through Legendary check for server " + guild.getName());
                 } catch (ParseException e) {
                     e.printStackTrace();
-                    bot.getStacktraceHandler().sendStacktrace(e);
+                    bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId(), "region:" + regionName, "wowGuild:" + guildName, "serverName:" + serverName, "channelName:" + channelName);
                 } catch (NullPointerException e) {
                     e.printStackTrace();
-                    System.out.println("Received null?!");
-                    System.out.println("Server is: " + serverName + ", region" + regionName + " guild" + guildName + " discord" + guild.getName());
-                    System.out.println();
+                    bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId(), "region:" + regionName, "wowGuild:" + guildName, "serverName:" + serverName, "channelName:" + channelName);
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
 
                 System.out.println("Crashed for guild " + guild.getName() + ":" + guild.getId());
-                bot.getStacktraceHandler().sendStacktrace(e);
+                bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId());
             }
         };
         scheduler.scheduleAtFixedRate(checkNews, 0,10, TimeUnit.MINUTES);

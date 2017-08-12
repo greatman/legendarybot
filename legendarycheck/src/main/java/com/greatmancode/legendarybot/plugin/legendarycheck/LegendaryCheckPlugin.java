@@ -40,7 +40,6 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
 
     public static final String SETTING_NAME = "legendary_check";
     private Map<String, LegendaryCheck> legendaryCheckMap = new HashMap<>();
-    private List<String> battleNetKey = new ArrayList<>();
 
     public LegendaryCheckPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -62,19 +61,9 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         log.info("Starting LegendaryCheck plugin.");
-        //Load the configuration
-        Properties props = new Properties();
-        try {
-            props.load(new FileInputStream("app.properties"));
-            battleNetKey.add(props.getProperty("battlenet.key"));
-            if (props.containsKey("battlenet2.key")) {
-                battleNetKey.add(props.getProperty("battlenet2.key"));
-            }
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
         getBot().getJDA().getGuilds().forEach(this::startLegendaryCheck);
         getBot().getCommandHandler().addCommand("enablelc", new EnableLegendaryCheckCommand(this));
         getBot().getCommandHandler().addCommand("disablelc", new DisableLegendaryCheckCommand(this));
@@ -100,11 +89,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
                 legendaryCheckMap.get(guild.getId()).shutdown();
                 legendaryCheckMap.remove(guild.getId());
             }
-            String key = battleNetKey.get(0);
-            if (battleNetKey.size() > 1) {
-                key = (new Random().nextInt() % 2 == 0) ? battleNetKey.get(0) : battleNetKey.get(1);
-            }
-            legendaryCheckMap.put(guild.getId(), new LegendaryCheck(getBot(), guild,this, key));
+            legendaryCheckMap.put(guild.getId(), new LegendaryCheck(getBot(), guild,this));
             log.info("Started check for guild " + guild.getName());
         }
     }
@@ -141,7 +126,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName, "playerName:" + playerName);
         }
         return time;
     }
@@ -159,12 +144,8 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName, "playerName:" + playerName, "time:" + time);
         }
-    }
-
-    public Logger getLog() {
-        return log;
     }
 
     public int getLegendaryCheckEnabledCount() {

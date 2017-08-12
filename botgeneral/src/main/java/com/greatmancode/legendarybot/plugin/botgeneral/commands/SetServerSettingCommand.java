@@ -105,8 +105,10 @@ public class SetServerSettingCommand extends AdminCommand {
                 return;
             } catch (IOException e) {
                 e.printStackTrace();
+                bot.getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(), "settingName:" + args[0], "settingValue:" + setting);
             } catch (ParseException e) {
                 e.printStackTrace();
+                bot.getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(), "settingName:" + args[0], "settingValue:" + setting);
                 event.getChannel().sendMessage("No server found!").queue();
                 return;
             }
@@ -122,7 +124,7 @@ public class SetServerSettingCommand extends AdminCommand {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    bot.getStacktraceHandler().sendStacktrace(e);
+                    bot.getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(), "settingName:" + args[0], "settingValue:" + setting);
                     event.getChannel().sendMessage("An error occured. Try again later!");
                 }
             } else {

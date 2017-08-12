@@ -36,11 +36,6 @@ public class MessageListener extends ListenerAdapter {
     private StatsPlugin plugin;
 
     /**
-     * A instance of {@link Logger} to send logs to
-     */
-    private Logger log = LoggerFactory.getLogger(getClass());
-
-    /**
      * Create a Message Listener
      * @param plugin The {@link StatsPlugin} instance this Message Listener is linked to.
      */

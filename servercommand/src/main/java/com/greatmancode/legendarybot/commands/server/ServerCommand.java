@@ -68,12 +68,13 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
+        String serverName = null;
         try {
             Map<String,String> map;
             if (args.length == 1) {
                 map = getServerStatus(getBot().getGuildSettings(event.getGuild()).getRegionName(), args[0]);
             } else {
-                String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
+                serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
                 if (serverName == null) {
                     event.getChannel().sendMessage("No server set. You are required to type a server.").queue();
                     return;
@@ -95,7 +96,12 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
             }
             event.getChannel().sendMessage(builder.build()).queue();
         } catch (IOException e) {
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            if (args.length > 0) {
+                getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + args[0]);
+            } else {
+                getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + serverName);
+            }
+
             event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
     }
@@ -149,7 +155,7 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
             }
         } catch (ParseException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName);
         }
         return map;
 

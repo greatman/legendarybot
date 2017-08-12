@@ -83,7 +83,7 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
 
         } catch (ParseException | IOException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "request:" + builder.toString());
         }
     }
 
@@ -110,6 +110,7 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
             props.load(new FileInputStream("app.properties"));
         } catch (java.io.IOException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         getBot().getCommandHandler().addCommand("gif", this);
     }

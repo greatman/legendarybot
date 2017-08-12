@@ -52,6 +52,6 @@ public class LogListener implements SimpleLog.LogListener {
 
     @Override
     public void onError(SimpleLog log, Throwable err) {
-        stacktraceHandler.sendStacktrace(err);
+        stacktraceHandler.sendStacktrace(err,"uncaughtexception:true");
     }
 }

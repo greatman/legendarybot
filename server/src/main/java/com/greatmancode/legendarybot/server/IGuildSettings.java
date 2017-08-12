@@ -76,6 +76,7 @@ public class IGuildSettings implements GuildSettings {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guildId);
         }
     }
 
@@ -113,6 +114,7 @@ public class IGuildSettings implements GuildSettings {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guildId, "setting:" + setting, "value:" + value);
         }
         settings.put(setting,value);
     }
@@ -129,6 +131,7 @@ public class IGuildSettings implements GuildSettings {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guildId, "setting:" + setting);
         }
         settings.remove(setting);
     }

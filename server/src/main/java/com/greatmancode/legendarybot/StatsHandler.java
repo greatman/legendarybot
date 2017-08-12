@@ -84,6 +84,7 @@ public class StatsHandler  {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                bot.getStacktraceHandler().sendStacktrace(e);
             }
             logger.info("Stats sent.");
         };

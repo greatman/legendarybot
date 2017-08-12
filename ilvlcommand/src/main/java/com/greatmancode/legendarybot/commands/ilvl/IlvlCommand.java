@@ -64,9 +64,10 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
     }
 
     public void execute(MessageReceivedEvent event, String[] args) {
+        String serverName = args[0];
+        Hero hero = null;
         try {
-            String serverName = args[0];
-            Hero hero;
+
 
             if (args.length == 1) {
                 serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
@@ -81,6 +82,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
                 event.getChannel().sendMessage("WowCharacter not found!").queue();
             }
         } catch (IOException e) {
+            getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + serverName, "hero:" + hero);
             event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
 
@@ -145,6 +147,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
+                    getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName, "character:" + character);
                 }
 
             }
@@ -160,7 +163,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
             return new Hero((String)object.get("name"), HeroClass.values()[((Long) object.get("class")).intValue()], (Long)object.get("level"), (Long)((JSONObject)object.get("items")).get("averageItemLevel"), (Long)((JSONObject)object.get("items")).get("averageItemLevelEquipped"));
         } catch (ParseException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName, "character:" + character);
         }
         return null;
     }

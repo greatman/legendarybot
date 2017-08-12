@@ -70,11 +70,11 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
                 event.getChannel().sendMessage("Guild **" + guild + "** | World: **" + obj.get("world_rank") + "** | Region Rank: **" + obj.get("area_rank") + "** | Realm rank: **" + obj.get("realm_rank") + "**").queue();
             } catch (ParseException e) {
                 e.printStackTrace();
-                getBot().getStacktraceHandler().sendStacktrace(e);
+                getBot().getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(),"servername:" + serverName, "region:" + region, "wowguild:" + guild);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
+            getBot().getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(),"servername:" + serverName, "region:" + region, "wowguild:" + guild);
         }
 
 

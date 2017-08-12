@@ -47,6 +47,6 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler  {
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        stacktraceHandler.sendStacktrace(e);
+        stacktraceHandler.sendStacktrace(e, "uncaughtException:true");
     }
 }

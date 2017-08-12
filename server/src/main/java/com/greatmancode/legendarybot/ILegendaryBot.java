@@ -120,7 +120,7 @@ public class ILegendaryBot extends LegendaryBot {
     //TODO: Remove sentryKey parameter
     public ILegendaryBot(JDA jda, String sentryKey) {
         this.jda = jda;
-        this.stacktraceHandler = new IStacktraceHandler(sentryKey);
+        this.stacktraceHandler = new IStacktraceHandler(this, sentryKey);
 
         //Load the database
         HikariConfig config = new HikariConfig();
@@ -158,6 +158,7 @@ public class ILegendaryBot extends LegendaryBot {
             statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            getStacktraceHandler().sendStacktrace(e);
         }
 
         //Load the settings for each guild
@@ -185,6 +186,7 @@ public class ILegendaryBot extends LegendaryBot {
                     FileUtils.deleteDirectory(file);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    getStacktraceHandler().sendStacktrace(e);
                 }
             });
 
@@ -195,6 +197,7 @@ public class ILegendaryBot extends LegendaryBot {
                 restClient.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                getStacktraceHandler().sendStacktrace(e);
             }
             System.out.println("Legendarybot shutdown.");
         }));

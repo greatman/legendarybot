@@ -49,9 +49,9 @@ public class LookupItemCommand implements PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-
+        String query = String.join(" ", args);
         try {
-            HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+String.join(" ", args)+"\" } } }", ContentType.APPLICATION_JSON);
+            HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+query+"\" } } }", ContentType.APPLICATION_JSON);
             Response response = plugin.getBot().getElasticSearch().performRequest("POST", "/wow/item/_search", Collections.emptyMap(), entity);
 
             JSONParser jsonParser = new JSONParser();
@@ -66,7 +66,8 @@ public class LookupItemCommand implements PublicCommand {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            event.getChannel().sendMessage("An error occured. Please try again later.").queue();
+            plugin.getBot().getStacktraceHandler().sendStacktrace(e,"query:" + query);
+            event.getChannel().sendMessage("An error occurred. Please try again later.").queue();
         }
     }
 
