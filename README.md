@@ -4,6 +4,7 @@ Originally a Discord bot for alerting of new Legendary drops in a World of Warcr
 
 - Lookup an item/Achievement (!lookupitem !lookupachievement)
 - Mythic+ affix displayer (!affix)
+- Mythic+ rank checker (!mplusrank)
 - Give a player iLVL (!ilvl)
 - Say if an invasion is on Broken Shore (!invasion)
 - Check if someone in the guild looted a new Legendary (!enablelc !disablelc !mutelc)

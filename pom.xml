@@ -33,6 +33,7 @@
         <module>gifcommand</module>
         <module>wprank</module>
         <module>lookupCommands</module>
+        <module>mythicplusrank</module>
     </modules>
 
     <properties>

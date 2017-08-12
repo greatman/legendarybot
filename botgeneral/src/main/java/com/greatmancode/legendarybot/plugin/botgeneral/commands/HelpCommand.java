@@ -50,20 +50,24 @@ public class HelpCommand implements PublicCommand,ZeroArgsCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        MessageBuilder builder = new MessageBuilder();
+        final MessageBuilder[] builder = {new MessageBuilder()};
         String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");
         if (prefix == null) {
             prefix = "!";
         }
-        builder.append("Available commands ([] - Required, <> - Optional):\n");
+        builder[0].append("Available commands ([] - Required, <> - Optional):\n");
         String finalPrefix = prefix;
         bot.getCommandHandler().getCommandList().forEach((k, v) -> {
+            if (builder[0].length() >= 1900) {
+                event.getAuthor().openPrivateChannel().complete().sendMessage(builder[0].build()).queue();
+                builder[0] = new MessageBuilder();
+            }
             if (v.canExecute(event.getMember())) {
-                builder.append(finalPrefix + v.help());
-                builder.append("\n");
+                builder[0].append(finalPrefix + v.help());
+                builder[0].append("\n");
             }
         });
-        event.getAuthor().openPrivateChannel().complete().sendMessage(builder.build()).queue();
+        event.getAuthor().openPrivateChannel().complete().sendMessage(builder[0].build()).queue();
     }
 
     @Override
