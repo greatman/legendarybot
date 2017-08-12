@@ -27,25 +27,26 @@ package com.greatmancode.legendarybot;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import io.sentry.Sentry;
-import io.sentry.event.EventBuilder;
+import io.sentry.SentryClient;
 
 import java.util.Arrays;
-import java.util.Map;
 
 public class IStacktraceHandler implements StacktraceHandler {
 
+    private final SentryClient client;
+
     private LegendaryBot bot;
+
     public IStacktraceHandler(LegendaryBot bot, String sentryKey) {
         this.bot = bot;
-        Sentry.init(sentryKey);
+        client = Sentry.init(sentryKey);
     }
 
     @Override
     public void sendStacktrace(Throwable e, String... tags) {
         bot.getStatsClient().incrementCounter("legendarybot.errors");
-        EventBuilder builder = new EventBuilder();
-        Arrays.stream(tags).forEach((v) -> builder.withTag(v.split(":")[0], v.split(":")[1]));
-        Sentry.capture(builder);
+        Arrays.stream(tags).forEach((v) -> client.addTag(v.split(":")[0], v.split(":")[1]));
+        client.sendException(e);
         System.out.println("Sent error to Sentry");
     }
 }
