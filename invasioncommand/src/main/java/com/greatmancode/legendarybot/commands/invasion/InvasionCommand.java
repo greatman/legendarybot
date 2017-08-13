@@ -88,6 +88,10 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
         JSONParser parser = new JSONParser();
         try {
             JSONObject jsonObject = (JSONObject) parser.parse(client.newCall(request).execute().body().string());
+            if (jsonObject.containsKey("code")) {
+                event.getChannel().sendMessage("Can't retrieve realm's information. Try again later.").queue();
+                return;
+            }
             JSONArray realmArray = (JSONArray) jsonObject.get("realms");
             String timezone = (String) ((JSONObject)realmArray.get(0)).get("timezone");
             if (region.equalsIgnoreCase("us")) {

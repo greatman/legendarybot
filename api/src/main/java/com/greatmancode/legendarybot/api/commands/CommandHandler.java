@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.api.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -92,13 +93,18 @@ public class CommandHandler {
                 Command commandClass = commandMap.get(command);
                 if (commandClass.canExecute(event.getMember())) {
                     String[] args = new String[commandArray.length - 1];
-                    if (args.length >= commandClass.minArgs() && args.length <= commandClass.maxArgs()) {
-                        System.arraycopy(commandArray, 1, args,0,commandArray.length - 1);
-                        bot.getStatsClient().incrementCounter("legendarybot.commands","command:"+command);
-                        commandClass.execute(event, args);
-                    } else {
-                        sendMessage(event,prefix + commandClass.help());
+                    try {
+                        if (args.length >= commandClass.minArgs() && args.length <= commandClass.maxArgs()) {
+                            System.arraycopy(commandArray, 1, args,0,commandArray.length - 1);
+                            bot.getStatsClient().incrementCounter("legendarybot.commands","command:"+command);
+                            commandClass.execute(event, args);
+                        } else {
+                            sendMessage(event,prefix + commandClass.help());
+                        }
+                    } catch (PermissionException e) {
+                        sendMessage(event, "Unfortunately, I can't send a message to the channel you did " + commandArray[0] + ".");
                     }
+
                 }
             } else if (unknownCommandHandler != null) {
                 unknownCommandHandler.handle(event);
