@@ -136,7 +136,7 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
     public Map<String, String> getServerStatus(String region, String serverName) throws IOException {
         Map<String,String> map = new HashMap<>();
         HttpUrl url = new HttpUrl.Builder().scheme("https")
-                .host(region + "api.battle.net")
+                .host(region + ".api.battle.net")
                 .addPathSegments("/wow/realm/status")
                 .addQueryParameter("realms", serverName)
                 .build();
