@@ -64,9 +64,6 @@ public class StatsHandler  {
             logger.info("Sending stats");
             JSONObject object = new JSONObject();
             object.put("server_count", jda.getGuilds().size());
-            HttpUrl url = new HttpUrl.Builder().scheme("https")
-                    .addPathSegments("/api/bots/267134720700186626/stats")
-                    .build();
             Request request = new Request.Builder().url("https://bots.discord.pw/api/bots/267134720700186626/stats")
                     .post(RequestBody.create(MEDIA_TYPE_JSON, object.toJSONString()))
                     .addHeader("Authorization",properties.getProperty("stats.botsdiscordpw")).build();
