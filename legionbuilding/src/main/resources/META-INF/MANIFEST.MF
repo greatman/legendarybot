@@ -1,0 +1,4 @@
+Plugin-Class: com.greatmancode.legendarybot.plugins.legionbuilding.LegionBuildingCommand
+Plugin-Id: legionBuildingCommand
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1
