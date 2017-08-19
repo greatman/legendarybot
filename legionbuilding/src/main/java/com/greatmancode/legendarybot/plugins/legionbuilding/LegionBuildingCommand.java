@@ -45,12 +45,14 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         List<String> buildingStatus = new ArrayList<>();
+        List<String> buildingStatusString = new ArrayList<>();
         try {
             Document document = Jsoup.connect("http://www.wowhead.com/").get();
             int skip = (!getBot().getGuildSettings(event.getGuild()).getRegionName().equalsIgnoreCase("US")) ? 3 : 0;
+            document.getElementsByClass("imitation-heading heading-size-5").stream().skip(skip).forEach(element -> buildingStatusString.add(element.ownText()));
             document.getElementsByClass("tiw-bs-status-progress").stream().skip(skip).forEach(element ->
                     element.getElementsByTag("span").forEach( value -> buildingStatus.add(value.ownText())));
-            event.getChannel().sendMessage("Broken Shore building status: Mage Tower : **" + buildingStatus.get(0) + "** | Command Center: **" + buildingStatus.get(1) + "** | Nether Disruptor : **" + buildingStatus.get(2) + "**").queue();
+            event.getChannel().sendMessage("Broken Shore building status: Mage Tower : **"+buildingStatusString.get(0)+"** **" + buildingStatus.get(0) + "** | Command Center: **"+buildingStatusString.get(1)+"** **" + buildingStatus.get(1) + "** | Nether Disruptor : **"+buildingStatusString.get(2)+"** **" + buildingStatus.get(2) + "**").queue();
         } catch (IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "region:" + getBot().getGuildSettings(event.getGuild()).getRegionName(), "guildId:" + event.getGuild().getId());

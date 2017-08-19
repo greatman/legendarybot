@@ -68,18 +68,23 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
                 event.getChannel().sendMessage("Guild not found on Warcraftlogs!").queue();
                 return;
             }
+
             try {
-                JSONParser parser = new JSONParser();
-                JSONArray jsonArray = (JSONArray) parser.parse(request);
-                if (jsonArray.size() == 0) {
-                    event.getChannel().sendMessage("No logs found for the Guild on Warcraftlogs!").queue();
-                    return;
+                JSONParser parser = new JSONParser(); //{ "status": 400, "error": "Invalid guild name/server/region specified." }
+                try {
+                    JSONArray jsonArray = (JSONArray) parser.parse(request);
+                    if (jsonArray.size() == 0) {
+                        event.getChannel().sendMessage("No logs found for the Guild on Warcraftlogs!").queue();
+                        return;
+                    }
+                    JSONObject jsonObject = (JSONObject) jsonArray.toArray()[jsonArray.size() - 1];
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeZone(TimeZone.getTimeZone("America/Montreal"));
+                    calendar.setTimeInMillis((Long) jsonObject.get("start"));
+                    event.getChannel().sendMessage("Last Log: " + jsonObject.get("title") + " by " + jsonObject.get("owner") + " at " + calendar.get(Calendar.DAY_OF_MONTH)+"/"+ (calendar.get(Calendar.MONTH) + 1)+ "/"+ calendar.get(Calendar.YEAR)+". https://www.warcraftlogs.com/reports/" + jsonObject.get("id")).queue();
+                } catch (ClassCastException e) {
+                    event.getChannel().sendMessage("Guild not found on WarcraftLogs. Are your settings set correctly?").queue();
                 }
-                JSONObject jsonObject = (JSONObject) jsonArray.toArray()[jsonArray.size() - 1];
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getTimeZone("America/Montreal"));
-                calendar.setTimeInMillis((Long) jsonObject.get("start"));
-                event.getChannel().sendMessage("Last Log: " + jsonObject.get("title") + " by " + jsonObject.get("owner") + " at " + calendar.get(Calendar.DAY_OF_MONTH)+"/"+ (calendar.get(Calendar.MONTH) + 1)+ "/"+ calendar.get(Calendar.YEAR)+". https://www.warcraftlogs.com/reports/" + jsonObject.get("id")).queue();
             } catch (ParseException e) {
                 e.printStackTrace();
                 getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "guildName:" + getBot().getGuildSettings(event.getGuild()).getGuildName(), "serverName:" + getBot().getGuildSettings(event.getGuild()).getWowServerName(),"region:" + getBot().getGuildSettings(event.getGuild()).getRegionName());
