@@ -37,7 +37,6 @@ import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;
 
-//TODO: Support EU
 public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     private OkHttpClient client = new OkHttpClient();
@@ -79,7 +78,13 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                     event.getChannel().sendMessage(builder.build()).queue();
                     return;
                 }
-                JSONObject competitive = (JSONObject) ((JSONObject)((JSONObject)json.get("us")).get("stats")).get("competitive");
+                if (json.get(getBot().getGuildSettings(event.getGuild()).getRegionName()) == null) {
+                    MessageBuilder builder = new MessageBuilder();
+                    builder.append("User ").append(args[0]).append(" doesn't play competitive!");
+                    event.getChannel().sendMessage(builder.build()).queue();
+                    return;
+                }
+                JSONObject competitive = (JSONObject) ((JSONObject)((JSONObject)json.get(getBot().getGuildSettings(event.getGuild()).getRegionName())).get("stats")).get("competitive");
                 if (competitive == null) {
                     MessageBuilder builder = new MessageBuilder();
                     builder.append("User ").append(args[0]).append(" doesn't play competitive!");
@@ -105,10 +110,7 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                         .append(competitiveStats.get("win_rate"))
                         .append("%");
                 event.getChannel().sendMessage(builder.build()).queue();
-            } catch (IOException e) {
-                e.printStackTrace();
-                getBot().getStacktraceHandler().sendStacktrace(e, "user:" + user);
-            } catch (ParseException e) {
+            } catch (IOException | ParseException | NullPointerException e) {
                 e.printStackTrace();
                 getBot().getStacktraceHandler().sendStacktrace(e, "user:" + user);
             }

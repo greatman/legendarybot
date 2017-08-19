@@ -129,7 +129,14 @@ public class LegendaryCheck {
                                 if (itemRequest == null) {
                                     continue;
                                 }
-                                JSONObject itemObject = (JSONObject) new JSONParser().parse(itemRequest);
+                                JSONObject itemObject = null;
+                                try {
+                                    itemObject = (JSONObject) new JSONParser().parse(itemRequest);
+                                } catch (ParseException e) {
+                                    bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId(), "region:" + regionName, "wowGuild:" + guildName, "serverName:" + serverName, "channelName:" + channelName, "itemRequest:" + itemRequest);
+                                    continue;
+                                }
+
                                 long quality = (Long) itemObject.get("quality");
                                 if (quality == 5) {
                                     System.out.println(name + " just looted a legendary");

@@ -101,7 +101,7 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
             } else {
                 getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + serverName);
             }
-
+            e.printStackTrace();
             event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
     }
