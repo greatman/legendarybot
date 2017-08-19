@@ -56,7 +56,9 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
         } catch (IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "region:" + getBot().getGuildSettings(event.getGuild()).getRegionName(), "guildId:" + event.getGuild().getId());
-            event.getChannel().sendMessage("An error occured. Try again later");
+            event.getChannel().sendMessage("An error occurred. Try again later").queue();
+        } catch (NullPointerException e) {
+            event.getChannel().sendMessage("An error occurred. Try again later").queue();
         }
 
     }
