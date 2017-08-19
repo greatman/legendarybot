@@ -24,7 +24,6 @@
 
 package com.greatmancode.legendarybot.plugin.botgeneral;
 
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -34,16 +33,9 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
  */
 public class MessageListener extends ListenerAdapter {
 
+
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        MessageBuilder builder = new MessageBuilder();
-        builder.append("Hello! I am LegendaryBot, a World of Warcraft Bot! To see all my commands. Type !help. The bot need some basic configuration to work properly. Please use the following commands:\n\n");
-        builder.append("Your Battle.net region: `!setserversetting WOW_REGION_NAME US/EU`\n\n");
-        builder.append("Your Server Name (In Slug format, so remove all special characters and spaces are replaced with \"-\" (hyphen)) `!setserversetting WOW_SERVER_NAME Arthas`\n\n");
-        builder.append("Your Guild Name, spaces are supported without \"\": `!setserversetting GUILD_NAME YourGuildName`\n\n");
-        builder.append("That is all you need for the bot to run properly! If you have any questions, feel free to see the documentation here: https://github.com/greatman/legendarybot");
-        event.getGuild().getPublicChannel().sendMessage(builder.build()).queue();
-
 
         //We log the event
         event.getJDA().getGuildsByName("LegendaryBot",false).get(0).getTextChannelsByName("logs-guild",true).get(0).sendMessage(":robot: Joined guild " + event.getGuild().getName() + ". Members: " + event.getGuild().getMembers().size()).queue();
