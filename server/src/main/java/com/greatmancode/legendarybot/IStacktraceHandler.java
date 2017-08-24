@@ -31,10 +31,19 @@ import io.sentry.SentryClient;
 
 import java.util.Arrays;
 
+/**
+ * Handles stacktraces, sends it to Sentry.io
+ */
 public class IStacktraceHandler implements StacktraceHandler {
 
+    /**
+     * The Sentry.io client.
+     */
     private final SentryClient client;
 
+    /**
+     * The {@link LegendaryBot} instance of the bot
+     */
     private LegendaryBot bot;
 
     public IStacktraceHandler(LegendaryBot bot, String sentryKey) {

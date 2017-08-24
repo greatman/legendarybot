@@ -32,6 +32,7 @@ public interface StacktraceHandler {
     /**
      * Send a {@link Throwable} to the Handler for further processing (Send to a aggregator, etc.)
      * @param e the {@link Throwable} instance
+     * @param tags The list of tags to send to the provider
      */
     void sendStacktrace(Throwable e, String... tags);
 }

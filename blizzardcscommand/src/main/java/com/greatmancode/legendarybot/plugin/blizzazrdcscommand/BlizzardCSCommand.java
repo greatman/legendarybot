@@ -66,7 +66,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
         props = new Properties();
         try {
             props.load(new FileInputStream("app.properties"));
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
@@ -97,7 +97,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
         try {
             String auth = client.newCall(request).execute().body().string();
             JSONParser parser = new JSONParser();
-            org.json.simple.JSONObject authObject = (org.json.simple.JSONObject) parser.parse(auth);
+            JSONObject authObject = (JSONObject) parser.parse(auth);
             if (authObject.containsKey("token_type")) {
                 String bearer = (String) authObject.get("access_token");
                 HttpUrl url = new HttpUrl.Builder().scheme("https")
@@ -118,12 +118,9 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
                 cal.setTimeZone(TimeZone.getTimeZone("America/Montreal"));
                 result = cal.get(Calendar.DAY_OF_MONTH) +"/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR) + " " + String.format("%02d",cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d",cal.get(Calendar.MINUTE)) + " : " + messageObject.get("text");
             }
-        } catch (ParseException | java.text.ParseException e) {
+        } catch (ParseException | java.text.ParseException | IOException e) {
             getBot().getStacktraceHandler().sendStacktrace(e, "twitterusername:" + username);
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "twitterusername:" + username);
         }
         return result;
     }

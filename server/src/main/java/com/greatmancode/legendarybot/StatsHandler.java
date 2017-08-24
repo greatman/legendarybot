@@ -59,7 +59,6 @@ public class StatsHandler  {
         JDA jda = bot.getJDA();
 
         final Runnable postStats = () -> {
-            Map<String, String> map = new HashMap<>();
             Logger logger = LoggerFactory.getLogger(getClass());
             logger.info("Sending stats");
             JSONObject object = new JSONObject();

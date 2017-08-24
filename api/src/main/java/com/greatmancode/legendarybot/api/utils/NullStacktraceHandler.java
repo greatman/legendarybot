@@ -30,6 +30,6 @@ package com.greatmancode.legendarybot.api.utils;
 public class NullStacktraceHandler  implements StacktraceHandler{
     @Override
     public void sendStacktrace(Throwable e, String... tags) {
-
+        //do nothing
     }
 }

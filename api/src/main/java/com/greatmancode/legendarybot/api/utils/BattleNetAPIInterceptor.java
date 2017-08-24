@@ -52,7 +52,7 @@ public class BattleNetAPIInterceptor implements Interceptor {
                 }
             }
 
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             bot.getStacktraceHandler().sendStacktrace(e);
         }

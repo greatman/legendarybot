@@ -107,7 +107,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
         props = new Properties();
         try {
             props.load(new FileInputStream("app.properties"));
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
         }

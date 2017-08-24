@@ -151,7 +151,6 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
         boolean loop = true;
         boolean enabled = true;
         Period p = null;
-        int hours = 0;
         while (loop) {
             if (enabled) {
                 start = start.plusHours(6);
