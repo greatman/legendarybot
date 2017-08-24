@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.api.plugin;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
@@ -32,16 +33,29 @@ import ro.fortsoft.pf4j.PluginClasspath;
  */
 public class LegendaryBotPluginManager extends DefaultPluginManager {
 
+    /**
+     * The {@link LegendaryBot} instance that launcher the plugin manager
+     */
     private final LegendaryBot bot;
+
+    /**
+     * Launch a plugin manager
+     * @param bot A instance of the bot.
+     */
     public LegendaryBotPluginManager(LegendaryBot bot) {
         super();
         this.bot = bot;
     }
 
+    /**
+     * Retrieve the bot instance
+     * @return The {@link LegendaryBot} instance
+     */
     public LegendaryBot getBot() {
         return bot;
     }
 
+    @Override
     protected PluginClasspath createPluginClasspath() {
         return new LegendaryBotClasspath();
     }

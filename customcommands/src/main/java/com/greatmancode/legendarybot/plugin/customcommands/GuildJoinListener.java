@@ -21,19 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.customcommands;
 
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+/**
+ * Listen to the guild joins to create the proper entries in the plugin.
+ */
 public class GuildJoinListener extends ListenerAdapter {
 
+    /**
+     * A instance of the plugin
+     */
     private CustomCommandsPlugin plugin;
 
+    /**
+     * Instantiate a JoinListener
+     * @param plugin The {@link CustomCommandsPlugin} instance that launched the listener.
+     */
     public GuildJoinListener(CustomCommandsPlugin plugin) {
         this.plugin = plugin;
     }
 
+    @Override
     public void onGuildJoin(GuildJoinEvent event) {
         plugin.joinGuildEvent(event.getGuild());
     }
