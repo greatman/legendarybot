@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.mythicplusrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
@@ -45,15 +46,21 @@ import ro.fortsoft.pf4j.PluginWrapper;
 import java.io.IOException;
 import java.util.Collections;
 
+/**
+ * !mplusrank - Get the Mythic Plus ranking of a player.
+ */
 public class MythicPlusRankCommand extends LegendaryBotPlugin implements PublicCommand{
 
+    /**
+     * The HTTPClient to do web requests.
+     */
     private OkHttpClient client = new OkHttpClient();
 
     public MythicPlusRankCommand(PluginWrapper wrapper) {
         super(wrapper);
     }
 
-    //https://raider.io/api/characters/us/arthas/Kugruon
+
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();

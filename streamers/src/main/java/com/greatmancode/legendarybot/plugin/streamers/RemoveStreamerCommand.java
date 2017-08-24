@@ -26,8 +26,14 @@ package com.greatmancode.legendarybot.plugin.streamers;
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * !removestreamer command. Removes a streamer from the Guild
+ */
 public class RemoveStreamerCommand extends AdminCommand {
 
+    /**
+     * The {@link StreamersPlugin} instance.
+     */
     private StreamersPlugin plugin;
 
     public RemoveStreamerCommand(StreamersPlugin plugin) {

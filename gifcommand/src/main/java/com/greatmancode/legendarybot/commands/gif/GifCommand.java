@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands.gif;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
@@ -41,11 +42,18 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Created by lebel on 7/6/2017.
+ * !gif command - Retrieve a gif from a search.
  */
 public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
 
+    /**
+     * The HTTP Client to do web requests
+     */
     private OkHttpClient client = new OkHttpClient();
+
+    /**
+     * The config file containing the api key.
+     */
     private Properties props;
 
     public GifCommand(PluginWrapper wrapper) {

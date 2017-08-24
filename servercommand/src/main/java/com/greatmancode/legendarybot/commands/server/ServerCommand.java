@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands.server;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
@@ -43,8 +43,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * !server command - Return the current status of the WoW server.
+ */
 public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
 
+    /**
+     * The HttpClient to do web requests.
+     */
     private OkHttpClient client = new OkHttpClient.Builder()
             .addInterceptor(new BattleNetAPIInterceptor(getBot()))
             .build();

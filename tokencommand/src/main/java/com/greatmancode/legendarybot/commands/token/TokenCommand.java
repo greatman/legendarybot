@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands.token;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
@@ -37,8 +38,14 @@ import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;
 
+/**
+ * !token Command - Get the price in Gold of the WoW Token.
+ */
 public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,PublicCommand {
 
+    /**
+     * The HTTP Client to do web requests.
+     */
     private OkHttpClient client = new OkHttpClient();
 
     public TokenCommand(PluginWrapper wrapper) {

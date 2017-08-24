@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.commands.owrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
@@ -37,8 +38,14 @@ import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;
 
+/**
+ * !owrank command - Get the competitive ranking of a player in Overwatch
+ */
 public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
+    /**
+     * The Http Client to do web requests.
+     */
     private OkHttpClient client = new OkHttpClient();
 
     public OwRankCommand(PluginWrapper wrapper) {

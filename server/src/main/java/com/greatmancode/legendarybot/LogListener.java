@@ -41,7 +41,7 @@ public class LogListener implements SimpleLog.LogListener {
      * Create a LogListener to catch errors from JDA threads
      * @param stacktraceHandler The {@link StacktraceHandler} that we will send the stacktraces to.
      */
-    public LogListener(IStacktraceHandler stacktraceHandler) {
+    public LogListener(StacktraceHandler stacktraceHandler) {
         this.stacktraceHandler = stacktraceHandler;
     }
 

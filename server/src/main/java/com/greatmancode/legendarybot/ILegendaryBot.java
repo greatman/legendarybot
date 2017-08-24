@@ -28,6 +28,7 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.greatmancode.legendarybot.commands.LoadCommand;
 import com.greatmancode.legendarybot.commands.ReloadPluginsCommand;
@@ -100,10 +101,16 @@ public class ILegendaryBot extends LegendaryBot {
     /**
      * The instance of the Stacktrace Handler.
      */
-    private IStacktraceHandler stacktraceHandler;
+    private StacktraceHandler stacktraceHandler;
 
+    /**
+     * Elastic search client
+     */
     private RestClient restClient;
 
+    /**
+     * DataDog client
+     */
     private StatsDClient statsClient;
 
     /**
@@ -115,12 +122,14 @@ public class ILegendaryBot extends LegendaryBot {
     /**
      * Start all the feature of the LegendaryBot
      * @param jda the JDA instance
-     * @param sentryKey The key for Sentry.io
      */
-    //TODO: Remove sentryKey parameter
-    public ILegendaryBot(JDA jda, String sentryKey) {
+    public ILegendaryBot(JDA jda) {
         this.jda = jda;
-        this.stacktraceHandler = new IStacktraceHandler(this, sentryKey);
+        if (props.containsKey("sentry.key")) {
+            this.stacktraceHandler = new IStacktraceHandler(this, props.getProperty("sentry.key"));
+        } else {
+            this.stacktraceHandler = new NullStacktraceHandler();
+        }
 
         //Load the database
         HikariConfig config = new HikariConfig();
@@ -206,10 +215,10 @@ public class ILegendaryBot extends LegendaryBot {
     /**
      * Launch the Bot
      * @param args Command line arguments (unused)
-     * @throws IOException
-     * @throws LoginException
-     * @throws InterruptedException
-     * @throws RateLimitedException
+     * @throws IOException IOException
+     * @throws LoginException LoginException
+     * @throws InterruptedException InterruptedException
+     * @throws RateLimitedException RateLimitedException
      */
     public static void main(String[] args) throws IOException, LoginException, InterruptedException, RateLimitedException {
 
@@ -221,7 +230,7 @@ public class ILegendaryBot extends LegendaryBot {
         //Connect the bot to Discord
         JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
         //We launch the bot
-        new ILegendaryBot(jda, props.getProperty("sentry.key"));
+        new ILegendaryBot(jda);
     }
 
     @Override

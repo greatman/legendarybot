@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.streamers;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
@@ -31,9 +32,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * The !streamers command. Lists all the streamers and their status.
+ */
 public class StreamersCommand implements PublicCommand, ZeroArgsCommand {
 
-
+    /**
+     * The {@link StreamersPlugin} instance.
+     */
     private StreamersPlugin plugin;
 
     public StreamersCommand(StreamersPlugin plugin) {

@@ -46,7 +46,11 @@ import java.util.*;
  */
 public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCommand, PublicCommand{
 
+    /**
+     * Instance of the HTTP Client
+     */
     private OkHttpClient client = new OkHttpClient();
+
     /**
      * A instance of the bot's configuration file
      */

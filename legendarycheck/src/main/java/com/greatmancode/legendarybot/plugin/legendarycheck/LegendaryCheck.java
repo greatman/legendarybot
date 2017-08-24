@@ -153,10 +153,7 @@ public class LegendaryCheck {
                         }
                     }
                     System.out.println("Went through Legendary check for server " + guild.getName());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId(), "region:" + regionName, "wowGuild:" + guildName, "serverName:" + serverName, "channelName:" + channelName);
-                } catch (NullPointerException e) {
+                } catch (ParseException | NullPointerException e) {
                     e.printStackTrace();
                     bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId(), "region:" + regionName, "wowGuild:" + guildName, "serverName:" + serverName, "channelName:" + channelName);
                 }

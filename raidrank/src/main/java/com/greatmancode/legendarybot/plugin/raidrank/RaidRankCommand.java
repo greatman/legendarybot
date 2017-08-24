@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.raidrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
@@ -45,13 +46,16 @@ import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
 
+/**
+ * !raidrank command - Get the kill count in the latest raid for a player.
+ */
 public class RaidRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
+    /**
+     * The HTTP Client to do web requests.
+     */
     private OkHttpClient client = new OkHttpClient();
 
     public RaidRankCommand(PluginWrapper wrapper) {

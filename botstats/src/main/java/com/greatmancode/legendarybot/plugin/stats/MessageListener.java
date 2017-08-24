@@ -25,8 +25,6 @@ package com.greatmancode.legendarybot.plugin.stats;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MessageListener extends ListenerAdapter {
 

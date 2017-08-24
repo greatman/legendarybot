@@ -53,7 +53,7 @@ public class StatsHandler  {
     /**
      * Create a Stat Handler.
      * @param properties The app.properties file instance.
-     * @param jda the {@link JDA} instance linked to the {@link com.greatmancode.legendarybot.api.LegendaryBot} instance
+     * @param bot The {@link LegendaryBot} instance.
      */
     public StatsHandler(Properties properties, LegendaryBot bot) {
         JDA jda = bot.getJDA();

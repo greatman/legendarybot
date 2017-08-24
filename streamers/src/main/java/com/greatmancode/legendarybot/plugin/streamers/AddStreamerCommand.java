@@ -21,13 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.greatmancode.legendarybot.plugin.streamers;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * !addstreamers command - Add a streamer to the Guild
+ */
 public class AddStreamerCommand extends AdminCommand {
 
+    /**
+     * The {@link StreamersPlugin} instance.
+     */
     private StreamersPlugin plugin;
 
     public AddStreamerCommand(StreamersPlugin plugin) {

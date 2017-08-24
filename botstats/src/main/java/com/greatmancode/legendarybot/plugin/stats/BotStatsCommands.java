@@ -24,8 +24,6 @@
 package com.greatmancode.legendarybot.plugin.stats;
 
 import com.greatmancode.legendarybot.api.commands.Command;
-import com.greatmancode.legendarybot.plugin.legendarycheck.LegendaryCheckPlugin;
-import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;

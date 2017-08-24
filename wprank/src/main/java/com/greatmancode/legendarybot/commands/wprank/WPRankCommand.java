@@ -37,8 +37,14 @@ import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;
 
+/**
+ * !wprank Command - Gives the WoW Progress rank of the Guild.
+ */
 public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
+    /**
+     * The HTTP Client
+     */
     private OkHttpClient client = new OkHttpClient();
 
     public WPRankCommand(PluginWrapper wrapper) {

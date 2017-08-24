@@ -39,13 +39,34 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Streamer plugin - Currently allows a guild to have a list of streamers registered.
+ */
 public class StreamersPlugin extends LegendaryBotPlugin {
 
+    /**
+     * The HTTP client to do web requests.
+     */
     private OkHttpClient client = new OkHttpClient();
+
+    /**
+     * The properties file containing all the settings
+     */
     private Properties props;
 
+    /**
+     * The setting key for status
+     */
     public static final String STATUS_KEY = "status";
+
+    /**
+     * The setting key for Game
+     */
     public static final String GAME_KEY = "game";
+
+    /**
+     * The setting key for the configuration in the database.
+     */
     public static final String CONFIG_KEY = "streamersPlugin";
 
     public StreamersPlugin(PluginWrapper wrapper) {
@@ -80,6 +101,12 @@ public class StreamersPlugin extends LegendaryBotPlugin {
         log.info("Command !removestreamer unloaded!");
     }
 
+    /**
+     * Checks if a username is streaming on a specific platform
+     * @param username The Username of the user we want to check
+     * @param platform The platform we want to check if the user is online on.
+     * @return If the user is streaming, a Map containing {@link #STATUS_KEY} giving the current status of the user, {@link #GAME_KEY} containing the game the user is playing. Else a empty map.
+     */
     public Map<String, String> isStreaming(String username, StreamPlatform platform) {
         Map<String, String> map = new HashMap<>();
         JSONParser parser = new JSONParser();
@@ -126,7 +153,12 @@ public class StreamersPlugin extends LegendaryBotPlugin {
         return map;
     }
 
-    //TODO Improve this, duplicate code
+    /**
+     * Checks if a streamer exist on a platform
+     * @param username The username to check
+     * @param platform The platform to check on
+     * @return True if the streamer exist, else false.
+     */
     public boolean streamerExist(String username, StreamPlatform platform) {
         boolean result = false;
         switch (platform) {
@@ -160,6 +192,12 @@ public class StreamersPlugin extends LegendaryBotPlugin {
         return result;
     }
 
+    /**
+     * Add a streamer to the guild's settings.
+     * @param guild The Guild to add the streamer to
+     * @param username The username to add
+     * @param platform The platform the user is streaming on.
+     */
     public void addStreamer(Guild guild, String username, StreamPlatform platform) {
         String settings = getBot().getGuildSettings(guild).getSetting(CONFIG_KEY);
         if (settings != null) {
@@ -172,6 +210,12 @@ public class StreamersPlugin extends LegendaryBotPlugin {
         getBot().getGuildSettings(guild).setSetting(CONFIG_KEY,settings);
     }
 
+    /**
+     * Remove a streamer from the database.
+     * @param guild The Guild to remove the streamer from.
+     * @param username The username to remove from the list
+     * @param platform The platform the user is streaming from.
+     */
     public void removeStreamer(Guild guild, String username, StreamPlatform platform) {
         String settings = getBot().getGuildSettings(guild).getSetting(CONFIG_KEY);
         if (settings != null && settings.contains(username + "," + platform)) {

@@ -40,7 +40,7 @@ public class GuildMusicManager {
     /**
      * Creates a player and a track scheduler.
      * @param manager Audio player manager to use for creating the player.
-     * @param guild
+     * @param guild The Guild this Music Manager is linked to.
      */
     public GuildMusicManager(AudioPlayerManager manager, Guild guild) {
         player = manager.createPlayer();
