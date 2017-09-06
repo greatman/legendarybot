@@ -89,6 +89,7 @@ public class MythicPlusRankCommand extends LegendaryBotPlugin implements PublicC
                     .scheme("https")
                     .host("raider.io")
                     .addPathSegments("api/characters/"+getBot().getGuildSettings(event.getGuild()).getRegionName().toLowerCase()+"/"+ serverName +"/"+args[0]+"")
+                    .addQueryParameter("season", "season-7.3.0")
                     .build();
             Request request = new Request.Builder().url(url).build();
             String result = client.newCall(request).execute().body().string();
