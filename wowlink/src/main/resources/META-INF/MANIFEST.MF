@@ -1,0 +1,5 @@
+Plugin-Class: com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin
+Plugin-Id: wowLink
+Plugin-Provider: Greatman
+Plugin-Version: 0.0.1
+

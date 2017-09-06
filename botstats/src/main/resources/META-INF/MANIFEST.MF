@@ -3,3 +3,4 @@ Plugin-Id: statsPlugin
 Plugin-Provider: Greatman
 Plugin-Version: 0.0.1
 Plugin-Dependencies: musicPlugin, legendaryCheckPlugin
+

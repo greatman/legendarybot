@@ -129,7 +129,7 @@ public class LegendaryCheck {
                                 if (itemRequest == null) {
                                     continue;
                                 }
-                                JSONObject itemObject = null;
+                                JSONObject itemObject;
                                 try {
                                     itemObject = (JSONObject) new JSONParser().parse(itemRequest);
                                 } catch (ParseException e) {

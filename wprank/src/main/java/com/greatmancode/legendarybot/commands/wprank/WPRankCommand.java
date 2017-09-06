@@ -62,7 +62,7 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
         }
 
         Request request = new Request.Builder().url("https://www.wowprogress.com/guild/"+region+"/"+serverName+"/"+guild+"/json_rank").build();
-        String result = null;
+        String result;
         try {
             result = client.newCall(request).execute().body().string();
             if (result.equals("null")) {

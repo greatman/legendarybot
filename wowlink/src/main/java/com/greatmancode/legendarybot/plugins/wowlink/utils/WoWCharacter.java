@@ -21,42 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.greatmancode.legendarybot.plugins.wowlink.utils;
 
-package com.greatmancode.legendarybot;
+import com.greatmancode.legendarybot.api.utils.HeroClass;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
-import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import io.sentry.Sentry;
-import io.sentry.SentryClient;
+public class WoWCharacter {
 
-import java.util.Arrays;
+    private final String characterName, realm, guild, region;
 
-/**
- * Handles stacktraces, sends it to Sentry.io
- */
-public class IStacktraceHandler implements StacktraceHandler {
+    private final HeroClass heroClass;
 
-    /**
-     * The Sentry.io client.
-     */
-    private final SentryClient client;
+    public WoWCharacter(String characterName, String realm, String guild, String region, HeroClass heroClass) {
+        this.characterName = characterName;
+        this.realm = realm;
+        this.guild = guild;
+        this.region = region;
+        this.heroClass = heroClass;
+    }
 
-    /**
-     * The {@link LegendaryBot} instance of the bot
-     */
-    private LegendaryBot bot;
+    public String getCharacterName() {
+        return characterName;
+    }
 
-    public IStacktraceHandler(LegendaryBot bot, String sentryKey) {
-        this.bot = bot;
-        client = Sentry.init(sentryKey);
+    public String getRealm() {
+        return realm;
+    }
+
+    public HeroClass getHeroClass() {
+        return heroClass;
+    }
+
+    public String getGuild() {
+        return guild;
+    }
+
+    public String getRegion() {
+        return region;
     }
 
     @Override
-    public void sendStacktrace(Throwable e, String... tags) {
-        bot.getStatsClient().incrementCounter("legendarybot.errors");
-        Arrays.stream(tags).forEach((v) -> client.addTag(v.split(":")[0], v.split(":")[1]));
-        client.sendException(e);
-        client.setTags(null);
-        System.out.println("Sent error to Sentry");
+    public String toString() {
+        return "WoWCharacter{" +
+                "characterName='" + characterName + '\'' +
+                ", realm='" + realm + '\'' +
+                ", guild='" + guild + '\'' +
+                ", region='" + region + '\'' +
+                ", heroClass=" + heroClass +
+                '}';
     }
 }

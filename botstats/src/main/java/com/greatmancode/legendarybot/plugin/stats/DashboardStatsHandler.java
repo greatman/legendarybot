@@ -47,6 +47,7 @@ public class DashboardStatsHandler {
             bot.getStatsClient().gauge("legendarybot.music.audioconnections", plugin.getAudioConnections());
             bot.getStatsClient().gauge("legendarybot.system.usedram",plugin.getUsedRam());
             bot.getStatsClient().gauge("legendarybot.system.ping",bot.getJDA().getPing());
+            bot.getStatsClient().gauge("legendarybot.guilds.configurated", plugin.getGuildConfiguredCount());
 
         };
         scheduler.scheduleAtFixedRate(postStats,0, 10, TimeUnit.SECONDS);

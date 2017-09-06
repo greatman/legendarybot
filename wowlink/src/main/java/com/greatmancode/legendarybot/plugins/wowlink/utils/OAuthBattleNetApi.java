@@ -21,16 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.greatmancode.legendarybot.plugins.wowlink.utils;
 
-package com.greatmancode.legendarybot.api.utils;
 
-/**
- * A Stacktrace handler that does nothing with the given stacktrace
- */
-public class NullStacktraceHandler  implements StacktraceHandler{
+import com.github.scribejava.core.builder.api.DefaultApi20;
+
+public class OAuthBattleNetApi extends DefaultApi20 {
+
+    private final String region;
+
+    public OAuthBattleNetApi(String region) {
+        this.region = region;
+    }
+
     @Override
-    public void sendStacktrace(Throwable e, String... tags) {
-        e.printStackTrace();
-        //do nothing
+    public String getAccessTokenEndpoint() {
+        return "https://"+region+".battle.net/oauth/token";
+    }
+
+    @Override
+    protected String getAuthorizationBaseUrl() {
+        return "https://"+region+".battle.net/oauth/authorize";
     }
 }

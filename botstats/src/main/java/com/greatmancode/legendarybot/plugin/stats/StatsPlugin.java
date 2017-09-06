@@ -24,6 +24,7 @@
 package com.greatmancode.legendarybot.plugin.stats;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.plugin.legendarycheck.LegendaryCheckPlugin;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import ro.fortsoft.pf4j.PluginException;
@@ -92,5 +93,16 @@ public class StatsPlugin extends LegendaryBotPlugin {
 
     public int getGuildCount() {
         return getBot().getJDA().getGuilds().size();
+    }
+
+    public int getGuildConfiguredCount() {
+        final int[] i = {0};
+        getBot().getJDA().getGuilds().forEach(g -> {
+            GuildSettings setting = getBot().getGuildSettings(g);
+            if (setting.getRegionName() != null && setting.getWowServerName() != null && setting.getGuildName() != null) {
+                i[0]++;
+            }
+        });
+        return i[0];
     }
 }
