@@ -23,40 +23,62 @@
  */
 package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
-import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
+import java.util.List;
+
+public class GuildCharsCommand implements PublicCommand {
 
     private WoWLinkPlugin plugin;
 
-    public LinkWoWCharsCommand(WoWLinkPlugin plugin) {
+    public GuildCharsCommand(WoWLinkPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String region  = plugin.getBot().getGuildSettings(event.getGuild()).getRegionName();
-        if (region == null) {
-            event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with !setserversetting WOW_REGION_NAME US/EU").queue();
+        if (plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() == null || plugin.getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
+            event.getChannel().sendMessage("You can't run this command. A server administrator need to set GUILD_NAME and WOW_REGION_NAME. Refer to documentation.").queue();
             return;
         }
-        OAuth20Service service = new ServiceBuilder(plugin.getProps().getProperty("battlenet.key"))
-                .scope("wow.profile")
-                .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
-                .state(region + ":" + event.getAuthor().getId())
-                .build(new OAuthBattleNetApi(region));
-        event.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("Please follow this link to connect your WoW account to this bot: " + service.getAuthorizationUrl()).queue()));
 
+        List<User> mentionedUsers = event.getMessage().getMentionedUsers();
+        List<String> charactersList;
+        MessageBuilder builder = new MessageBuilder();
+        if (!mentionedUsers.isEmpty()) {
+            builder.append(mentionedUsers.get(0).getName() + " WoW characters in the Guild ");
+            charactersList = plugin.getUserCharactersInGuild(mentionedUsers.get(0), event.getGuild());
+        } else {
+            builder.append("Your WoW characters in the Guild ");
+            charactersList = plugin.getUserCharactersInGuild(event.getAuthor(),event.getGuild());
+        }
+
+
+
+
+        builder.append(plugin.getBot().getGuildSettings(event.getGuild()).getGuildName());
+        builder.append("\n");
+        charactersList.forEach((c) -> builder.append(c + "\n"));
+        event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage(builder.build()).queue());
+    }
+
+    @Override
+    public int minArgs() {
+        return 0;
+    }
+
+    @Override
+    public int maxArgs() {
+        return 1;
     }
 
     @Override
     public String help() {
-        return "linkwowchars - Link your WoW characters to your Discord account.";
+        return "guildchars <User> - Show all the characters that belongs to you or the mentioned user related to a discord server's guild.";
     }
 }

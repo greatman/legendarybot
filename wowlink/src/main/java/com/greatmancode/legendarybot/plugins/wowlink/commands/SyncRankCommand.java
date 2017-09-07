@@ -23,40 +23,46 @@
  */
 package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
-import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
+import java.sql.SQLException;
+
+public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
 
     private WoWLinkPlugin plugin;
 
-    public LinkWoWCharsCommand(WoWLinkPlugin plugin) {
+    public SyncRankCommand(WoWLinkPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String region  = plugin.getBot().getGuildSettings(event.getGuild()).getRegionName();
-        if (region == null) {
-            event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with !setserversetting WOW_REGION_NAME US/EU").queue();
+        if (!plugin.getBot().getJDA().getGuildById(event.getGuild().getId()).getMember(event.getJDA().getSelfUser()).hasPermission(Permission.MANAGE_ROLES)) {
+            event.getChannel().sendMessage("The bot need the \"**Manage Roles**\" permission to be able to set roles to the users.").queue();
             return;
         }
-        OAuth20Service service = new ServiceBuilder(plugin.getProps().getProperty("battlenet.key"))
-                .scope("wow.profile")
-                .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
-                .state(region + ":" + event.getAuthor().getId())
-                .build(new OAuthBattleNetApi(region));
-        event.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("Please follow this link to connect your WoW account to this bot: " + service.getAuthorizationUrl()).queue()));
+        try {
+            String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(), event.getGuild());
+            if (character == null) {
+                event.getAuthor().openPrivateChannel().queue((c)-> c.sendMessage("You didn't set a main character yet. Please use !setguildcharacter first.").queue());
+                return;
+            }
+            plugin.setDiscordRank(event.getAuthor(),event.getGuild(),plugin.getWoWRank(event.getGuild(), character));
+            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Rank synced!").queue());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("An error ocurred. Try again later!").queue());
+            plugin.getBot().getStacktraceHandler().sendStacktrace(e, "userid:" + event.getAuthor().getId(), "guildid:" + event.getGuild().getId());
+        }
 
     }
 
     @Override
     public String help() {
-        return "linkwowchars - Link your WoW characters to your Discord account.";
+        return "syncrank - Sync your Guild rank with your Discord account";
     }
 }

@@ -23,40 +23,32 @@
  */
 package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.oauth.OAuth20Service;
-import com.greatmancode.legendarybot.api.commands.PublicCommand;
+import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
-import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
+public class DisableAutoRankCommand extends AdminCommand implements ZeroArgsCommand {
 
     private WoWLinkPlugin plugin;
 
-    public LinkWoWCharsCommand(WoWLinkPlugin plugin) {
+    public DisableAutoRankCommand(WoWLinkPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String region  = plugin.getBot().getGuildSettings(event.getGuild()).getRegionName();
-        if (region == null) {
-            event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with !setserversetting WOW_REGION_NAME US/EU").queue();
+        if (plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() == null || plugin.getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
+            event.getChannel().sendMessage("You can't run this command. A server administrator need to set GUILD_NAME and WOW_REGION_NAME. Refer to documentation.").queue();
             return;
         }
-        OAuth20Service service = new ServiceBuilder(plugin.getProps().getProperty("battlenet.key"))
-                .scope("wow.profile")
-                .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
-                .state(region + ":" + event.getAuthor().getId())
-                .build(new OAuthBattleNetApi(region));
-        event.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("Please follow this link to connect your WoW account to this bot: " + service.getAuthorizationUrl()).queue()));
 
+        plugin.getBot().getGuildSettings(event.getGuild()).unsetSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED);
+        event.getChannel().sendMessage("AutoRank disabled!").queue();
     }
 
     @Override
     public String help() {
-        return "linkwowchars - Link your WoW characters to your Discord account.";
+        return "disableautorank - Disable the automatic set of the rank according to the WoW guild rank.";
     }
 }
