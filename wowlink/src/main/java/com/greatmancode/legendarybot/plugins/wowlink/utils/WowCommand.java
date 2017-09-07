@@ -45,6 +45,7 @@ public interface WowCommand extends Command {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
+                bot.getStacktraceHandler().sendStacktrace(e,"preflight:true");
                 newArgs = args;
             }
         }

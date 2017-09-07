@@ -167,7 +167,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                         e.printStackTrace();
                     }
                 }
-                return "Done";
+                return "Your WoW characters are now synced to LegendaryBot!";
             });
         });
 
@@ -212,6 +212,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         return charactersList;
     }
@@ -272,10 +273,9 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             if (rank[0] != -1) {
                 rankDiscord = getBot().getGuildSettings(guild).getSetting(SETTING_RANK_PREFIX + rank[0]);
             }
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
         return rankDiscord;
     }
@@ -309,6 +309,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             guild.getController().modifyMemberRoles(guild.getMember(user), rolesToAdd, rolesToRemove).reason("LegendaryBot - Rank Sync with WoW Guild.").queue();
         } catch (PermissionException e) {
             e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
         }
 
     }
