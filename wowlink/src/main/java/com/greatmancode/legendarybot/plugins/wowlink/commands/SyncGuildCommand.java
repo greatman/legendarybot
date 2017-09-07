@@ -48,6 +48,12 @@ public class SyncGuildCommand extends AdminCommand implements ZeroArgsCommand {
             event.getChannel().sendMessage("The bot need the \"**Manage Roles**\" permission to be able to set roles to the users.").queue();
             return;
         }
+
+        if (plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED) == null) {
+            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Account sync is not enabled in this Discord server.").queue());
+            return;
+        }
+
         Map<User,String> userCharacterMap = new HashMap<>();
         event.getGuild().getMembers().forEach((m) -> {
             try {
@@ -63,7 +69,7 @@ public class SyncGuildCommand extends AdminCommand implements ZeroArgsCommand {
             }
         });
 
-        event.getChannel().sendMessage("All ranks are synced!");
+        event.getChannel().sendMessage("All ranks are synced!").queue();
     }
 
     @Override

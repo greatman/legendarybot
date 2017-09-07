@@ -30,12 +30,14 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.api.utils.HeroClass;
 import com.greatmancode.legendarybot.plugins.wowlink.commands.*;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WoWCharacter;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import okhttp3.HttpUrl;
@@ -55,9 +57,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static spark.Spark.get;
 import static spark.Spark.path;
@@ -285,9 +285,28 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             return;
         }
 
+        //We try to load all the other ranks so we do a cleanup at the same time.
+        Set<String> allRanks = new HashSet<>();
+        GuildSettings settings = getBot().getGuildSettings(guild);
+        for(int i = 0; i <= 9; i++) {
+            String entry = settings.getSetting(SETTING_RANK_PREFIX + i);
+            if (entry != null) {
+                allRanks.add(entry);
+            }
+        }
+        if (allRanks.contains(rank)) {
+            allRanks.remove(rank);
+        }
+
+        List<Role> rolesToRemove = new ArrayList<>();
+        for(String rankEntry: allRanks) {
+            rolesToRemove.add(guild.getRolesByName(rankEntry, true).get(0));
+        }
+        List<Role> rolesToAdd = new ArrayList<>();
+        rolesToAdd.add(guild.getRolesByName(rank, true).get(0));
         try {
             System.out.println(guild.getRolesByName(rank, true));
-            guild.getController().addRolesToMember(guild.getMember(user), guild.getRolesByName(rank, true)).reason("LegendaryBot - WoW Guild Rank").queue();
+            guild.getController().modifyMemberRoles(guild.getMember(user), rolesToAdd, rolesToRemove).reason("LegendaryBot - Rank Sync with WoW Guild.").queue();
         } catch (PermissionException e) {
             e.printStackTrace();
         }
