@@ -65,16 +65,16 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public void execute(MessageReceivedEvent event, String[] args) {
-        String serverName = args[0];
+        String serverName = null;
         Hero hero = null;
         try {
-
 
             if (args.length == 1) {
                 serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
                 hero = getiLvl(getBot().getGuildSettings(event.getGuild()).getRegionName(),serverName, args[0]);
             } else {
-                hero = getiLvl(getBot().getGuildSettings(event.getGuild()).getRegionName(),serverName, args[1]);
+                serverName = args[1];
+                hero = getiLvl(getBot().getGuildSettings(event.getGuild()).getRegionName(),serverName, args[0]);
             }
 
             if (hero != null) {
