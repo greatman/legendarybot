@@ -21,51 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.api.commands;
+package com.greatmancode.legendarybot.plugins.wowlink.utils;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import net.dv8tion.jda.core.entities.Member;
+import com.greatmancode.legendarybot.api.commands.Command;
+import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-/**
- * Represents a command
- */
-public interface Command {
+import java.sql.SQLException;
 
-    /**
-     * Execute the command
-     * @param event The Discord event that triggered this command
-     * @param args The arguments that followed the command
-     */
-    void execute(MessageReceivedEvent event, String[] args);
+public interface WowCommand extends Command {
 
-    /**
-     * Verify if the executor of the command can run it
-     * @param member The executor of the command
-     * @return True if the Discord user can execute the command, else false
-     */
-    boolean canExecute(Member member);
-
-    /**
-     * The minimum number of arguments this command take
-     * @return a integer containing the number of arguments needed
-     */
-    int minArgs();
-
-    /**
-     * The maximum number of arguments this command take
-     * @return a integer containing the number of arguments maximum
-     */
-    int maxArgs();
-
-    /**
-     * Returns the help for the command
-     * @return A String containing the help information about the command.
-     */
-    String help();
-
+    @Override
     default String[] preFlight(MessageReceivedEvent event, LegendaryBot bot, String[] args) {
-        return args;
+        String[] newArgs = args;
+        if (args.length == 0) {
+            try {
+                WoWLinkPlugin plugin = ((WoWLinkPlugin)bot.getPluginManager().getPlugin("wowLink").getPlugin());
+                String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(),event.getGuild());
+                if (character != null) {
+                    newArgs = new String[1];
+                    newArgs[0] = character;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                newArgs = args;
+            }
+        }
+        return newArgs;
     }
 }
-

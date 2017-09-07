@@ -28,6 +28,7 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.api.utils.Hero;
 import com.greatmancode.legendarybot.api.utils.HeroClass;
+import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -41,7 +42,7 @@ import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;
 
-public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
+public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, PublicCommand {
 
     private final OkHttpClient client = new OkHttpClient.Builder()
             .addInterceptor(new BattleNetAPIInterceptor(getBot()))
@@ -97,7 +98,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements PublicCommand {
     }
 
     public String help() {
-        return  "ilvl <Server Name> [Character Name] - Retrieve a character iLvl";
+        return  "ilvl [Character Name] <Server Name> - Retrieve a character iLvl";
     }
 
     /**

@@ -174,11 +174,12 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
 
         getBot().getCommandHandler().addCommand("linkwowchars", new LinkWoWCharsCommand(this));
         getBot().getCommandHandler().addCommand("guildchars", new GuildCharsCommand(this));
-        getBot().getCommandHandler().addCommand("setmainchar", new SetGuildCharacterCommand(this));
+        getBot().getCommandHandler().addCommand("setmainchar", new SetMainCharacterCommand(this));
         getBot().getCommandHandler().addCommand("enableautorank", new EnableAutoRankCommand(this));
         getBot().getCommandHandler().addCommand("disableautorank", new DisableAutoRankCommand(this));
         getBot().getCommandHandler().addCommand("setwowrank", new SetWoWRankCommand(this));
         getBot().getCommandHandler().addCommand("syncrank", new SyncRankCommand(this));
+        getBot().getCommandHandler().addCommand("syncguild", new SyncGuildCommand(this));
     }
 
     @Override
@@ -191,6 +192,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("disableautorank");
         getBot().getCommandHandler().removeCommand("setwowrank");
         getBot().getCommandHandler().removeCommand("syncrank");
+        getBot().getCommandHandler().removeCommand("syncguild");
     }
 
     public List<String> getUserCharactersInGuild(User user, Guild guild) {

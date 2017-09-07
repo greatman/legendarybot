@@ -23,19 +23,22 @@
  */
 package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
-import com.greatmancode.legendarybot.api.commands.PublicCommand;
+import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
+public class SyncGuildCommand extends AdminCommand implements ZeroArgsCommand {
 
     private WoWLinkPlugin plugin;
 
-    public SyncRankCommand(WoWLinkPlugin plugin) {
+    public SyncGuildCommand(WoWLinkPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -45,29 +48,26 @@ public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
             event.getChannel().sendMessage("The bot need the \"**Manage Roles**\" permission to be able to set roles to the users.").queue();
             return;
         }
-        if (plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED) == null) {
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Account sync is not enabled in this Discord server.").queue());
-            return;
-        }
-
-        try {
-            String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(), event.getGuild());
-            if (character == null) {
-                event.getAuthor().openPrivateChannel().queue((c)-> c.sendMessage("You didn't set a main character yet. Please use !setguildcharacter first.").queue());
-                return;
+        Map<User,String> userCharacterMap = new HashMap<>();
+        event.getGuild().getMembers().forEach((m) -> {
+            try {
+                userCharacterMap.put(m.getUser(),plugin.getMainCharacterForUserInGuild(m.getUser(),event.getGuild()));
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-            plugin.setDiscordRank(event.getAuthor(),event.getGuild(),plugin.getWoWRank(event.getGuild(), character));
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Rank synced!").queue());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("An error ocurred. Try again later!").queue());
-            plugin.getBot().getStacktraceHandler().sendStacktrace(e, "userid:" + event.getAuthor().getId(), "guildid:" + event.getGuild().getId());
-        }
+        });
 
+        userCharacterMap.forEach((u,l) -> {
+            if (l != null) {
+                plugin.setDiscordRank(u,event.getGuild(),plugin.getWoWRank(event.getGuild(),l));
+            }
+        });
+
+        event.getChannel().sendMessage("All ranks are synced!");
     }
 
     @Override
     public String help() {
-        return "syncrank - Sync your Guild rank with your Discord account";
+        return "syncguild - Sync the rank of all the users with a main WoW character.";
     }
 }

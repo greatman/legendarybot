@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugin.raidrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
@@ -51,7 +52,7 @@ import java.util.Collections;
 /**
  * !raidrank command - Get the kill count in the latest raid for a player.
  */
-public class RaidRankCommand extends LegendaryBotPlugin implements PublicCommand {
+public class RaidRankCommand extends LegendaryBotPlugin implements WowCommand, PublicCommand {
 
     /**
      * The HTTP Client to do web requests.

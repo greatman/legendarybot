@@ -19,6 +19,11 @@
             <artifactId>api</artifactId>
             <version>2.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.greatmancode.legendarybot</groupId>
+            <artifactId>wowlink</artifactId>
+            <version>2.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

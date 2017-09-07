@@ -94,8 +94,10 @@ public class CommandHandler {
                 if (commandClass.canExecute(event.getMember())) {
                     String[] args = new String[commandArray.length - 1];
                     try {
+                        args = commandClass.preFlight(event, bot, args);
                         if (args.length >= commandClass.minArgs() && args.length <= commandClass.maxArgs()) {
                             System.arraycopy(commandArray, 1, args,0,commandArray.length - 1);
+
                             bot.getStatsClient().incrementCounter("legendarybot.commands","command:"+command);
                             commandClass.execute(event, args);
                         } else {

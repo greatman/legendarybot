@@ -30,11 +30,11 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import java.sql.SQLException;
 import java.util.List;
 
-public class SetGuildCharacterCommand implements PublicCommand {
+public class SetMainCharacterCommand implements PublicCommand {
 
     private WoWLinkPlugin plugin;
 
-    public SetGuildCharacterCommand(WoWLinkPlugin plugin) {
+    public SetMainCharacterCommand(WoWLinkPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -75,6 +75,6 @@ public class SetGuildCharacterCommand implements PublicCommand {
 
     @Override
     public String help() {
-        return "setguildchar - Set your Main guild character. If enabled, this will give you the proper Discord rank.";
+        return "setmainchar <Wow Character> - Set your Main guild character. If enabled, this will give you the proper Discord rank.";
     }
 }

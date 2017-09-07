@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugin.mythicplusrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
@@ -49,7 +50,7 @@ import java.util.Collections;
 /**
  * !mplusrank - Get the Mythic Plus ranking of a player.
  */
-public class MythicPlusRankCommand extends LegendaryBotPlugin implements PublicCommand{
+public class MythicPlusRankCommand extends LegendaryBotPlugin implements WowCommand, PublicCommand{
 
     /**
      * The HTTPClient to do web requests.

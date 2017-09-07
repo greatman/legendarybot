@@ -225,10 +225,14 @@ public class ILegendaryBot extends LegendaryBot {
         //Load the configuration
         props = new Properties();
         props.load(new FileInputStream("app.properties"));
+        JDA jda;
+        if (props.containsKey("shard") && props.containsKey("shardTotal")) {
+            jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).useSharding(Integer.parseInt(props.getProperty("shard")),Integer.parseInt(props.getProperty("shardTotal"))).buildBlocking();
+        } else {
+            //Connect the bot to Discord
+            jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
+        }
 
-
-        //Connect the bot to Discord
-        JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
         //We launch the bot
         new ILegendaryBot(jda);
     }
