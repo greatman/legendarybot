@@ -26,10 +26,8 @@ package com.greatmancode.legendarybot.plugin.botplay;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.impl.GameImpl;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +49,7 @@ public class BotPlayPlugin extends LegendaryBotPlugin {
     @Override
     public void start() throws PluginException {
         final Runnable run = () -> {
-            GameImpl game = new GameImpl("on " + getBot().getJDA().getGuilds().size() + " servers","https://github.com/greatman/legendarybot", Game.GameType.DEFAULT);
+            Game game = Game.of("on " + getBot().getJDA().getGuilds().size() + " servers","https://github.com/greatman/legendarybot");
             getBot().getJDA().getPresence().setGame(game);
         };
         scheduler.scheduleAtFixedRate(run,0,30, TimeUnit.MINUTES);

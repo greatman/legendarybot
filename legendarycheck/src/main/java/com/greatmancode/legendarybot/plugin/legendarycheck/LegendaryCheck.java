@@ -29,11 +29,20 @@ import net.dv8tion.jda.core.entities.Guild;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Response;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,9 +51,10 @@ import java.util.stream.LongStream;
 public class LegendaryCheck {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
+    private LegendaryBot bot;
     private long[] itemIDIgnore = {147451,151462};
-    public LegendaryCheck(LegendaryBot bot, Guild guild, LegendaryCheckPlugin plugin) {
+    public LegendaryCheck(LegendaryBot bot, Guild guild, LegendaryCheckPlugin plugin, int initialDelay) {
+        this.bot = bot;
         final Runnable checkNews = () -> {
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(new BattleNetAPIInterceptor(bot))
@@ -120,28 +130,11 @@ public class LegendaryCheck {
                                 if (LongStream.of(itemIDIgnore).anyMatch(x -> x == itemID)) {
                                     continue;
                                 }
-                                url = new HttpUrl.Builder().scheme("https")
-                                        .host(regionName + ".api.battle.net")
-                                        .addPathSegments("/wow/item/" + itemID)
-                                        .build();
-                                webRequest = new Request.Builder().url(url).build();
-                                String itemRequest = client.newCall(webRequest).execute().body().string();
-                                if (itemRequest == null) {
-                                    continue;
-                                }
-                                JSONObject itemObject;
-                                try {
-                                    itemObject = (JSONObject) new JSONParser().parse(itemRequest);
-                                } catch (ParseException e) {
-                                    bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId(), "region:" + regionName, "wowGuild:" + guildName, "serverName:" + serverName, "channelName:" + channelName, "itemRequest:" + itemRequest);
-                                    continue;
-                                }
-
-                                long quality = (Long) itemObject.get("quality");
-                                if (quality == 5) {
+                                if (isItemLegendary(regionName, itemID)) {
                                     System.out.println(name + " just looted a legendary");
                                     //We got a legendary!
-                                    guild.getTextChannelsByName(channelName, true).get(0).sendMessage(name + " just looted the legendary " + itemObject.get("name") + "! :tada:  http://www.wowhead.com/item=" + itemID).queue();
+                                    guild.getTextChannelsByName(channelName, true).get(0).sendMessage(name + " just looted the legendary " + getItemName(regionName, itemID) + "! :tada:  http://www.wowhead.com/item=" + itemID).queue();
+
                                 }
                             }
                             if (Thread.interrupted()) {
@@ -164,10 +157,118 @@ public class LegendaryCheck {
                 bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId());
             }
         };
-        scheduler.scheduleAtFixedRate(checkNews, 0,10, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(checkNews, initialDelay,600, TimeUnit.SECONDS);
     }
 
     public void shutdown() {
         scheduler.shutdownNow();
+    }
+
+    public boolean isItemLegendary(String regionName, long itemID) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new BattleNetAPIInterceptor(bot))
+                .build();
+        try {
+            Map<String, String> paramMap = new HashMap<>();
+            paramMap.put("q", "id:" + itemID);
+            Response response = bot.getElasticSearch().performRequest("GET", "/wow/item/_search", paramMap);
+
+            JSONParser jsonParser = new JSONParser();
+            try {
+                JSONObject obj = (JSONObject) jsonParser.parse(EntityUtils.toString(response.getEntity()));
+                JSONObject hits = (JSONObject) obj.get("hits");
+                if ((long)hits.get("total") == 0) {
+                    System.out.println("ID " + itemID + "not found on cache. Getting it + caching.");
+                    HttpUrl url = new HttpUrl.Builder().scheme("https")
+                            .host(regionName + ".api.battle.net")
+                            .addPathSegments("/wow/item/" + itemID)
+                            .build();
+                    Request webRequest = new Request.Builder().url(url).build();
+                    String itemRequest = client.newCall(webRequest).execute().body().string();
+                    if (itemRequest == null) {
+                        return false;
+                    }
+                    JSONObject itemObject;
+                    try {
+                        itemObject = (JSONObject) new JSONParser().parse(itemRequest);
+                    } catch (ParseException e) {
+                        bot.getStacktraceHandler().sendStacktrace(e, "itemID:" + itemID, "regionName:" + regionName, "itemRequest:" + itemRequest);
+                        return false;
+                    }
+                    if (itemObject.containsKey("reason")) {
+                        return false;
+                    }
+
+                    HttpEntity entity = new NStringEntity(itemObject.toJSONString(), ContentType.APPLICATION_JSON);
+                    Response indexResponse = bot.getElasticSearch().performRequest("POST", "/wow/item/",Collections.emptyMap(), entity);
+                    System.out.println(EntityUtils.toString(indexResponse.getEntity()));
+                    System.out.println("Added item " + itemID);
+                    long quality = (Long) itemObject.get("quality");
+                    return quality == 5;
+                }
+
+                System.out.println("checked in cache.");
+                JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
+                JSONObject firstItem = (JSONObject) hit.get(0);
+                JSONObject source = (JSONObject) firstItem.get("_source");
+                return (long) source.get("quality") == 5;
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            bot.getStacktraceHandler().sendStacktrace(e);
+            return false;
+        }
+    }
+
+    public String getItemName(String regionName, long itemID) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new BattleNetAPIInterceptor(bot))
+                .build();
+        try {
+            Map<String, String> paramMap = new HashMap<>();
+            paramMap.put("q", "id:" + itemID);
+            Response response = bot.getElasticSearch().performRequest("GET", "/wow/item/_search", paramMap);
+
+            JSONParser jsonParser = new JSONParser();
+            try {
+                JSONObject obj = (JSONObject) jsonParser.parse(EntityUtils.toString(response.getEntity()));
+                JSONObject hits = (JSONObject) obj.get("hits");
+                if ((long)hits.get("total") == 0) {
+                    System.out.println("ID " + itemID + "not found on cache. Getting it + caching.");
+                    //TODO Not found, do something
+                    HttpUrl url = new HttpUrl.Builder().scheme("https")
+                            .host(regionName + ".api.battle.net")
+                            .addPathSegments("/wow/item/" + itemID)
+                            .build();
+                    Request webRequest = new Request.Builder().url(url).build();
+                    String itemRequest = client.newCall(webRequest).execute().body().string();
+                    if (itemRequest == null) {
+                        return null;
+                    }
+                    JSONObject itemObject;
+                    try {
+                        itemObject = (JSONObject) new JSONParser().parse(itemRequest);
+                    } catch (ParseException e) {
+                        bot.getStacktraceHandler().sendStacktrace(e, "itemID:" + itemID, "regionName:" + regionName, "itemRequest:" + itemRequest);
+                        return null;
+                    }
+                    return (String) itemObject.get("name");
+                }
+                JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
+                JSONObject firstItem = (JSONObject) hit.get(0);
+                JSONObject source = (JSONObject) firstItem.get("_source");
+                return (String) source.get("name");
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            bot.getStacktraceHandler().sendStacktrace(e);
+            return null;
+        }
     }
 }

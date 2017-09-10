@@ -40,8 +40,9 @@
     </modules>
 
     <properties>
-        <pf4j.version>1.3.0</pf4j.version>
-        <jda.version>3.2.0_226</jda.version>
+        <pf4j.version>1.4.0-SNAPSHOT</pf4j.version>
+        <pf4j-update.version>0.4.0</pf4j-update.version>
+        <jda.version>3.3.0_263</jda.version>
         <jsonsimple.version>1.1.1</jsonsimple.version>
         <jodatime.version>2.9.7</jodatime.version>
         <slf4jsimple.version>1.7.25</slf4jsimple.version>
@@ -53,6 +54,16 @@
             <name>jcenter-bintray</name>
             <url>http://jcenter.bintray.com</url>
         </repository>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -60,6 +71,11 @@
             <groupId>ro.fortsoft.pf4j</groupId>
             <artifactId>pf4j</artifactId>
             <version>${pf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ro.fortsoft.pf4j</groupId>
+            <artifactId>pf4j-update</artifactId>
+            <version>${pf4j-update.version}</version>
         </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>

@@ -49,6 +49,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import ro.fortsoft.pf4j.PluginManager;
 import ro.fortsoft.pf4j.PluginWrapper;
+import ro.fortsoft.pf4j.update.UpdateManager;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -111,7 +112,7 @@ public class ILegendaryBot extends LegendaryBot {
     /**
      * DataDog client
      */
-    private StatsDClient statsClient;
+    private StatsDClient statsClient = new NonBlockingStatsDClient(null, props.getProperty("statsd.address"), Integer.parseInt(props.getProperty("statsd.port")));
 
     /**
      * The app.properties file.
@@ -173,15 +174,20 @@ public class ILegendaryBot extends LegendaryBot {
         //Load the settings for each guild
         jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings(guild, this)));
 
+
+        if (Boolean.parseBoolean(props.getProperty("stats.enable"))) {
+            statsHandler = new StatsHandler(props, this);
+        }
+
+        //We set LegendaryBot version
+        //pluginManager.setSystemVersion("1.0");
+        //UpdateManager updateManager = new UpdateManager(pluginManager);
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
 
 
-        //
-        if (Boolean.parseBoolean(props.getProperty("stats.enable"))) {
-            statsHandler = new StatsHandler(props, this);
-        }
+
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {
@@ -202,12 +208,15 @@ public class ILegendaryBot extends LegendaryBot {
             if (statsHandler != null) {
                 statsHandler.stop();
             }
-            try {
-                restClient.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                getStacktraceHandler().sendStacktrace(e);
+            if (restClient != null) {
+                try {
+                    restClient.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    getStacktraceHandler().sendStacktrace(e);
+                }
             }
+
             System.out.println("Legendarybot shutdown.");
         }));
     }
@@ -225,13 +234,7 @@ public class ILegendaryBot extends LegendaryBot {
         //Load the configuration
         props = new Properties();
         props.load(new FileInputStream("app.properties"));
-        JDA jda;
-        if (props.containsKey("shard") && props.containsKey("shardTotal")) {
-            jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).useSharding(Integer.parseInt(props.getProperty("shard")),Integer.parseInt(props.getProperty("shardTotal"))).buildBlocking();
-        } else {
-            //Connect the bot to Discord
-            jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
-        }
+        JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
 
         //We launch the bot
         new ILegendaryBot(jda);
@@ -278,9 +281,6 @@ public class ILegendaryBot extends LegendaryBot {
 
     @Override
     public StatsDClient getStatsClient() {
-        if (statsClient == null) {
-            statsClient = new NonBlockingStatsDClient(null, props.getProperty("statsd.address"), Integer.parseInt(props.getProperty("statsd.port")));
-        }
         return statsClient;
     }
 

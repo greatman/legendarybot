@@ -63,7 +63,8 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
         log.info("Starting LegendaryCheck plugin.");
-        getBot().getJDA().getGuilds().forEach(this::startLegendaryCheck);
+        final int[] i = {0};
+        getBot().getJDA().getGuilds().forEach(guild -> startLegendaryCheck(guild, i[0]++));
         getBot().getCommandHandler().addCommand("enablelc", new EnableLegendaryCheckCommand(this));
         getBot().getCommandHandler().addCommand("disablelc", new DisableLegendaryCheckCommand(this));
         getBot().getCommandHandler().addCommand("mutelc", new MuteLegendaryCheckCommand(this));
@@ -83,12 +84,16 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
 
 
     public void startLegendaryCheck(Guild guild) {
+        startLegendaryCheck(guild, 0);
+    }
+
+    public void startLegendaryCheck(Guild guild, int initialDelay) {
         if (getBot().getGuildSettings(guild).getSetting(SETTING_NAME) != null) {
             if (legendaryCheckMap.containsKey(guild.getId())) {
                 legendaryCheckMap.get(guild.getId()).shutdown();
                 legendaryCheckMap.remove(guild.getId());
             }
-            legendaryCheckMap.put(guild.getId(), new LegendaryCheck(getBot(), guild,this));
+            legendaryCheckMap.put(guild.getId(), new LegendaryCheck(getBot(), guild,this, initialDelay));
             log.info("Started check for guild " + guild.getName());
         }
     }
