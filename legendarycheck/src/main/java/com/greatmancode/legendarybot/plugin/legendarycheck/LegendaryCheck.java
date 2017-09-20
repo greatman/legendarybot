@@ -75,7 +75,9 @@ public class LegendaryCheck {
                         .build();
                 Request webRequest = new Request.Builder().url(url).build();
 
-                String request = client.newCall(webRequest).execute().body().string();
+                okhttp3.Response response = client.newCall(webRequest).execute();
+                String request = response.body().string();
+                response.close();
                 if (request == null) {
                     return;
                 } else if (request.contains("nok")) {
@@ -102,7 +104,9 @@ public class LegendaryCheck {
                                 .addQueryParameter("fields", "feed")
                                 .build();
                         webRequest = new Request.Builder().url(url).build();
-                        String memberFeedRequest = client.newCall(webRequest).execute().body().string();
+                        response = client.newCall(webRequest).execute();
+                        String memberFeedRequest = response.body().string();
+                        response.close();
                         if (memberFeedRequest == null) {
                             continue;
                         } else if (!memberFeedRequest.contains("lastModified")) {
@@ -184,7 +188,9 @@ public class LegendaryCheck {
                             .addPathSegments("/wow/item/" + itemID)
                             .build();
                     Request webRequest = new Request.Builder().url(url).build();
-                    String itemRequest = client.newCall(webRequest).execute().body().string();
+                    okhttp3.Response responseBattleNet = client.newCall(webRequest).execute();
+                    String itemRequest = responseBattleNet.body().string();
+                    responseBattleNet.close();
                     if (itemRequest == null) {
                         return false;
                     }
@@ -244,7 +250,9 @@ public class LegendaryCheck {
                             .addPathSegments("/wow/item/" + itemID)
                             .build();
                     Request webRequest = new Request.Builder().url(url).build();
-                    String itemRequest = client.newCall(webRequest).execute().body().string();
+                    okhttp3.Response responseBattleNet = client.newCall(webRequest).execute();
+                    String itemRequest = responseBattleNet.body().string();
+                    responseBattleNet.close();
                     if (itemRequest == null) {
                         return null;
                     }

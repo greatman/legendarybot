@@ -103,10 +103,14 @@ public class MythicPlusRankCommand extends LegendaryBotPlugin implements WowComm
             JSONObject characterDetails = (JSONObject)jsonObject.get("characterDetails");
             JSONObject character = (JSONObject) characterDetails.get("character");
             JSONObject mplusScores = (JSONObject) characterDetails.get("mythicPlusScores");
+            String currentSeasonName = (String) characterDetails.get("seasonName");
+            int currentSeasonScore = (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("all")).get("score")));
+            int previousSeasonScore = (int)Double.parseDouble(String.valueOf(characterDetails.get("previousSeasonScore")));
+            String previousSeasonName = (String) characterDetails.get("previousSeasonName");
             MessageBuilder builder = new MessageBuilder();
             builder.append("**" + character.get("name") + "**");
             builder.append(" Mythic+ Score: ");
-            builder.append("Global: **" + (int)Double.parseDouble(String.valueOf(((JSONObject)mplusScores.get("all")).get("score"))) + "** ");
+            builder.append("Global: **"+currentSeasonName+"**: **"+currentSeasonScore+"** | **"+previousSeasonName+"**: **" + previousSeasonScore +"** ");
             event.getChannel().sendMessage(builder.build()).queue();
         } catch (IOException | ParseException e) {
             e.printStackTrace();
