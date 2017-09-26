@@ -40,7 +40,12 @@ public class PlayMusicCommand extends AdminCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String channel;
+        String channel = null;
+        VoiceChannel voiceChannel = null;
+        if (args.length == 1 && event.getMember().getVoiceState().inVoiceChannel()) {
+            voiceChannel = event.getMember().getVoiceState().getChannel();
+        }
+
         if (args.length >= 3) {
             String[] argsend = new String[args.length - 1];
             System.arraycopy(args,1,argsend,0,args.length - 1);
@@ -50,24 +55,33 @@ public class PlayMusicCommand extends AdminCommand {
             }
             channel = builder.toString().trim();
 
-        } else {
+        } else if (args.length == 2) {
             channel = args[1];
         }
-
-        List<VoiceChannel> voiceChannels = event.getGuild().getVoiceChannelsByName(channel, true);
-        if (voiceChannels.size() == 0) {
-            event.getChannel().sendMessage("Voice channel not found!").queue();
-            return;
-        } else if (voiceChannels.size() == 2) {
-            event.getChannel().sendMessage("More than 1 channel found. Please be more specific").queue();
+        if (channel == null && voiceChannel == null) {
+            event.getChannel().sendMessage("If you don't put a voice channel in the command, you need to be yourself in a channel!").queue();
             return;
         }
-        plugin.getMusicManager().loadAndPlay(event.getTextChannel(), args[0], voiceChannels.get(0));
+        if (voiceChannel == null) {
+            List<VoiceChannel> voiceChannels = event.getGuild().getVoiceChannelsByName(channel, true);
+            if (voiceChannels.size() == 0) {
+                event.getChannel().sendMessage("Voice channel not found!").queue();
+                return;
+            } else if (voiceChannels.size() == 2) {
+                event.getChannel().sendMessage("More than 1 channel found. Please be more specific").queue();
+                return;
+            }
+            plugin.getMusicManager().loadAndPlay(event.getTextChannel(), args[0], voiceChannels.get(0));
+        } else {
+            plugin.getMusicManager().loadAndPlay(event.getTextChannel(), args[0], voiceChannel);
+        }
+
+
     }
 
     @Override
     public int minArgs() {
-        return 2;
+        return 1;
     }
 
     @Override
@@ -77,6 +91,6 @@ public class PlayMusicCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "playmusic [Link] [Channel] - Play music in a channel.";
+        return "playmusic [Link] <Channel> - Play music in a channel.";
     }
 }
