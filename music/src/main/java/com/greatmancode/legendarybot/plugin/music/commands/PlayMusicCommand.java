@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.music.commands;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -40,43 +41,17 @@ public class PlayMusicCommand extends AdminCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String channel = null;
-        VoiceChannel voiceChannel = null;
-        if (args.length == 1 && event.getMember().getVoiceState().inVoiceChannel()) {
-            voiceChannel = event.getMember().getVoiceState().getChannel();
-        }
-
-        if (args.length >= 3) {
-            String[] argsend = new String[args.length - 1];
-            System.arraycopy(args,1,argsend,0,args.length - 1);
-            StringBuilder builder = new StringBuilder();
-            for(String s : argsend) {
-                builder.append(" ").append(s);
-            }
-            channel = builder.toString().trim();
-
-        } else if (args.length == 2) {
-            channel = args[1];
-        }
-        if (channel == null && voiceChannel == null) {
-            event.getChannel().sendMessage("If you don't put a voice channel in the command, you need to be yourself in a channel!").queue();
+        if (!event.getMember().getVoiceState().inVoiceChannel()) {
+            event.getChannel().sendMessage("You need to be yourself in a voice channel!").queue();
             return;
         }
-        if (voiceChannel == null) {
-            List<VoiceChannel> voiceChannels = event.getGuild().getVoiceChannelsByName(channel, true);
-            if (voiceChannels.size() == 0) {
-                event.getChannel().sendMessage("Voice channel not found!").queue();
-                return;
-            } else if (voiceChannels.size() == 2) {
-                event.getChannel().sendMessage("More than 1 channel found. Please be more specific").queue();
-                return;
-            }
-            plugin.getMusicManager().loadAndPlay(event.getTextChannel(), args[0], voiceChannels.get(0));
-        } else {
-            plugin.getMusicManager().loadAndPlay(event.getTextChannel(), args[0], voiceChannel);
-        }
+        VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+        plugin.getMusicManager().loadAndPlay(event.getTextChannel(), args[0], voiceChannel);
+    }
 
-
+    @Override
+    public boolean canExecute(Member member) {
+        return (super.canExecute(member) || plugin.getBot().getGuildSettings(member.getGuild()).getSetting(MusicPlugin.MEMBER_ALLOWED_SETTING) != null);
     }
 
     @Override
@@ -86,7 +61,7 @@ public class PlayMusicCommand extends AdminCommand {
 
     @Override
     public int maxArgs() {
-        return 99;
+        return 1;
     }
 
     @Override

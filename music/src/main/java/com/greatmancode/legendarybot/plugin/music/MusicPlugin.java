@@ -25,17 +25,17 @@
 package com.greatmancode.legendarybot.plugin.music;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.plugin.music.commands.AddSongCommand;
-import com.greatmancode.legendarybot.plugin.music.commands.PlayMusicCommand;
-import com.greatmancode.legendarybot.plugin.music.commands.SkipSongCommand;
-import com.greatmancode.legendarybot.plugin.music.commands.StopMusicCommand;
+import com.greatmancode.legendarybot.plugin.music.commands.*;
 import com.greatmancode.legendarybot.plugin.music.music.MusicManager;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 public class MusicPlugin extends LegendaryBotPlugin {
 
+    public static String MEMBER_ALLOWED_SETTING = "musicplugin_memberallowed";
+
     private MusicManager musicManager = new MusicManager();
+
     public MusicPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -47,6 +47,8 @@ public class MusicPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("playmusic", new PlayMusicCommand(this));
         getBot().getCommandHandler().addCommand("skipsong", new SkipSongCommand(this));
         getBot().getCommandHandler().addCommand("stopmusic", new StopMusicCommand(this));
+        getBot().getCommandHandler().addCommand("disallowmembermusic", new DisallowMemberMusicCommand(this));
+        getBot().getCommandHandler().addCommand("allowmembermusic", new AllowMemberMusicCommand(this));
         log.info("Music plugin loaded! Added commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 
@@ -57,6 +59,8 @@ public class MusicPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("playmusic");
         getBot().getCommandHandler().removeCommand("skipsong");
         getBot().getCommandHandler().removeCommand("stopmusic");
+        getBot().getCommandHandler().removeCommand("disallowmembermusic");
+        getBot().getCommandHandler().removeCommand("allowmembermusic");
         log.info("Music plugin unloaded! Removed commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 

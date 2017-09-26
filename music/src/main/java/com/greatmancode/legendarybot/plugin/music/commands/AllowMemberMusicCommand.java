@@ -24,31 +24,35 @@
 package com.greatmancode.legendarybot.plugin.music.commands;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class StopMusicCommand extends AdminCommand implements ZeroArgsCommand {
+public class AllowMemberMusicCommand extends AdminCommand {
 
     private MusicPlugin plugin;
 
-    public StopMusicCommand(MusicPlugin plugin) {
+    public AllowMemberMusicCommand(MusicPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        plugin.getMusicManager().stopMusic(event.getTextChannel());
+        plugin.getBot().getGuildSettings(event.getGuild()).setSetting(MusicPlugin.MEMBER_ALLOWED_SETTING, "true");
+        event.getChannel().sendMessage("Members can now use all the music commands.").queue();
     }
 
     @Override
-    public boolean canExecute(Member member) {
-        return (super.canExecute(member) || plugin.getBot().getGuildSettings(member.getGuild()).getSetting(MusicPlugin.MEMBER_ALLOWED_SETTING) != null);
+    public int minArgs() {
+        return 0;
+    }
+
+    @Override
+    public int maxArgs() {
+        return 0;
     }
 
     @Override
     public String help() {
-        return "stopmusic - Stop the music.";
+        return "allowmembermusic - Allow a non-admin of the server to use all features of the music bot (!playmusic by example) (Default setting is disallow)";
     }
 }

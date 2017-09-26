@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugin.music.commands;
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class SkipSongCommand extends AdminCommand implements ZeroArgsCommand {
@@ -39,6 +40,11 @@ public class SkipSongCommand extends AdminCommand implements ZeroArgsCommand {
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         plugin.getMusicManager().skipTrack(event.getTextChannel());
+    }
+
+    @Override
+    public boolean canExecute(Member member) {
+        return (super.canExecute(member) || plugin.getBot().getGuildSettings(member.getGuild()).getSetting(MusicPlugin.MEMBER_ALLOWED_SETTING) != null);
     }
 
     @Override
