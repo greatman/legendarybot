@@ -64,12 +64,17 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         StringBuilder builder = new StringBuilder();
         for(String s : args) {
-            builder.append(" ").append(s);
+            if (builder.length() == 0) {
+                builder.append(s);
+            } else {
+                builder.append(" ").append(s);
+            }
         }
+        System.out.println(props.getProperty("giphy.key"));
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("http")
                 .host("api.giphy.com")
-                .addPathSegments("/v1/gifs/search")
+                .addPathSegments("v1/gifs/search")
                 .addQueryParameter("q", builder.toString())
                 .addQueryParameter("api_key", props.getProperty("giphy.key"))
                 .addQueryParameter("limit", "1")
@@ -78,6 +83,7 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
         Request request = new Request.Builder().url(url).build();
         try {
             String result = client.newCall(request).execute().body().string();
+            System.out.println(result);
             try {
                 JSONParser parser = new JSONParser();
                 JSONObject json = (JSONObject) parser.parse(result);
@@ -86,6 +92,7 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
                 String gif = (String) ((JSONObject)((JSONObject)obj.get("images")).get("fixed_height")).get("url");
                 event.getChannel().sendMessage(gif).queue();
             } catch (IndexOutOfBoundsException | NullPointerException e) {
+                e.printStackTrace();
                 event.getChannel().sendMessage("No gif found for " + builder.toString() + "!").queue();
             }
 

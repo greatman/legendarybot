@@ -94,12 +94,6 @@ public class ILegendaryBot extends LegendaryBot {
     private HikariDataSource dataSource;
 
     /**
-     * Bot-related statistics handler
-     */
-    //TODO: Move it into the BotGeneral plugin
-    private StatsHandler statsHandler;
-
-    /**
      * The instance of the Stacktrace Handler.
      */
     private StacktraceHandler stacktraceHandler;
@@ -175,9 +169,7 @@ public class ILegendaryBot extends LegendaryBot {
         jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings(guild, this)));
 
 
-        if (Boolean.parseBoolean(props.getProperty("stats.enable"))) {
-            statsHandler = new StatsHandler(props, this);
-        }
+
 
         //We set LegendaryBot version
         //pluginManager.setSystemVersion("1.0");
@@ -204,10 +196,6 @@ public class ILegendaryBot extends LegendaryBot {
                     getStacktraceHandler().sendStacktrace(e);
                 }
             });
-
-            if (statsHandler != null) {
-                statsHandler.stop();
-            }
             if (restClient != null) {
                 try {
                     restClient.close();

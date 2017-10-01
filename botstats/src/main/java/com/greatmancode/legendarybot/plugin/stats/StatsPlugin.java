@@ -30,26 +30,46 @@ import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.io.FileInputStream;
+import java.util.Properties;
+
 public class StatsPlugin extends LegendaryBotPlugin {
 
     private DashboardStatsHandler dashboardStatsHandler;
     private MessageListener messageListener;
+    private Properties props;
+    private DiscordBotListHandler statsHandler;
+
     public StatsPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
     public void start() throws PluginException {
+        //Load the configuration
+        props = new Properties();
+        try {
+            props.load(new FileInputStream("app.properties"));
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
+        }
         getBot().getCommandHandler().addCommand("botstats", new BotStatsCommands(this));
         dashboardStatsHandler = new DashboardStatsHandler(this);
         messageListener = new MessageListener(this);
         getBot().getJDA().addEventListener(messageListener);
         log.info("Command !botstats loaded!");
+        if (Boolean.parseBoolean(props.getProperty("stats.enable"))) {
+            statsHandler = new DiscordBotListHandler(props, this);
+        }
     }
 
     @Override
     public void stop() throws PluginException {
         getBot().getCommandHandler().removeCommand("botstats");
+        if (statsHandler != null) {
+            statsHandler.stop();
+        }
         dashboardStatsHandler.stop();
         getBot().getJDA().removeEventListener(messageListener);
         log.info("Command !botstats unloaded!");

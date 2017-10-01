@@ -21,48 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package com.greatmancode.legendarybot;
+package com.greatmancode.legendarybot.plugin.stats;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import net.dv8tion.jda.core.JDA;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Stats sender to the various bot lists
- */
-public class StatsHandler  {
+public class DiscordBotListHandler {
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
     private OkHttpClient client = new OkHttpClient();
-    /**
-     * Scheduler to send stats at a specific interval
-     */
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    /**
-     * Create a Stat Handler.
-     * @param properties The app.properties file instance.
-     * @param bot The {@link LegendaryBot} instance.
-     */
-    public StatsHandler(Properties properties, LegendaryBot bot) {
-        JDA jda = bot.getJDA();
-
+    public DiscordBotListHandler(Properties properties, StatsPlugin plugin) {
+        LegendaryBot bot = plugin.getBot();
         final Runnable postStats = () -> {
             Logger logger = LoggerFactory.getLogger(getClass());
             logger.info("Sending stats");
             JSONObject object = new JSONObject();
-            object.put("server_count", jda.getGuilds().size());
+            object.put("server_count", bot.getJDA().getGuilds().size());
             Request request = new Request.Builder().url("https://bots.discord.pw/api/bots/267134720700186626/stats")
                     .post(RequestBody.create(MEDIA_TYPE_JSON, object.toJSONString()))
                     .addHeader("Authorization",properties.getProperty("stats.botsdiscordpw")).build();
@@ -93,5 +81,4 @@ public class StatsHandler  {
     public void stop() {
         scheduler.shutdownNow();
     }
-
 }

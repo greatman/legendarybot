@@ -119,8 +119,8 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             get("/battlenetcallback", (req,res) -> {
                 String state = req.queryParams("state");
                 String region = state.split(":")[0];
-                OAuth20Service service = new ServiceBuilder(props.getProperty("battlenet.key"))
-                        .apiSecret(props.getProperty("battlenet.secret"))
+                OAuth20Service service = new ServiceBuilder(props.getProperty("battlenetoauth.key"))
+                        .apiSecret(props.getProperty("battlenetoauth.secret"))
                         .scope("wow.profile")
                         .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
                         .build(new OAuthBattleNetApi(region));

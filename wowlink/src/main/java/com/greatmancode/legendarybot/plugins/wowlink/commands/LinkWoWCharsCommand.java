@@ -46,7 +46,7 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
             event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with !setserversetting WOW_REGION_NAME US/EU").queue();
             return;
         }
-        OAuth20Service service = new ServiceBuilder(plugin.getProps().getProperty("battlenet.key"))
+        OAuth20Service service = new ServiceBuilder(plugin.getProps().getProperty("battlenetoauth.key"))
                 .scope("wow.profile")
                 .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
                 .state(region + ":" + event.getAuthor().getId())
