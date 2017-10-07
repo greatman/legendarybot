@@ -54,7 +54,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
                     "  `guild_id` varchar(64) NOT NULL,\n" +
                     "  `command_name` VARCHAR(45) NOT NULL,\n" +
                     "  `text` LONGTEXT NOT NULL,\n" +
-                    "  PRIMARY KEY (`guild_id`, `command_name`));\n";
+                    "  PRIMARY KEY (`guild_id`, `command_name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;\n";
             PreparedStatement statement = connection.prepareStatement(SERVER_COMMANDS_TABLE);
             statement.executeUpdate();
             statement.close();

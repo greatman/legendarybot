@@ -24,7 +24,6 @@
 package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;

@@ -29,8 +29,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.util.List;
-
 public class PlayMusicCommand extends AdminCommand {
 
     private MusicPlugin plugin;

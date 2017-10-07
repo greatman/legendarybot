@@ -45,7 +45,7 @@ public class RemoveStreamerCommand extends AdminCommand {
         try {
             StreamPlatform platform = StreamPlatform.valueOf(args[1].toUpperCase());
             plugin.removeStreamer(event.getGuild(), args[0], platform);
-            event.getChannel().sendMessage("Streamer " + args[0] + " removed!");
+            event.getChannel().sendMessage("Streamer " + args[0] + " removed!").queue();
         } catch (IllegalArgumentException e) {
             event.getChannel().sendMessage("Invalid platform!").queue();
         }

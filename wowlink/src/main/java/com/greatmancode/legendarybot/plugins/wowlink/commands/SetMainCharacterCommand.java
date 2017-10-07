@@ -52,7 +52,6 @@ public class SetMainCharacterCommand implements PublicCommand {
 
         try {
             plugin.setMainCharacterForGuild(event.getAuthor(), event.getGuild(), args[0]);
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Character set!"));
             if (plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED) != null) {
                 plugin.setDiscordRank(event.getAuthor(), event.getGuild(), plugin.getWoWRank(event.getGuild(), args[0]));
             }

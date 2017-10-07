@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import net.dv8tion.jda.core.utils.SimpleLog;
+import org.slf4j.event.Level;
 
 /**
  * Class to support catching errors from JDA threads.
@@ -46,8 +47,7 @@ public class LogListener implements SimpleLog.LogListener {
     }
 
     @Override
-    public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
-        //Do nothing
+    public void onLog(SimpleLog simpleLog, Level level, Object o) {
     }
 
     @Override

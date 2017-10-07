@@ -42,7 +42,7 @@
     <properties>
         <pf4j.version>1.4.0-SNAPSHOT</pf4j.version>
         <pf4j-update.version>0.4.0</pf4j-update.version>
-        <jda.version>3.3.0_263</jda.version>
+        <jda.version>3.3.1_286</jda.version>
         <jsonsimple.version>1.1.1</jsonsimple.version>
         <jodatime.version>2.9.7</jodatime.version>
         <slf4jsimple.version>1.7.25</slf4jsimple.version>

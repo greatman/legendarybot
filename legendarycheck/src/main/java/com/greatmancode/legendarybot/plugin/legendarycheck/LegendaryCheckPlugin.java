@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import net.dv8tion.jda.core.entities.Guild;
+import okhttp3.OkHttpClient;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
@@ -34,6 +35,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LegendaryCheckPlugin extends LegendaryBotPlugin{
 
@@ -46,12 +49,13 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
 
     @Override
     public void start() throws PluginException {
+        Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
         String LEGENDARY_TABLE = "CREATE TABLE IF NOT EXISTS `legendarycheck` (\n" +
                 "  `region` VARCHAR(25) NOT NULL,\n" +
                 "  `serverName` VARCHAR(25) NOT NULL,\n" +
                 "  `playerName` VARCHAR(25) NOT NULL,\n" +
                 "  `lastModified` BIGINT NOT NULL,\n" +
-                "  PRIMARY KEY (`region`,`serverName`,`playerName`));\n";
+                "  PRIMARY KEY (`region`,`serverName`,`playerName`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;\n";
         try {
             Connection conn = getBot().getDatabase().getConnection();
             PreparedStatement statement = conn.prepareStatement(LEGENDARY_TABLE);

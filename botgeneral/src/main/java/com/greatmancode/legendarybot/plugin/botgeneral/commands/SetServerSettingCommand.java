@@ -125,7 +125,7 @@ public class SetServerSettingCommand extends AdminCommand {
                 } catch (IOException e) {
                     e.printStackTrace();
                     bot.getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(), "settingName:" + args[0], "settingValue:" + setting);
-                    event.getChannel().sendMessage("An error occured. Try again later!");
+                    event.getChannel().sendMessage("An error occured. Try again later!").queue();
                 }
             } else {
                 event.getChannel().sendMessage("Please fill out the WOW_SERVER_NAME and the WOW_REGION_NAME first.").queue();

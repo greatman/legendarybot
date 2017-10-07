@@ -101,75 +101,73 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                     "  `realmName` VARCHAR(45) NOT NULL," +
                     "  `region` VARCHAR(45) NOT NULL," +
                     "  `guildName` VARCHAR(45) NOT NULL," +
-                    "  PRIMARY KEY (`user_id`, `characterName`, `realmName`, `region`));");
+                    "  PRIMARY KEY (`user_id`, `characterName`, `realmName`, `region`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
             statement.executeUpdate();
             statement.close();
             statement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `user_characters_guild` (" +
                     "  `user_id` VARCHAR(64) NOT NULL," +
                     "  `guild_id` VARCHAR(64) NOT NULL," +
                     "  `characterName` VARCHAR(45) NULL," +
-                    "  PRIMARY KEY (`user_id`, `guild_id`));");
+                    "  PRIMARY KEY (`user_id`, `guild_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
             statement.executeUpdate();
             statement.close();
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        path("/auth", () ->  {
-            get("/battlenetcallback", (req,res) -> {
-                String state = req.queryParams("state");
-                String region = state.split(":")[0];
-                OAuth20Service service = new ServiceBuilder(props.getProperty("battlenetoauth.key"))
-                        .apiSecret(props.getProperty("battlenetoauth.secret"))
-                        .scope("wow.profile")
-                        .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
-                        .build(new OAuthBattleNetApi(region));
-                String oAuthCode = req.queryParams("code");
-                OAuth2AccessToken token = service.getAccessToken(oAuthCode); //TODO: Save oauth code to do a character refresh.
-                System.out.println(token);
-                OAuthRequest request = new OAuthRequest(Verb.GET,"https://"+region+".api.battle.net/wow/user/characters");
-                service.signRequest(token, request);
-                Response response = service.execute(request);
-                JSONParser parser = new JSONParser();
-                JSONObject obj = (JSONObject) parser.parse(response.getBody());
-                JSONArray charactersArray = (JSONArray) obj.get("characters");
-                List<WoWCharacter> characterList = new ArrayList<>();
-                charactersArray.forEach((c) -> {
-                    JSONObject jsonObject = (JSONObject) c;
-                    if (jsonObject.containsKey("guild")) {
-                        characterList.add(new WoWCharacter((String)jsonObject.get("name"),(String)jsonObject.get("realm"), (String)jsonObject.get("guild"), region, HeroClass.values()[((Long) jsonObject.get("class")).intValue()]));
-                    }
-                });
-                if (characterList.size() > 0) {
-                    try {
-                        Connection conn = getBot().getDatabase().getConnection();
-                        final String[] statement = {"INSERT INTO user_characters(user_id,characterName,realmName,region,guildName) VALUES"};
-                        characterList.forEach((c) -> statement[0] += "(?,?,?,?,?),");
-                        statement[0] = statement[0].substring(0,statement[0].length() - 1);
-                        statement[0] += " ON DUPLICATE KEY UPDATE guildName=VALUES(guildName)";
-                        System.out.println(statement[0]);
-                        PreparedStatement preparedStatement = conn.prepareStatement(statement[0]);
-                        final int[] i = {1};
-                        characterList.forEach((c) -> {
-                            try {
-                                preparedStatement.setString(i[0]++,state.split(":")[1]);
-                                preparedStatement.setString(i[0]++,c.getCharacterName());
-                                preparedStatement.setString(i[0]++,c.getRealm());
-                                preparedStatement.setString(i[0]++,c.getRegion());
-                                preparedStatement.setString(i[0]++,c.getGuild());
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                        preparedStatement.executeUpdate();
-                        conn.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
+        path("/auth", () -> get("/battlenetcallback", (req, res) -> {
+            String state = req.queryParams("state");
+            String region = state.split(":")[0];
+            OAuth20Service service = new ServiceBuilder(props.getProperty("battlenetoauth.key"))
+                    .apiSecret(props.getProperty("battlenetoauth.secret"))
+                    .scope("wow.profile")
+                    .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
+                    .build(new OAuthBattleNetApi(region));
+            String oAuthCode = req.queryParams("code");
+            OAuth2AccessToken token = service.getAccessToken(oAuthCode); //TODO: Save oauth code to do a character refresh.
+            System.out.println(token);
+            OAuthRequest request = new OAuthRequest(Verb.GET,"https://"+region+".api.battle.net/wow/user/characters");
+            service.signRequest(token, request);
+            Response response = service.execute(request);
+            JSONParser parser = new JSONParser();
+            JSONObject obj = (JSONObject) parser.parse(response.getBody());
+            JSONArray charactersArray = (JSONArray) obj.get("characters");
+            List<WoWCharacter> characterList = new ArrayList<>();
+            charactersArray.forEach((c) -> {
+                JSONObject jsonObject = (JSONObject) c;
+                if (jsonObject.containsKey("guild")) {
+                    characterList.add(new WoWCharacter((String)jsonObject.get("name"),(String)jsonObject.get("realm"), (String)jsonObject.get("guild"), region, HeroClass.values()[((Long) jsonObject.get("class")).intValue()]));
                 }
-                return "Your WoW characters are now synced to LegendaryBot!";
             });
-        });
+            if (characterList.size() > 0) {
+                try {
+                    Connection conn = getBot().getDatabase().getConnection();
+                    final String[] statement = {"INSERT INTO user_characters(user_id,characterName,realmName,region,guildName) VALUES"};
+                    characterList.forEach((c) -> statement[0] += "(?,?,?,?,?),");
+                    statement[0] = statement[0].substring(0,statement[0].length() - 1);
+                    statement[0] += " ON DUPLICATE KEY UPDATE guildName=VALUES(guildName)";
+                    System.out.println(statement[0]);
+                    PreparedStatement preparedStatement = conn.prepareStatement(statement[0]);
+                    final int[] i = {1};
+                    characterList.forEach((c) -> {
+                        try {
+                            preparedStatement.setString(i[0]++,state.split(":")[1]);
+                            preparedStatement.setString(i[0]++,c.getCharacterName());
+                            preparedStatement.setString(i[0]++,c.getRealm());
+                            preparedStatement.setString(i[0]++,c.getRegion());
+                            preparedStatement.setString(i[0]++,c.getGuild());
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    preparedStatement.executeUpdate();
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            return "Your WoW characters are now synced to LegendaryBot!";
+        }));
 
 
         getBot().getCommandHandler().addCommand("linkwowchars", new LinkWoWCharsCommand(this));
@@ -261,10 +259,10 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             if (!jsonObject.containsKey("status")) {
                 JSONArray membersArray = (JSONArray) jsonObject.get("members");
                 for (Object e: membersArray) {
-                    JSONObject entry = (JSONObject) ((JSONObject) e);
+                    JSONObject entry = (JSONObject) e;
                     JSONObject characterEntry = (JSONObject) entry.get("character");
                     if (characterEntry.get("name").equals(character)) {
-                        rank[0] = new Long((long) entry.get("rank")).intValue();
+                        rank[0] = Long.valueOf((long) entry.get("rank")).intValue();
                         break;
                     }
                 }

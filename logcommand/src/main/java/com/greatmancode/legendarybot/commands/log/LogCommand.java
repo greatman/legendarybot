@@ -61,9 +61,9 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
                 .addQueryParameter("api_key",props.getProperty("warcraftlogs.key"))
                 .build();
         Request webRequest = new Request.Builder().url(url).build();
-        String request = null;
+
         try {
-            request = client.newCall(webRequest).execute().body().string();
+            String request = client.newCall(webRequest).execute().body().string();
             if (request == null) {
                 event.getChannel().sendMessage("Guild not found on Warcraftlogs!").queue();
                 return;
@@ -92,7 +92,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
         } catch (IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "guildName:" + getBot().getGuildSettings(event.getGuild()).getGuildName(), "serverName:" + getBot().getGuildSettings(event.getGuild()).getWowServerName(),"region:" + getBot().getGuildSettings(event.getGuild()).getRegionName());
-            event.getChannel().sendMessage("An error occured. Try again later!");
+            event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
     }
 

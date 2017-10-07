@@ -37,7 +37,6 @@ public class StatsPlugin extends LegendaryBotPlugin {
 
     private DashboardStatsHandler dashboardStatsHandler;
     private MessageListener messageListener;
-    private Properties props;
     private DiscordBotListHandler statsHandler;
 
     public StatsPlugin(PluginWrapper wrapper) {
@@ -47,7 +46,7 @@ public class StatsPlugin extends LegendaryBotPlugin {
     @Override
     public void start() throws PluginException {
         //Load the configuration
-        props = new Properties();
+        Properties props = new Properties();
         try {
             props.load(new FileInputStream("app.properties"));
         } catch (java.io.IOException e) {

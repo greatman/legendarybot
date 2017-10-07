@@ -85,13 +85,14 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                     event.getChannel().sendMessage(builder.build()).queue();
                     return;
                 }
-                if (json.get(getBot().getGuildSettings(event.getGuild()).getRegionName()) == null) {
+                String region = getBot().getGuildSettings(event.getGuild()).getRegionName().toLowerCase();
+                if (json.get(region) == null) {
                     MessageBuilder builder = new MessageBuilder();
                     builder.append("User ").append(args[0]).append(" doesn't play competitive!");
                     event.getChannel().sendMessage(builder.build()).queue();
                     return;
                 }
-                JSONObject competitive = (JSONObject) ((JSONObject)((JSONObject)json.get(getBot().getGuildSettings(event.getGuild()).getRegionName())).get("stats")).get("competitive");
+                JSONObject competitive = (JSONObject) ((JSONObject)((JSONObject)json.get(region)).get("stats")).get("competitive");
                 if (competitive == null) {
                     MessageBuilder builder = new MessageBuilder();
                     builder.append("User ").append(args[0]).append(" doesn't play competitive!");

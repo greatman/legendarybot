@@ -49,7 +49,6 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import ro.fortsoft.pf4j.PluginManager;
 import ro.fortsoft.pf4j.PluginWrapper;
-import ro.fortsoft.pf4j.update.UpdateManager;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -135,6 +134,8 @@ public class ILegendaryBot extends LegendaryBot {
         config.addDataSourceProperty("user", System.getenv("MYSQL_USER") != null ? System.getenv("MYSQL_USER") : props.getProperty("mysql.user"));
         config.addDataSourceProperty("password", System.getenv("MYSQL_PASSWORD") != null ? System.getenv("MYSQL_PASSWORD") : props.getProperty("mysql.password"));
         config.setConnectionTimeout(5000);
+        config.addDataSourceProperty("characterEncoding","utf8");
+        config.addDataSourceProperty("useUnicode","true");
         dataSource = new HikariDataSource(config);
 
         //We configure our Stacktrace catchers
@@ -154,7 +155,7 @@ public class ILegendaryBot extends LegendaryBot {
                 "  `guildId` VARCHAR(64) NOT NULL,\n" +
                 "  `configName` VARCHAR(255) NOT NULL,\n" +
                 "  `configValue` MEDIUMTEXT NOT NULL,\n" +
-                "  PRIMARY KEY (`guildId`, `configName`));\n";
+                "  PRIMARY KEY (`guildId`, `configName`))ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;\n";
         try {
             Connection conn = getDatabase().getConnection();
             PreparedStatement statement = conn.prepareStatement(SERVER_CONFIG_TABLE);
@@ -170,14 +171,41 @@ public class ILegendaryBot extends LegendaryBot {
 
 
 
-
-        //We set LegendaryBot version
-        //pluginManager.setSystemVersion("1.0");
-        //UpdateManager updateManager = new UpdateManager(pluginManager);
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
+        //We set LegendaryBot version
+        /*Version systemVersion = Version.valueOf("1.0.0");
+        pluginManager.setSystemVersion("1.0.0");
+        UpdateManager updateManager = new UpdateManager(pluginManager);
 
+
+
+        if (updateManager.hasUpdates()) {
+            updateManager.getUpdates().forEach((plugin) -> {
+                PluginInfo.PluginRelease lastRelease = plugin.getLastRelease(systemVersion);
+                String lastVersion = lastRelease.version;
+                try {
+                    updateManager.updatePlugin(plugin.id, lastVersion);
+                } catch (PluginException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        // check for available (new) plugins
+        if (updateManager.hasAvailablePlugins()) {
+            List<PluginInfo> availablePlugins = updateManager.getAvailablePlugins();
+            for (PluginInfo plugin : availablePlugins) {
+                PluginInfo.PluginRelease lastRelease = plugin.getLastRelease(systemVersion);
+                String lastVersion = lastRelease.version;
+                try {
+                    updateManager.installPlugin(lastRelease.url,lastVersion);
+                } catch (PluginException e) {
+                    e.printStackTrace();
+                }
+            }
+        }*/
 
 
 

@@ -24,10 +24,7 @@
 package com.greatmancode.legendarybot.plugin.stats;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,17 +52,22 @@ public class DiscordBotListHandler {
                     .post(RequestBody.create(MEDIA_TYPE_JSON, object.toJSONString()))
                     .addHeader("Authorization",properties.getProperty("stats.botsdiscordpw")).build();
             try {
-                if (client.newCall(request).execute().isSuccessful()) {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
                     System.out.println("Sent stats to Discord PW");
                 } else {
                     System.out.println("Error while sending stats to Discord PW");
                 }
+                response.close();
+
                 request = request.newBuilder().header("Authorization",properties.getProperty("stats.discordbotorg")).url("https://discordbots.org/api/bots/267134720700186626/stats").build();
+                response = client.newCall(request).execute();
                 if (client.newCall(request).execute().isSuccessful()) {
                     System.out.println("Sent stats to Discordbots.org");
                 } else {
                     System.out.println("Error while sending stats to Discordbots.org");
                 }
+                response.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 bot.getStacktraceHandler().sendStacktrace(e);
