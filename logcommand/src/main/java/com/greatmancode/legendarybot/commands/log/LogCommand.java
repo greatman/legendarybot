@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.commands.log;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -55,9 +56,10 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
+        WoWGuild guild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
         HttpUrl url = new HttpUrl.Builder().scheme("https")
                 .host("www.warcraftlogs.com")
-                .addPathSegments("/v1/reports/guild/"+ getBot().getGuildSettings(event.getGuild()).getGuildName()+"/"+ getBot().getGuildSettings(event.getGuild()).getWowServerName()+"/"+getBot().getGuildSettings(event.getGuild()).getRegionName())
+                .addPathSegments("/v1/reports/guild/"+ guild.getGuild()+"/"+ guild.getServer()+"/"+guild.getRegion())
                 .addQueryParameter("api_key",props.getProperty("warcraftlogs.key"))
                 .build();
         Request webRequest = new Request.Builder().url(url).build();
@@ -87,11 +89,11 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
-                getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "guildName:" + getBot().getGuildSettings(event.getGuild()).getGuildName(), "serverName:" + getBot().getGuildSettings(event.getGuild()).getWowServerName(),"region:" + getBot().getGuildSettings(event.getGuild()).getRegionName());
+                getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "guildName:" + guild.getGuild(), "serverName:" + guild.getServer(),"region:" + guild.getRegion());
             }
         } catch (IOException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "guildName:" + getBot().getGuildSettings(event.getGuild()).getGuildName(), "serverName:" + getBot().getGuildSettings(event.getGuild()).getWowServerName(),"region:" + getBot().getGuildSettings(event.getGuild()).getRegionName());
+            getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "guildName:" + guild.getGuild(), "serverName:" + guild.getServer(),"region:" + guild.getRegion());
             event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
     }

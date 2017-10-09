@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.commands.ilvl;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.api.utils.Hero;
 import com.greatmancode.legendarybot.api.utils.HeroClass;
@@ -68,13 +69,13 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         String serverName = null;
         Hero hero = null;
         try {
-
+            WoWGuild guild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
             if (args.length == 1) {
-                serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
-                hero = getiLvl(getBot().getGuildSettings(event.getGuild()).getRegionName(),serverName, args[0]);
+                serverName = guild.getServer();
+                hero = getiLvl(guild.getRegion(),serverName, args[0]);
             } else {
                 serverName = args[1];
-                hero = getiLvl(getBot().getGuildSettings(event.getGuild()).getRegionName(),serverName, args[0]);
+                hero = getiLvl(guild.getRegion(),serverName, args[0]);
             }
 
             if (hero != null) {

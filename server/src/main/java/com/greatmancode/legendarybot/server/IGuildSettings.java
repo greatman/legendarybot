@@ -80,22 +80,6 @@ public class IGuildSettings implements GuildSettings {
         }
     }
 
-
-    @Override
-    public String getWowServerName() {
-        return settings.get("WOW_SERVER_NAME");
-    }
-
-    @Override
-    public String getRegionName() {
-        return settings.get("WOW_REGION_NAME");
-    }
-
-    @Override
-    public String getGuildName() {
-        return settings.get("GUILD_NAME");
-    }
-
     @Override
     public String getSetting(String setting) {
         return settings.get(setting);

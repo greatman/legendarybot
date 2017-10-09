@@ -24,6 +24,7 @@
 package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -64,9 +65,10 @@ public class LegendaryCheck {
                     .connectionPool(new ConnectionPool(300, 1, TimeUnit.SECONDS))
                     .build();
             try {
-                String serverName = plugin.getBot().getGuildSettings(guild).getWowServerName();
-                String regionName = plugin.getBot().getGuildSettings(guild).getRegionName();
-                String guildName = plugin.getBot().getGuildSettings(guild).getGuildName();
+                WoWGuild wowGuild = bot.getWowGuildManager(guild).getDefaultGuild();
+                String serverName = wowGuild.getServer();
+                String regionName = wowGuild.getRegion();
+                String guildName = wowGuild.getGuild();
                 String channelName = plugin.getBot().getGuildSettings(guild).getSetting(LegendaryCheckPlugin.SETTING_NAME);
                 if (regionName == null || serverName == null || guildName == null || channelName == null) {
                     return;

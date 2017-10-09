@@ -27,6 +27,7 @@ package com.greatmancode.legendarybot.commands.token;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -55,7 +56,7 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         Request webRequest = new Request.Builder().url("https://wowtoken.info/snapshot.json").build();
-
+        WoWGuild guild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
 
         try {
             String request = client.newCall(webRequest).execute().body().string();
@@ -65,12 +66,12 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
             }
             JSONParser parser = new JSONParser();
             JSONObject object = (JSONObject) parser.parse(request);
-            String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
+            String region = guild.getRegion();
             if (region == null) {
                 event.getChannel().sendMessage("The owner of the server needs to configure the region. Example: !setserversetting WOW_REGION_NAME US").queue();
                 return;
             }
-            if (getBot().getGuildSettings(event.getGuild()).getRegionName().equals("US")) {
+            if (guild.getRegion().equalsIgnoreCase("US")) {
                 region = "NA";
             }
             JSONObject naserver = (JSONObject) object.get(region);
@@ -86,7 +87,7 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
             event.getChannel().sendMessage("Price for 1 WoW Token: " + price + " | Minimum 24H: " + minPrice + " | Maximum 24H: " +maxPrice + " | Percentage 24H range: " + pctPrice + "%").queue();
         } catch (ParseException | IOException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "regionName:" + getBot().getGuildSettings(event.getGuild()).getRegionName());
+            getBot().getStacktraceHandler().sendStacktrace(e, "regionName:" + guild.getRegion());
             event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
     }

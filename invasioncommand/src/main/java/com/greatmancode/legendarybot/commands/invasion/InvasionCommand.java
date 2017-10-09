@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.commands.invasion;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -74,8 +75,9 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
     public void execute(MessageReceivedEvent event, String[] args) {
         DateTime current;
         DateTime startDate;
-        String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
-        String realm = getBot().getGuildSettings(event.getGuild()).getWowServerName();
+        WoWGuild guild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
+        String region = guild.getRegion();
+        String realm = guild.getServer();
         //String request = Utils.doRequest("https://"+region+".api.battle.net/wow/realm/status?locale=en_US&apikey="+getBot().getBattlenetKey()+"&realms="+realm);
         HttpUrl url = new HttpUrl.Builder().scheme("https")
                 .host(region + ".api.battle.net")

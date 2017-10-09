@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.commands.owrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
@@ -85,7 +86,8 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                     event.getChannel().sendMessage(builder.build()).queue();
                     return;
                 }
-                String region = getBot().getGuildSettings(event.getGuild()).getRegionName().toLowerCase();
+                WoWGuild guild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
+                String region = guild.getRegion().toLowerCase();
                 if (json.get(region) == null) {
                     MessageBuilder builder = new MessageBuilder();
                     builder.append("User ").append(args[0]).append(" doesn't play competitive!");

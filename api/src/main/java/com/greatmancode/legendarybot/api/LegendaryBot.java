@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.api;
 
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.greatmancode.legendarybot.api.server.WowGuildManager;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.timgroup.statsd.StatsDClient;
 import com.zaxxer.hikari.HikariDataSource;
@@ -85,5 +86,7 @@ public abstract class LegendaryBot {
     public abstract RestClient getElasticSearch();
 
     public abstract StatsDClient getStatsClient();
+
+    public abstract WowGuildManager getWowGuildManager(Guild guild);
 
 }

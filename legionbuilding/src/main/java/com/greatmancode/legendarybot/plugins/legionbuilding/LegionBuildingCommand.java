@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugins.legionbuilding;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -44,22 +45,23 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
-            event.getChannel().sendMessage("A server region must be set first. Please let a admin use !setserversetting WOW_REGION_NAME US/EU.").queue();
+        WoWGuild guild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
+        if (guild == null) {
+            event.getChannel().sendMessage("You need to configure a guild to be able to use this command.").queue();
             return;
         }
         List<String> buildingStatus = new ArrayList<>();
         List<String> buildingStatusString = new ArrayList<>();
         try {
             Document document = Jsoup.connect("http://www.wowhead.com/").get();
-            int skip = (!getBot().getGuildSettings(event.getGuild()).getRegionName().equalsIgnoreCase("US")) ? 3 : 0;
+            int skip = (!guild.getRegion().equalsIgnoreCase("US")) ? 3 : 0;
             document.getElementsByClass("imitation-heading heading-size-5").stream().skip(skip).forEach(element -> buildingStatusString.add(element.ownText()));
             document.getElementsByClass("tiw-bs-status-progress").stream().skip(skip).forEach(element ->
                     element.getElementsByTag("span").forEach( value -> buildingStatus.add(value.ownText())));
             event.getChannel().sendMessage("Broken Shore building status: Mage Tower : **"+buildingStatusString.get(0)+"** **" + buildingStatus.get(0) + "** | Command Center: **"+buildingStatusString.get(1)+"** **" + buildingStatus.get(1) + "** | Nether Disruptor : **"+buildingStatusString.get(2)+"** **" + buildingStatus.get(2) + "**").queue();
         } catch (IOException e) {
             e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + getBot().getGuildSettings(event.getGuild()).getRegionName(), "guildId:" + event.getGuild().getId());
+            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + guild.getRegion(), "guildId:" + event.getGuild().getId());
             event.getChannel().sendMessage("An error occurred. Try again later").queue();
         } catch (NullPointerException e) {
             event.getChannel().sendMessage("An error occurred. Try again later").queue();

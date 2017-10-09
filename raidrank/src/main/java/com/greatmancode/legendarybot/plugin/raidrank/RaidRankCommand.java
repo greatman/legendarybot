@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugin.raidrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -64,15 +65,16 @@ public class RaidRankCommand extends LegendaryBotPlugin implements WowCommand, P
     }
 
     public void execute(MessageReceivedEvent event, String[] args) {
-        String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
-        if (getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
-            event.getChannel().sendMessage("A region must be set with the !setserversetting WOW_REGION_NAME US/EU first before using this command.").queue();
+        WoWGuild guild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
+        if (guild == null) {
+            event.getChannel().sendMessage("You need to configure a guild to be able to use this command.").queue();
             return;
         }
+        String serverName = guild.getServer();
         try {
             if (args.length == 2) {
                 HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+args[1]+"\" } } }", ContentType.APPLICATION_JSON);
-                Response response = getBot().getElasticSearch().performRequest("POST", "/wow/realm_"+getBot().getGuildSettings(event.getGuild()).getRegionName().toLowerCase()+"/_search", Collections.emptyMap(), entity);
+                Response response = getBot().getElasticSearch().performRequest("POST", "/wow/realm_"+guild.getRegion().toLowerCase()+"/_search", Collections.emptyMap(), entity);
                 String jsonResponse = null;
                 jsonResponse = EntityUtils.toString(response.getEntity());
                 JSONParser jsonParser = new JSONParser();
@@ -89,7 +91,7 @@ public class RaidRankCommand extends LegendaryBotPlugin implements WowCommand, P
             HttpUrl url = new HttpUrl.Builder()
                     .scheme("https")
                     .host("raider.io")
-                    .addPathSegments("api/characters/"+getBot().getGuildSettings(event.getGuild()).getRegionName().toLowerCase()+"/"+ serverName +"/"+args[0]+"")
+                    .addPathSegments("api/characters/"+guild.getRegion().toLowerCase()+"/"+ serverName +"/"+args[0]+"")
                     .build();
             Request request = new Request.Builder().url(url).build();
             String result = client.newCall(request).execute().body().string();

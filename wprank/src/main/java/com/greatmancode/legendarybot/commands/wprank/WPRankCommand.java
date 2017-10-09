@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.commands.wprank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -53,9 +54,10 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
-        String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
-        String guild = getBot().getGuildSettings(event.getGuild()).getGuildName();
+        WoWGuild wowGuild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
+        String serverName = wowGuild.getServer();
+        String region = wowGuild.getRegion();
+        String guild = wowGuild.getGuild();
         if (serverName == null || region == null || guild == null) {
             event.getChannel().sendMessage("The server name, the region and the guild must be configured for this command to work!").queue();
             return;

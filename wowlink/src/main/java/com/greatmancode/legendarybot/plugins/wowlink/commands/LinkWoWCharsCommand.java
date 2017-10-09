@@ -39,9 +39,10 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
         this.plugin = plugin;
     }
 
+    //TODO Support both regions at same time.
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String region  = plugin.getBot().getGuildSettings(event.getGuild()).getRegionName();
+        String region  = plugin.getBot().getWowGuildManager(event.getGuild()).getDefaultGuild().getRegion();
         if (region == null) {
             event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with !setserversetting WOW_REGION_NAME US/EU").queue();
             return;

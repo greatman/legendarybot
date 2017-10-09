@@ -28,12 +28,15 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
+import com.greatmancode.legendarybot.api.server.WowGuildManager;
 import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.greatmancode.legendarybot.commands.LoadCommand;
 import com.greatmancode.legendarybot.commands.ReloadPluginsCommand;
 import com.greatmancode.legendarybot.commands.UnloadCommand;
 import com.greatmancode.legendarybot.server.IGuildSettings;
+import com.greatmancode.legendarybot.server.IWoWGuildManager;
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
 import com.zaxxer.hikari.HikariConfig;
@@ -86,6 +89,9 @@ public class ILegendaryBot extends LegendaryBot {
      * The settings of every guilds that this bot is connected to
      */
     private Map<String, GuildSettings> guildSettings = new HashMap<>();
+
+
+    private Map<String, WowGuildManager> wowGuildManager = new HashMap<>();
 
     /**
      * The Database data source
@@ -166,48 +172,43 @@ public class ILegendaryBot extends LegendaryBot {
             getStacktraceHandler().sendStacktrace(e);
         }
 
+        String GUILD_WOWGUILD_TABLE = "CREATE TABLE `guild_wowguilds` (\n" +
+                "   `guildId` varchar(64) COLLATE utf8_bin NOT NULL,\n" +
+                "   `regionName` varchar(2) COLLATE utf8_bin NOT NULL,\n" +
+                "   `serverName` varchar(64) COLLATE utf8_bin NOT NULL,\n" +
+                "   `guildName` varchar(64) COLLATE utf8_bin NOT NULL,\n" +
+                "   `isDefault` tinyint(4) NOT NULL DEFAULT '0',\n" +
+                "   PRIMARY KEY (`guildId`),\n" +
+                "   UNIQUE KEY `guildUniquePerGuild` (`regionName`,`serverName`,`guildName`,`guildId`),\n" +
+                "   UNIQUE KEY `uniqueDefaultPerGuild` (`guildId`,`isDefault`)\n" +
+                " ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+        try {
+            Connection conn = getDatabase().getConnection();
+            PreparedStatement statement = conn.prepareStatement(GUILD_WOWGUILD_TABLE);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            getStacktraceHandler().sendStacktrace(e);
+        }
+
         //Load the settings for each guild
-        jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings(guild, this)));
-
-
+        jda.getGuilds().forEach(guild -> {
+            guildSettings.put(guild.getId(), new IGuildSettings(guild, this));
+            wowGuildManager.put(guild.getId(), new IWoWGuildManager(guild, this));
+            if (getGuildSettings(guild).getSetting("GUILD_NAME") != null) {
+                //This guild is saved in old format, save it to the new format
+                WoWGuild wowGuild = new WoWGuild(getGuildSettings(guild).getSetting("WOW_REGION_NAME"),getGuildSettings(guild).getSetting("WOW_SERVER_NAME"),getGuildSettings(guild).getSetting("GUILD_NAME"), true);
+                getWowGuildManager(guild).addServerGuild(wowGuild);
+                getGuildSettings(guild).unsetSetting("WOW_REGION_NAME");
+                getGuildSettings(guild).unsetSetting("WOW_SERVER_NAME");
+                getGuildSettings(guild).unsetSetting("GUILD_NAME");
+            }
+        });
 
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
-        //We set LegendaryBot version
-        /*Version systemVersion = Version.valueOf("1.0.0");
-        pluginManager.setSystemVersion("1.0.0");
-        UpdateManager updateManager = new UpdateManager(pluginManager);
-
-
-
-        if (updateManager.hasUpdates()) {
-            updateManager.getUpdates().forEach((plugin) -> {
-                PluginInfo.PluginRelease lastRelease = plugin.getLastRelease(systemVersion);
-                String lastVersion = lastRelease.version;
-                try {
-                    updateManager.updatePlugin(plugin.id, lastVersion);
-                } catch (PluginException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-
-        // check for available (new) plugins
-        if (updateManager.hasAvailablePlugins()) {
-            List<PluginInfo> availablePlugins = updateManager.getAvailablePlugins();
-            for (PluginInfo plugin : availablePlugins) {
-                PluginInfo.PluginRelease lastRelease = plugin.getLastRelease(systemVersion);
-                String lastVersion = lastRelease.version;
-                try {
-                    updateManager.installPlugin(lastRelease.url,lastVersion);
-                } catch (PluginException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
-
-
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {
@@ -298,6 +299,11 @@ public class ILegendaryBot extends LegendaryBot {
     @Override
     public StatsDClient getStatsClient() {
         return statsClient;
+    }
+
+    @Override
+    public WowGuildManager getWowGuildManager(Guild guild) {
+        return wowGuildManager.get(guild.getId());
     }
 
     @Override

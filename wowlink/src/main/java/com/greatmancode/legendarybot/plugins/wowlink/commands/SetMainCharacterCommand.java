@@ -24,6 +24,7 @@
 package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -40,14 +41,16 @@ public class SetMainCharacterCommand implements PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() == null || plugin.getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
-            event.getChannel().sendMessage("You can't run this command. A server administrator need to set GUILD_NAME and WOW_REGION_NAME. Refer to documentation.").queue();
+
+        WoWGuild guild = plugin.getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
+        if (guild == null) {
+            event.getChannel().sendMessage("No default guild set for this discord server. Refer to documentation").queue();
             return;
         }
 
         List<String> characterList = plugin.getUserCharactersInGuild(event.getAuthor(), event.getGuild());
         if (!characterList.contains(args[0])) {
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("This character is not in the Guild " + plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() + " or is not found.").queue());
+            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("This character is not in the Guild " + guild.getGuild() + " or is not found.").queue());
         }
 
         try {

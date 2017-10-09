@@ -31,6 +31,7 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.api.utils.HeroClass;
 import com.greatmancode.legendarybot.plugins.wowlink.commands.*;
@@ -199,8 +200,8 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             Connection conn = getBot().getDatabase().getConnection();
             PreparedStatement statement = conn.prepareStatement("SELECT * FROM user_characters WHERE user_id=? AND guildName=? AND region=?");
             statement.setString(1,user.getId());
-            statement.setString(2, getBot().getGuildSettings(guild).getGuildName());
-            statement.setString(3,getBot().getGuildSettings(guild).getRegionName());
+            statement.setString(2, getBot().getWowGuildManager(guild).getDefaultGuild().getGuild());
+            statement.setString(3,getBot().getWowGuildManager(guild).getDefaultGuild().getRegion());
             ResultSet set = statement.executeQuery();
             while(set.next()) {
                 charactersList.add(set.getString("characterName"));
@@ -246,9 +247,10 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         int[] rank = new int[1];
         rank[0] = -1;
         String rankDiscord = null;
+        WoWGuild wowGuild = getBot().getWowGuildManager(guild).getDefaultGuild();
         HttpUrl url = new HttpUrl.Builder().scheme("https")
-                .host(getBot().getGuildSettings(guild).getRegionName() + ".api.battle.net")
-                .addPathSegments("/wow/guild/" + getBot().getGuildSettings(guild).getWowServerName()+"/" + getBot().getGuildSettings(guild).getGuildName())
+                .host(wowGuild.getRegion() + ".api.battle.net")
+                .addPathSegments("/wow/guild/" + wowGuild.getServer()+"/" + wowGuild.getGuild())
                 .addQueryParameter("fields", "members")
                 .build();
         Request request = new Request.Builder().url(url).build();

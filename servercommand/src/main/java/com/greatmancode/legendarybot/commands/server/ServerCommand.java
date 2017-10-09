@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.commands.server;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.server.WoWGuild;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -77,15 +78,16 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
         String serverName = null;
         try {
             Map<String,String> map;
+            WoWGuild guild = getBot().getWowGuildManager(event.getGuild()).getDefaultGuild();
             if (args.length == 1) {
-                map = getServerStatus(getBot().getGuildSettings(event.getGuild()).getRegionName(), args[0]);
+                map = getServerStatus(guild.getRegion(), args[0]);
             } else {
-                serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
+                serverName = guild.getServer();
                 if (serverName == null) {
                     event.getChannel().sendMessage("No server set. You are required to type a server.").queue();
                     return;
                 }
-                map = getServerStatus(getBot().getGuildSettings(event.getGuild()).getRegionName(), serverName);
+                map = getServerStatus(guild.getRegion(), serverName);
             }
             MessageBuilder builder = new MessageBuilder();
             if (map.size() == 4) {

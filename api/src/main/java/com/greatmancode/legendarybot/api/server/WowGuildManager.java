@@ -21,31 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package com.greatmancode.legendarybot.api.server;
 
-/**
- * Settings for a specific Discord Guild
- */
-public interface GuildSettings {
+import java.util.List;
 
-    /**
-     * Retrieve a specific setting for the Guild.
-     * @param setting The setting key
-     * @return The setting value
-     */
-    String getSetting(String setting);
+public interface WowGuildManager {
 
-    /**
-     * Set a specific setting for the Guild
-     * @param setting The setting key
-     * @param value The setting value
-     */
-    void setSetting(String setting, String value);
+    WoWGuild getDefaultGuild();
 
-    /**
-     * Remove a setting from the Guild
-     * @param setting The setting key
-     */
-    void unsetSetting(String setting);
+    List<WoWGuild> getServerGuilds();
+
+    void addServerGuild(WoWGuild guild);
+
+    void removeServerGuild(WoWGuild guild);
 }
