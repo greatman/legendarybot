@@ -25,9 +25,7 @@
 package com.greatmancode.legendarybot.plugin.botgeneral;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.plugin.botgeneral.commands.HelpCommand;
-import com.greatmancode.legendarybot.plugin.botgeneral.commands.InfoCommand;
-import com.greatmancode.legendarybot.plugin.botgeneral.commands.InviteCommand;
+import com.greatmancode.legendarybot.plugin.botgeneral.commands.*;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
@@ -54,6 +52,12 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
         log.info("Command !info loaded!");
         getBot().getCommandHandler().addCommand("help", new HelpCommand(getBot()));
         log.info("Command !help loaded!");
+        getBot().getCommandHandler().addCommand("addguild",new AddGuildCommand(getBot()));
+        log.info("Command !addguild loaded!");
+        getBot().getCommandHandler().addCommand("setdefaultguild", new SetDefaultGuildCommand(getBot()));
+        log.info("Command !setdefaultguild loaded!");
+        getBot().getCommandHandler().addCommand("removeguild", new RemoveGuildCommand(getBot()));
+        log.info("Command !removeguild loaded!");
         getBot().getJDA().addEventListener(listener);
     }
 
@@ -65,6 +69,12 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
         log.info("Command !info unloaded.");
         getBot().getCommandHandler().removeCommand("help");
         log.info("Command !help unloaded.");
+        getBot().getCommandHandler().removeCommand("addguild");
+        log.info("Command !addguild unloaded.");
+        getBot().getCommandHandler().removeCommand("setdefaultguild");
+        log.info("Command !setdefaultguild unloaded.");
+        getBot().getCommandHandler().removeCommand("removeguild");
+        log.info("Command !removeguild unloaded.");
         getBot().getJDA().removeEventListener(listener);
     }
 }

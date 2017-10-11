@@ -77,7 +77,7 @@ public class IWoWGuildManager implements WowGuildManager {
 
     @Override
     public void addServerGuild(WoWGuild guild) {
-        String query = "INSERT INTO guild_wowguilds VALUES(?,?,?";
+        String query = "INSERT INTO guild_wowguilds VALUES(?,?,?,?";
         if (guild.isDefault()) {
             query += ",?)";
             //We remove the default old guild
@@ -99,11 +99,12 @@ public class IWoWGuildManager implements WowGuildManager {
         try {
             Connection conn = bot.getDatabase().getConnection();
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setString(1, guild.getRegion());
-            statement.setString(2, guild.getServer());
-            statement.setString(3, guild.getGuild());
+            statement.setString(1, guildId);
+            statement.setString(2, guild.getRegion());
+            statement.setString(3, guild.getServer());
+            statement.setString(4, guild.getGuild());
             if (guild.isDefault()) {
-                statement.setBoolean(4, guild.isDefault());
+                statement.setBoolean(5, guild.isDefault());
             }
             statement.executeUpdate();
             statement.close();
@@ -141,5 +142,10 @@ public class IWoWGuildManager implements WowGuildManager {
             e.printStackTrace();
             bot.getStacktraceHandler().sendStacktrace(e);
         }
+    }
+
+    @Override
+    public void setDefault(WoWGuild guild) {
+        //TODO Impl
     }
 }

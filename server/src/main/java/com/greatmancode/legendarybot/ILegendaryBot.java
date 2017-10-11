@@ -172,7 +172,7 @@ public class ILegendaryBot extends LegendaryBot {
             getStacktraceHandler().sendStacktrace(e);
         }
 
-        String GUILD_WOWGUILD_TABLE = "CREATE TABLE `guild_wowguilds` (\n" +
+        String GUILD_WOWGUILD_TABLE = "CREATE TABLE IF NOT EXISTS `guild_wowguilds` (\n" +
                 "   `guildId` varchar(64) COLLATE utf8_bin NOT NULL,\n" +
                 "   `regionName` varchar(2) COLLATE utf8_bin NOT NULL,\n" +
                 "   `serverName` varchar(64) COLLATE utf8_bin NOT NULL,\n" +
@@ -198,7 +198,7 @@ public class ILegendaryBot extends LegendaryBot {
             wowGuildManager.put(guild.getId(), new IWoWGuildManager(guild, this));
             if (getGuildSettings(guild).getSetting("GUILD_NAME") != null) {
                 //This guild is saved in old format, save it to the new format
-                WoWGuild wowGuild = new WoWGuild(getGuildSettings(guild).getSetting("WOW_REGION_NAME"),getGuildSettings(guild).getSetting("WOW_SERVER_NAME"),getGuildSettings(guild).getSetting("GUILD_NAME"), true);
+                WoWGuild wowGuild = new WoWGuild(getGuildSettings(guild).getSetting("WOW_REGION_NAME"),getGuildSettings(guild).getSetting("WOW_SERVER_NAME").toLowerCase(),getGuildSettings(guild).getSetting("GUILD_NAME"), true);
                 getWowGuildManager(guild).addServerGuild(wowGuild);
                 getGuildSettings(guild).unsetSetting("WOW_REGION_NAME");
                 getGuildSettings(guild).unsetSetting("WOW_SERVER_NAME");

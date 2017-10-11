@@ -34,4 +34,6 @@ public interface WowGuildManager {
     void addServerGuild(WoWGuild guild);
 
     void removeServerGuild(WoWGuild guild);
+
+    void setDefault(WoWGuild guild);
 }

@@ -62,7 +62,6 @@ public class WoWGuild {
 
         WoWGuild woWGuild = (WoWGuild) o;
 
-        if (isDefault != woWGuild.isDefault) return false;
         if (region != null ? !region.equals(woWGuild.region) : woWGuild.region != null) return false;
         if (server != null ? !server.equals(woWGuild.server) : woWGuild.server != null) return false;
         return guild != null ? guild.equals(woWGuild.guild) : woWGuild.guild == null;
@@ -73,7 +72,6 @@ public class WoWGuild {
         int result = region != null ? region.hashCode() : 0;
         result = 31 * result + (server != null ? server.hashCode() : 0);
         result = 31 * result + (guild != null ? guild.hashCode() : 0);
-        result = 31 * result + (isDefault ? 1 : 0);
         return result;
     }
 }
