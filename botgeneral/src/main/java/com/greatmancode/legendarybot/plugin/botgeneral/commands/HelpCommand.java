@@ -58,7 +58,7 @@ public class HelpCommand implements PublicCommand,ZeroArgsCommand {
         builder[0].append("Available commands ([] - Required, <> - Optional):\n");
         String finalPrefix = prefix;
         bot.getCommandHandler().getCommandList().forEach((k, v) -> {
-            if (builder[0].length() >= 1900) {
+            if (builder[0].length() >= 1700) {
                 event.getAuthor().openPrivateChannel().complete().sendMessage(builder[0].build()).queue();
                 builder[0] = new MessageBuilder();
             }
