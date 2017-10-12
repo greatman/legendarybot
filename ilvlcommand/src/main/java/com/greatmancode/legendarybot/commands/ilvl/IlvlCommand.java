@@ -118,7 +118,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                 .build();
         Request request = new Request.Builder().url(url).build();
         String result = client.newCall(request).execute().body().string();
-        if (result == null) {
+        if (result.contains("Character not found.")) {
             //We received a empty result. Is he part of a connected realm?
             url = new HttpUrl.Builder().scheme("https")
                     .host(region + ".api.battle.net")
@@ -142,7 +142,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                                 .build();
                         request = new Request.Builder().url(url).build();
                         result = client.newCall(request).execute().body().string();
-                        if (result != null) {
+                        if (!result.contains("Character not found.")) {
                             break;
                         }
                     }
