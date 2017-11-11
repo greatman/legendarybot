@@ -29,6 +29,7 @@ import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.api.utils.Hero;
 import com.greatmancode.legendarybot.api.utils.HeroClass;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -40,12 +41,17 @@ import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.awt.*;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, PublicCommand {
 
-    private final OkHttpClient client = new OkHttpClient.Builder()
+    private final OkHttpClient battleNetClient = new OkHttpClient.Builder()
             .addInterceptor(new BattleNetAPIInterceptor(getBot()))
+            .build();
+
+    private final OkHttpClient client = new OkHttpClient.Builder()
             .build();
 
     public IlvlCommand(PluginWrapper wrapper) {
@@ -54,36 +60,177 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
 
     @Override
     public void start() {
-        getBot().getCommandHandler().addCommand("ilvl", this);
+        getBot().getCommandHandler().addCommand("lookup", this);
+        getBot().getCommandHandler().addAlias("ilvl", "lookup");
+        getBot().getCommandHandler().addAlias("mplusrank", "lookup");
+        getBot().getCommandHandler().addAlias("raidrank", "lookup");
         log.info("command !ilvl loaded");
     }
 
     @Override
     public void stop() throws PluginException {
         getBot().getCommandHandler().removeCommand("ilvl");
+        getBot().getCommandHandler().removeCommand("info");
         log.info("command !ilvl unloaded");
     }
 
     public void execute(MessageReceivedEvent event, String[] args) {
-        String serverName = null;
-        Hero hero = null;
+        String serverName = null, region = null;
         try {
-
             if (args.length == 1) {
                 serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
-                hero = getiLvl(getBot().getGuildSettings(event.getGuild()).getRegionName(),serverName, args[0]);
+                region = getBot().getGuildSettings(event.getGuild()).getRegionName();
+            } else if (args.length == 2){
+                serverName = args[1];
+                region = getBot().getGuildSettings(event.getGuild()).getRegionName();
             } else {
                 serverName = args[1];
-                hero = getiLvl(getBot().getGuildSettings(event.getGuild()).getRegionName(),serverName, args[0]);
+                region = args[2];
             }
 
-            if (hero != null) {
-                event.getChannel().sendMessage(hero.getName() + " ("+hero.getHeroClass()+" "+hero.getLevel()+") ilvl is " + hero.getEquipilvl() + "/" + hero.getIlvl()).queue();
-            } else {
-                event.getChannel().sendMessage("WowCharacter not found!").queue();
+            HttpUrl url = new HttpUrl.Builder().scheme("https")
+                    .host("raider.io")
+                    .addPathSegments("api/v1/characters/profile")
+                    .addQueryParameter("region", region)
+                    .addQueryParameter("realm", serverName)
+                    .addQueryParameter("name", args[0])
+                    .addQueryParameter("fields", "gear,raid_progression,mythic_plus_scores,previous_mythic_plus_scores,mythic_plus_best_runs")
+                    .build();
+            Request request = new Request.Builder().url(url).build();
+            String result = client.newCall(request).execute().body().string();
+            if (result != null) {
+                JSONParser parser = new JSONParser();
+                JSONObject jsonObject = (JSONObject) parser.parse(result);
+                if (!jsonObject.containsKey("error")) {
+                    EmbedBuilder eb = new EmbedBuilder();
+                    if (jsonObject.get("name").equals("Pepyte") && jsonObject.get("realm").equals("Arthas")) {
+                        eb.setThumbnail("https://lumiere-a.akamaihd.net/v1/images/b5e11dc889c5696799a6bd3ec5d819c1f7dfe8b4.jpeg");
+                    } else {
+                        eb.setThumbnail(jsonObject.get("thumbnail_url").toString());
+                    }
+
+                    String className = jsonObject.get("class").toString().toLowerCase();
+                    switch (className) {
+                        case "death knight":
+                            eb.setColor(new Color(196,30,59));
+                            break;
+                        case "demon hunter":
+                            eb.setColor(new Color(163,48,201));
+                            break;
+                        case "druid":
+                            eb.setColor(new Color(255,125,10));
+                            break;
+                        case "hunter":
+                            eb.setColor(new Color(171,212,115));
+                            break;
+                        case "mage":
+                            eb.setColor(new Color(105,204,240));
+                            break;
+                        case "monk":
+                            eb.setColor(new Color(0,255,150));
+                            break;
+                        case "paladin":
+                            eb.setColor(new Color(245,140,186));
+                            break;
+                        case "priest":
+                            eb.setColor(new Color(255,255,255));
+                            break;
+                        case "rogue":
+                            eb.setColor(new Color(255,245,105));
+                            break;
+                        case "shaman":
+                            eb.setColor(new Color(0,112,222));
+                            break;
+                        case "warlock":
+                            eb.setColor(new Color(148,130,201));
+                            break;
+                        case "warrior":
+                            eb.setColor(new Color(199,156,110));
+                    }
+                    StringBuilder titleBuilder = new StringBuilder();
+                    titleBuilder.append(jsonObject.get("name"));
+                    titleBuilder.append(" ");
+                    titleBuilder.append(jsonObject.get("realm"));
+                    titleBuilder.append(" - ");
+                    titleBuilder.append(((String) jsonObject.get("region")).toUpperCase());
+                    titleBuilder.append(" | ");
+                    titleBuilder.append(jsonObject.get("race"));
+                    titleBuilder.append(" ");
+                    titleBuilder.append(jsonObject.get("active_spec_name"));
+                    titleBuilder.append(" ");
+                    titleBuilder.append(jsonObject.get("class"));
+                    eb.setTitle(titleBuilder.toString());
+
+                    StringBuilder progressionBuilder = new StringBuilder();
+                    JSONObject raidProgression = (JSONObject) jsonObject.get("raid_progression");
+                    JSONObject emeraldNightmare = (JSONObject) raidProgression.get("the-emerald-nightmare");
+                    JSONObject trialOfValor = (JSONObject) raidProgression.get("trial-of-valor");
+                    JSONObject theNighthold = (JSONObject) raidProgression.get("the-nighthold");
+                    JSONObject tombOfSargeras = (JSONObject) raidProgression.get("tomb-of-sargeras");
+                    progressionBuilder.append("**EN**: ");
+                    progressionBuilder.append(emeraldNightmare.get("summary"));
+                    progressionBuilder.append(" - ");
+                    progressionBuilder.append("**ToV**:");
+                    progressionBuilder.append(trialOfValor.get("summary"));
+                    progressionBuilder.append(" - ");
+                    progressionBuilder.append("**NH**: ");
+                    progressionBuilder.append(theNighthold.get("summary"));
+                    progressionBuilder.append(" - ");
+                    progressionBuilder.append("**ToS**: ");
+                    progressionBuilder.append(tombOfSargeras.get("summary"));
+                    eb.addField("Progression", progressionBuilder.toString(), false);
+
+                    JSONObject gear = (JSONObject) jsonObject.get("gear");
+                    eb.addField("iLVL", gear.get("item_level_equipped") + "/" + gear.get("item_level_total"), true);
+                    eb.addField("Artifact Power", gear.get("artifact_traits").toString(), true);
+
+
+
+                    JSONObject mplusRank = (JSONObject) jsonObject.get("mythic_plus_scores");
+                    eb.addField("Mythic+ Score", mplusRank.get("all").toString(), true);
+                    JSONObject lastMplusRank = (JSONObject) jsonObject.get("previous_mythic_plus_scores");
+                    eb.addField("Last Season Mythic+ Score", lastMplusRank.get("all").toString(), true);
+
+
+                    StringBuilder runsBuilder = new StringBuilder();
+                    JSONArray bestRuns = (JSONArray) jsonObject.get("mythic_plus_best_runs");
+                    for (Object runObject : bestRuns) {
+                        JSONObject run = (JSONObject) runObject;
+                        runsBuilder.append("[");
+                        runsBuilder.append(run.get("dungeon"));
+                        runsBuilder.append(" **+");
+                        runsBuilder.append(run.get("mythic_level"));
+                        runsBuilder.append("**](");
+                        runsBuilder.append(run.get("url"));
+                        runsBuilder.append(")\n");
+                        long time = (long) run.get("clear_time_ms");
+                        long hours = TimeUnit.MILLISECONDS.toHours(time);
+                        long minutes = TimeUnit.MILLISECONDS.toMinutes(time);
+                        long seconds = TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time));
+                        runsBuilder.append("    ");
+                        if (hours >= 1) {
+                            runsBuilder.append(String.format("%d Hour(s) %d Minute(s), %d seconds", hours, minutes, seconds));
+                        } else {
+                            runsBuilder.append(String.format("%d Minute(s), %d seconds", minutes, seconds));
+                        }
+                        runsBuilder.append(" | ");
+                        runsBuilder.append(run.get("num_keystone_upgrades").toString());
+                        runsBuilder.append(" Chest(s)\n\n");
+                    }
+                    eb.addField("Best Mythic+ Runs", runsBuilder.toString(), false);
+
+                    event.getChannel().sendMessage(eb.build()).queue();
+                } else {
+                    event.getChannel().sendMessage(jsonObject.get("message").toString()).queue();
+                    return;
+                }
             }
         } catch (IOException e) {
-            getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + serverName, "hero:" + hero);
+            getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + serverName);
+            event.getChannel().sendMessage("An error occured. Try again later!").queue();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + serverName);
             event.getChannel().sendMessage("An error occured. Try again later!").queue();
         }
 
@@ -94,78 +241,10 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public int maxArgs() {
-        return 2;
+        return 3;
     }
 
     public String help() {
-        return  "ilvl [Character Name] <Server Name> - Retrieve a character iLvl";
-    }
-
-    /**
-     * Retrieve the iLvl of a World of Warcraft character.
-     * @param region The Region the server is hosted in.
-     * @param serverName The server name the character belongs to.
-     * @param character The character name
-     * @return A {@link Hero} containing the Name, the {@link HeroClass}, the level, the equipped iLvl and the unequipped (bag) iLvl.
-     */
-    public Hero getiLvl(String region, String serverName, String character) throws IOException {
-        JSONParser parser = new JSONParser();
-        HttpUrl url = new HttpUrl.Builder().scheme("https")
-                .host(region + ".api.battle.net")
-                .addPathSegments("/wow/character/" + serverName + "/" + character)
-                .addQueryParameter("fields", "items")
-                .addQueryParameter("locale", "en_US")
-                .build();
-        Request request = new Request.Builder().url(url).build();
-        String result = client.newCall(request).execute().body().string();
-        if (result.contains("Character not found.")) {
-            //We received a empty result. Is he part of a connected realm?
-            url = new HttpUrl.Builder().scheme("https")
-                    .host(region + ".api.battle.net")
-                    .addPathSegments("/wow/realm/status")
-                    .addQueryParameter("locale", "en_US")
-                    .addQueryParameter("realms", serverName)
-                    .build();
-            request = new Request.Builder().url(url).build();
-            result = client.newCall(request).execute().body().string();
-            if (result != null) {
-                try {
-                    JSONObject json = (JSONObject) parser.parse(result);
-                    JSONArray array = (JSONArray) json.get("realms");
-                    JSONObject realm = (JSONObject) array.get(0);
-                    JSONArray realms = (JSONArray)realm.get("connected_realms");
-                    for (Object realmEntry: realms) {
-                        url = new HttpUrl.Builder().scheme("https")
-                                .host(region + ".api.battle.net")
-                                .addPathSegments("/wow/character/" + realmEntry + "/" + character)
-                                .addQueryParameter("fields", "items")
-                                .build();
-                        request = new Request.Builder().url(url).build();
-                        result = client.newCall(request).execute().body().string();
-                        if (!result.contains("Character not found.")) {
-                            break;
-                        }
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName, "character:" + character);
-                }
-
-            }
-            if (result == null) {
-                return null;
-            }
-        }
-        try {
-            JSONObject object = (JSONObject) parser.parse(result);
-            if (!object.containsKey("name") || !object.containsKey("class") || !object.containsKey("level")) {
-                return null;
-            }
-            return new Hero((String)object.get("name"), HeroClass.values()[((Long) object.get("class")).intValue()], (Long)object.get("level"), (Long)((JSONObject)object.get("items")).get("averageItemLevel"), (Long)((JSONObject)object.get("items")).get("averageItemLevelEquipped"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName, "character:" + character);
-        }
-        return null;
+        return  "lookup [Character Name] <Server Name> <region> - Lookup a character information (iLVL/Raid Progression/Mythic+)";
     }
 }

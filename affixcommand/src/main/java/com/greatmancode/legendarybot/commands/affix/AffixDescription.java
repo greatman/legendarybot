@@ -21,39 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package com.greatmancode.legendarybot.commands.affix;
 
-import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Weeks;
+public class AffixDescription {
 
-import java.awt.*;
+    private final int id;
+    private final String description;
+    private final int difficulty;
 
-/**
- * Command that provides this week's Mythic+ Affixes
- */
-public class AffixCommand implements PublicCommand, ZeroArgsCommand {
-
-    @Override
-    public void execute(MessageReceivedEvent event, String[] args) {
-        DateTime current = new DateTime(DateTimeZone.forID("America/Montreal"));
-        while (current.getDayOfWeek() != DateTimeConstants.TUESDAY) {
-            current = current.minusDays(1);
-        }
-        int weeks = Weeks.weeksBetween(Utils.startDateMythicPlus, current).getWeeks();
-        String[] weekAffixes = Utils.mythicPlusAffixes[weeks % 12];
-
-        event.getChannel().sendMessage(Utils.createMythicEmbed(weekAffixes).build()).queue();
+    public AffixDescription(int id, String description, int difficulty) {
+        this.id = id;
+        this.description = description;
+        this.difficulty = difficulty;
     }
 
-    @Override
-    public String help() {
-        return "affix - Return this week's affixes.";
+    public int getId() {
+        return id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getDifficulty() {
+        return difficulty;
     }
 }

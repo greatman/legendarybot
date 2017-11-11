@@ -47,6 +47,11 @@ public class CommandHandler {
     private Map<String, Command> commandMap = new LinkedHashMap<>();
 
     /**
+     * The alias list
+     */
+    private Map<String, String> aliasMap = new LinkedHashMap<>();
+
+    /**
      * An instance of a {@link UnknownCommandHandler} to handle commands that are unknown
      */
     private UnknownCommandHandler unknownCommandHandler = null;
@@ -57,6 +62,15 @@ public class CommandHandler {
      */
     public CommandHandler(LegendaryBot bot) {
         this.bot = bot;
+    }
+
+
+    public void addAlias(String name, String command) {
+        aliasMap.put(name, command);
+    }
+
+    public void removeAlias(String name) {
+        aliasMap.remove(name);
     }
 
     /**
@@ -89,8 +103,18 @@ public class CommandHandler {
         if (text.startsWith(prefix)) {
             String[] commandArray = text.split(" ");
             String command = commandArray[0].substring(prefix.length()).toLowerCase();
-            if (commandMap.containsKey(command)) {
-                Command commandClass = commandMap.get(command);
+            if (commandMap.containsKey(command) || aliasMap.containsKey(command)) {
+                Command commandClass = null;
+                if (commandMap.containsKey(command)) {
+                    commandClass = commandMap.get(command);
+                } else if (aliasMap.containsKey(command) && commandMap.containsKey(aliasMap.get(command))) {
+                    commandClass = commandMap.get(aliasMap.get(command));
+                }
+
+                if (commandClass == null) {
+                    return;
+                }
+
                 if (commandClass.canExecute(event.getMember())) {
                     String[] args = new String[commandArray.length - 1];
                     try {

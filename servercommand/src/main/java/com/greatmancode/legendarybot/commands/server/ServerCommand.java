@@ -27,6 +27,7 @@ package com.greatmancode.legendarybot.commands.server;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
@@ -39,6 +40,7 @@ import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +78,7 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         String serverName = null;
         try {
+            //Todo support correctly slugs
             Map<String,String> map;
             if (args.length == 1) {
                 map = getServerStatus(getBot().getGuildSettings(event.getGuild()).getRegionName(), args[0]);
@@ -87,20 +90,22 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
                 }
                 map = getServerStatus(getBot().getGuildSettings(event.getGuild()).getRegionName(), serverName);
             }
-            MessageBuilder builder = new MessageBuilder();
-            if (map.size() == 4) {
-                builder.append("Server: ");
-                builder.append(map.get("name"));
-                builder.append(" | Status: ");
-                builder.append(map.get("status"));
-                builder.append(" | Population: ");
-                builder.append(map.get("population"));
-                builder.append(" | Currently a queue? : ");
-                builder.append(map.get("queue"));
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setThumbnail("https://us.battle.net/forums/static/images/game-logos/game-logo-wow.png");
+            if (map.size() == 5) {
+                if (map.get("status").equalsIgnoreCase("Offline")) {
+                    eb.setColor(Color.RED);
+                } else {
+                    eb.setColor(Color.GREEN);
+                }
+                eb.setTitle(map.get("name") + " - " + map.get("region").toUpperCase());
+                eb.addField("Status", map.get("status").toString(), true);
+                eb.addField("Population", map.get("population").toString(), true);
+                eb.addField("Currently a Queue?", map.get("queue").toString(), true);
             } else {
-                builder.append("An error occured. Try again later.");
+                eb.addField("Error","An error occured. Try again later.", false);
             }
-            event.getChannel().sendMessage(builder.build()).queue();
+            event.getChannel().sendMessage(eb.build()).queue();
         } catch (IOException e) {
             if (args.length > 0) {
                 getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + args[0]);
@@ -157,7 +162,8 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
                 map.put("population", (String) realm.get("population"));
                 map.put("queue", (Boolean)realm.get("queue") ? "Yes" : "No");
                 map.put("status", (Boolean)realm.get("status") ? "Online" : "Offline");
-                map.put("name", serverName);
+                map.put("name", realm.get("name").toString());
+                map.put("region", region);
             }
         } catch (ParseException e) {
             e.printStackTrace();

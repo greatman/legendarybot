@@ -26,7 +26,6 @@ package com.greatmancode.legendarybot.plugin.botgeneral;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.botgeneral.commands.HelpCommand;
-import com.greatmancode.legendarybot.plugin.botgeneral.commands.InfoCommand;
 import com.greatmancode.legendarybot.plugin.botgeneral.commands.InviteCommand;
 import com.greatmancode.legendarybot.plugin.botgeneral.commands.SetServerSettingCommand;
 import ro.fortsoft.pf4j.PluginException;
@@ -51,8 +50,6 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
     public void start() throws PluginException {
         getBot().getCommandHandler().addCommand("invite", new InviteCommand());
         log.info("Command !invite loaded!");
-        getBot().getCommandHandler().addCommand("info", new InfoCommand());
-        log.info("Command !info loaded!");
         getBot().getCommandHandler().addCommand("help", new HelpCommand(getBot()));
         log.info("Command !help loaded!");
         getBot().getCommandHandler().addCommand("setserversetting", new SetServerSettingCommand(getBot()));
@@ -64,8 +61,6 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
     public void stop() throws PluginException {
         getBot().getCommandHandler().removeCommand("invite");
         log.info("Command !invite unloaded.");
-        getBot().getCommandHandler().removeCommand("info");
-        log.info("Command !info unloaded.");
         getBot().getCommandHandler().removeCommand("help");
         log.info("Command !help unloaded.");
         getBot().getCommandHandler().removeCommand("setserversetting");

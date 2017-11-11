@@ -27,6 +27,7 @@ package com.greatmancode.legendarybot.commands.token;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -36,6 +37,7 @@ import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -54,7 +56,7 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        Request webRequest = new Request.Builder().url("https://wowtoken.info/snapshot.json").build();
+        Request webRequest = new Request.Builder().url("https://data.wowtoken.info/snapshot.json").build();
 
 
         try {
@@ -83,7 +85,16 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
             String minPrice = (String) prices.get("24min");
             String maxPrice = (String) prices.get("24max");
             double pctPrice = Double.parseDouble(prices.get("24pct").toString());
-            event.getChannel().sendMessage("Price for 1 WoW Token: " + price + " | Minimum 24H: " + minPrice + " | Maximum 24H: " +maxPrice + " | Percentage 24H range: " + pctPrice + "%").queue();
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("Price for 1 WoW Token in the " + region + " region");
+            eb.setThumbnail("http://wow.zamimg.com/images/wow/icons/large/wow_token01.jpg");
+            eb.setColor(new Color(255,215,0));
+            eb.addField("Current Price", price, true);
+            eb.addField("Minimum 24H", minPrice, true);
+            eb.addField("Maximum 24H", maxPrice, true);
+            eb.addField("Percentage 24H range", pctPrice + "", true);
+            eb.setFooter("Information taken from https://wowtoken.info/", "http://wow.zamimg.com/images/wow/icons/large/wow_token01.jpg");
+            event.getChannel().sendMessage(eb.build()).queue();
         } catch (ParseException | IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "regionName:" + getBot().getGuildSettings(event.getGuild()).getRegionName());

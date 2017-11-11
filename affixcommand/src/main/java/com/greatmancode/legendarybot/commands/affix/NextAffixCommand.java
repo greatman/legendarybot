@@ -47,7 +47,7 @@ public class NextAffixCommand implements PublicCommand, ZeroArgsCommand {
         }
         int weeks = Weeks.weeksBetween(Utils.startDateMythicPlus, current).getWeeks();
         String[] weekAffixes = Utils.mythicPlusAffixes[weeks % 12];
-        event.getChannel().sendMessage("Next week affixes: " + weekAffixes[0] + ", " + weekAffixes[1] + ", " + weekAffixes[2]).queue();
+        event.getChannel().sendMessage(Utils.createMythicEmbed(weekAffixes).build()).queue();
     }
 
     @Override

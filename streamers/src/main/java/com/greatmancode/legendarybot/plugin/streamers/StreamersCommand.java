@@ -26,9 +26,11 @@ package com.greatmancode.legendarybot.plugin.streamers;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -48,13 +50,17 @@ public class StreamersCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        MessageBuilder builder = new MessageBuilder();
         String streamersConfig = plugin.getBot().getGuildSettings(event.getGuild()).getSetting(StreamersPlugin.CONFIG_KEY);
         if (streamersConfig != null) {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("Server Streamers");
+            eb.setColor(new Color(100,65,164));
+            eb.setThumbnail("https://www-cdn.jtvnw.net/images/twitch_logo3.jpg");
             Arrays.stream(streamersConfig.split(";")).forEach(s -> {
                 String[] streamer = s.split(",");
                 StreamPlatform platform = StreamPlatform.valueOf(streamer[1]);
                 Map<String, String> result = plugin.isStreaming(streamer[0], platform);
+                String output = "";
                 if (result.size() != 0) {
                     String url = "";
                     if (platform == StreamPlatform.TWITCH) {
@@ -62,13 +68,13 @@ public class StreamersCommand implements PublicCommand, ZeroArgsCommand {
                     } else if (platform == StreamPlatform.MIXER) {
                         url = "https://mixer.com/" + streamer[0];
                     }
-                    builder.append(streamer[0] + " is streaming " + result.get(StreamersPlugin.STATUS_KEY) + " in " + result.get(StreamersPlugin.GAME_KEY) + "! " + url);
+                    output = "[" + result.get(StreamersPlugin.STATUS_KEY) + " in " + result.get(StreamersPlugin.GAME_KEY) + "!](" + url + ")";
                 } else {
-                    builder.append(streamer[0] + " is not streaming!");
+                    output = streamer[0] + " is not streaming!";
                 }
-                builder.append("\n");
+                eb.addField(streamer[0],output, false);
             });
-            event.getChannel().sendMessage(builder.build()).queue();
+            event.getChannel().sendMessage(eb.build()).queue();
         } else {
             event.getChannel().sendMessage("No streamers on this server!").queue();
         }

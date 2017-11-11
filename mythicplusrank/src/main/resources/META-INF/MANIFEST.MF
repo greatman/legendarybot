@@ -1,5 +1,0 @@
-Plugin-Class: com.greatmancode.legendarybot.plugin.mythicplusrank.MythicPlusRankCommand
-Plugin-Id: mythicPlusCommand
-Plugin-Provider: Greatman
-Plugin-Version: 0.0.1
-Plugin-Dependencies: wowLink

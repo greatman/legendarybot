@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.commands.owrank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
@@ -65,6 +66,7 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
+        //TODO support multiple regions by the command
         String user = args[0].substring(0, 1).toUpperCase() + args[0].substring(1);
         new Thread(() -> {
             Request webRequest = new Request.Builder().url("https://owapi.net/api/v3/u/"+user+"/stats").build();
@@ -101,23 +103,15 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                 }
 
                 JSONObject competitiveStats = (JSONObject) competitive.get("overall_stats");
-                MessageBuilder builder = new MessageBuilder();
-                builder.append("Player ")
-                        .append(args[0])
-                        .append(" | Rank: ")
-                        .append(competitiveStats.get("tier"))
-                        .append(" (")
-                        .append(competitiveStats.get("comprank"))
-                        .append(") | Wins: ")
-                        .append(competitiveStats.get("wins"))
-                        .append(" | Losses: ")
-                        .append(competitiveStats.get("losses"))
-                        .append(" | Ties: ")
-                        .append(competitiveStats.get("ties"))
-                        .append(" | Win Rate: ")
-                        .append(competitiveStats.get("win_rate"))
-                        .append("%");
-                event.getChannel().sendMessage(builder.build()).queue();
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setTitle("Player " + args[0] + " Overwatch " + region.toUpperCase() + " Stats");
+                eb.addField("Rank", competitiveStats.get("tier").toString() + "(" + competitiveStats.get("comprank").toString() +")", true);
+                eb.addField("Wins", competitiveStats.get("wins").toString(), true);
+                eb.addField("Losses", competitiveStats.get("losses").toString(), true);
+                eb.addField("Ties", competitiveStats.get("ties").toString(), true);
+                eb.addField("Win Rate", competitiveStats.get("win_rate") + "%", true);
+                eb.setThumbnail(competitiveStats.get("avatar").toString());
+                event.getChannel().sendMessage(eb.build()).queue();
             } catch (IOException | ParseException | NullPointerException e) {
                 e.printStackTrace();
                 getBot().getStacktraceHandler().sendStacktrace(e, "user:" + user);
