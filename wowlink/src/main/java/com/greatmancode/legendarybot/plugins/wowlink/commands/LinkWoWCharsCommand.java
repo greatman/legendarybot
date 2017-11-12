@@ -43,7 +43,7 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         String region  = plugin.getBot().getGuildSettings(event.getGuild()).getRegionName();
         if (region == null) {
-            event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with !setserversetting WOW_REGION_NAME US/EU").queue();
+            event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with the setup command").queue();
             return;
         }
         OAuth20Service service = new ServiceBuilder(plugin.getProps().getProperty("battlenetoauth.key"))

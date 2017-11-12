@@ -20,13 +20,7 @@ Originally a Discord bot for alerting of new Legendary drops in a World of Warcr
 
 ## Initial Bot configuration
 
-To be able to work properly, the bot needs 3 things from you:
-
-1. Your Region ```!setserversetting WOW_REGION_NAME US/EU```
-2. Your WoW Realm ```!setserversetting WOW_SERVER_NAME Arthas``` (Arthas is an example)
-3. Your Guild Name ```!setserversetting GUILD_NAME YourGuildName```
-
-Congrats! The bot is now configured for your server.
+To be able to work properly, the bot needs some information from you. Use the !setup command to configure the bot.
 
 ## Permissions
 
@@ -38,7 +32,7 @@ Legendarybot have several Admin commands. To be able to run those admin commands
 Without one of those conditions, you are only allowed **public** commands.
 
 ## Custom prefix
-The default bot prefix is !. You can change it to whatever you want with the following command ```!setserversetting PREFIX What_You_Want```
+The default bot prefix is !. You can change it to whatever you want with the ```!setup``` command.
 
 ## How to compile
 

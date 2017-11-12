@@ -21,48 +21,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package com.greatmancode.legendarybot.plugin.botgeneral;
+package com.greatmancode.legendarybot.plugin.setupmodule;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.plugin.botgeneral.commands.HelpCommand;
-import com.greatmancode.legendarybot.plugin.botgeneral.commands.InfoCommand;
-import com.greatmancode.legendarybot.plugin.botgeneral.commands.InviteCommand;
+import com.greatmancode.legendarybot.plugin.setupmodule.commands.SetupCommand;
+import net.dv8tion.jda.core.entities.Guild;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-/**
- * Plugin containing some general commands for the bot.
- */
-public class BotGeneralPlugin extends LegendaryBotPlugin {
+import java.util.HashMap;
+import java.util.Map;
 
-    /**
-     * A Event Listener to log to the bot's discord log channel.
-     */
-    private MessageListener listener = new MessageListener();
+public class SetupPlugin extends LegendaryBotPlugin {
 
 
-    public BotGeneralPlugin(PluginWrapper wrapper) {
+    private Map<Guild,SetupHandler> setupHandlerMap = new HashMap<>();
+    private SetupMessageListener setupMessageListener = new SetupMessageListener(this);
+
+    public SetupPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("invite", new InviteCommand());
-        log.info("Command !invite loaded!");
-        getBot().getCommandHandler().addCommand("help", new HelpCommand(getBot()));
-        log.info("Command !help loaded!");
-        getBot().getCommandHandler().addCommand("info", new InfoCommand());
-        getBot().getJDA().addEventListener(listener);
+        getBot().getJDA().addEventListener(setupMessageListener);
+        getBot().getCommandHandler().addCommand("setup", new SetupCommand(this));
     }
 
     @Override
     public void stop() throws PluginException {
-        getBot().getCommandHandler().removeCommand("invite");
-        log.info("Command !invite unloaded.");
-        getBot().getCommandHandler().removeCommand("help");
-        log.info("Command !help unloaded.");
-        getBot().getCommandHandler().removeCommand("info");
-        getBot().getJDA().removeEventListener(listener);
+        getBot().getJDA().removeEventListener(setupMessageListener);
+        getBot().getCommandHandler().removeCommand("setup");
+    }
+
+    public SetupHandler getSetupHandler(Guild guild) {
+        return setupHandlerMap.get(guild);
+    }
+
+    public void setupDone(Guild guild) {
+        setupHandlerMap.remove(guild);
+    }
+
+    public void addSetupHandler(Guild guild, SetupHandler handler) {
+        setupHandlerMap.put(guild, handler);
     }
 }

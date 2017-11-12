@@ -45,7 +45,7 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         if (getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
-            event.getChannel().sendMessage("A server region must be set first. Please let a admin use !setserversetting WOW_REGION_NAME US/EU.").queue();
+            event.getChannel().sendMessage("A server region must be set first. Please let a admin use the setup command.").queue();
             return;
         }
         List<String> buildingStatus = new ArrayList<>();

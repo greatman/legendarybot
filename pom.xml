@@ -35,6 +35,7 @@
         <module>lookupCommands</module>
         <module>legionbuilding</module>
         <module>wowlink</module>
+        <module>setupmodule</module>
     </modules>
 
     <properties>
