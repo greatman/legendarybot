@@ -40,6 +40,11 @@ public class InviteCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "invite - Get the bot invite link.";
+        return "Get the bot invite link.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Get the bot invite link.";
     }
 }

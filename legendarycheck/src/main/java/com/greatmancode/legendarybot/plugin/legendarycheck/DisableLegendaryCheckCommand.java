@@ -43,6 +43,11 @@ public class DisableLegendaryCheckCommand extends AdminCommand implements ZeroAr
 
     @Override
     public String help() {
-        return "disablelc - Disable the Legendary system.";
+        return "Disable the Legendary Check system. It will no longer alert of new Legendaries.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return help();
     }
 }

@@ -74,6 +74,16 @@ public class SetMainCharacterCommand implements PublicCommand {
 
     @Override
     public String help() {
-        return "setmainchar <Wow Character> - Set your Main guild character. If enabled, this will give you the proper Discord rank.";
+        return "Set your main guild character in this Discord server.\n" +
+                "This allows command (if configured) like !syncrank to use this character to set your rank.\n" +
+                "It also allows commands like !lookup to be used without giving your character name.\n\n" +
+                "__Parameters__\n" +
+                "**Wow Character** (Required): The name of your World of Warcraft character.\n\n" +
+                "**Example**: ```!setmainchar Kugruon``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Set your Main guild character.";
     }
 }

@@ -43,6 +43,11 @@ public class MuteLegendaryCheckCommand extends AdminCommand implements ZeroArgsC
 
     @Override
     public String help() {
-        return "mutelc - Mute the Legendary check (Without destroying the settings)";
+        return "Mute the Legendary check without destroying the settings. This will be only effective until the next bot restart.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Mute the Legendary check. Effective until the next bot restart.";
     }
 }

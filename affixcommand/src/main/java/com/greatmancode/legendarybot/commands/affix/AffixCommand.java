@@ -54,6 +54,11 @@ public class AffixCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "affix - Return this week's affixes.";
+        return "Return this week's affixes.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Return this week's affixes.";
     }
 }

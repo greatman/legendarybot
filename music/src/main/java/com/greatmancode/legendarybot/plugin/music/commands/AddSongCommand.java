@@ -56,6 +56,14 @@ public class AddSongCommand implements PublicCommand {
 
     @Override
     public String help() {
-        return "addsong [url] - Add a song to the queue.";
+        return "Add a song to the queue.\n\n" +
+                "__Parameters__\n" +
+                "**URL** (Required) : The URL to the song you want to add.\n\n" +
+                "**Example**: ``!addsong https://youtube.com/v/myawesomevideo``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Add a song to the music queue.";
     }
 }

@@ -74,6 +74,11 @@ public class SyncGuildCommand extends AdminCommand implements ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "syncguild - Sync the rank of all the users with a main WoW character.";
+        return "Sync the rank of all the users with a main WoW character.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return help();
     }
 }

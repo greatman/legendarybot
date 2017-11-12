@@ -53,6 +53,11 @@ public class AllowMemberMusicCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "allowmembermusic - Allow a non-admin of the server to use all features of the music bot (!playmusic by example) (Default setting is disallow)";
+        return "Allow a non-admin of the server to use all features of the music bot (!playmusic for example). The default setting is disallow";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Allow a non-admin of the server to use all features of the music bot (!playmusic for example).";
     }
 }

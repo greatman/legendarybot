@@ -114,7 +114,13 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public String help() {
-        return "gif [Search] - Search for a gif";
+        return "Allows you to search for a specific gif.\n" +
+                "**Example**: ``!gif cat`` will return the first ``cat`` gif found on Giphy";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Search for a gif";
     }
 
     @Override
@@ -127,7 +133,7 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
-        getBot().getCommandHandler().addCommand("gif", this);
+        getBot().getCommandHandler().addCommand("gif", this, "Fun Commands");
     }
 
     @Override

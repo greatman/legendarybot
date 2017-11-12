@@ -59,7 +59,7 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("invasion", this);
+        getBot().getCommandHandler().addCommand("invasion", this, "World of Warcraft");
         log.info("Command !invasion loaded.");
 
     }
@@ -72,6 +72,8 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
+        //todo support timezones
+        //TODO if region is not set, might bug out, do a chekc
         DateTime current;
         DateTime startDate;
         String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
@@ -114,7 +116,12 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
 
     @Override
     public String help() {
-        return "invasion - Say if there's currently an invasion running on WoW!";
+        return "Say if there's currently an invasion running on WoW!";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Say if there's currently an invasion running on WoW!";
     }
 
     public boolean isInvasionTime(DateTime startDate, DateTime current) {

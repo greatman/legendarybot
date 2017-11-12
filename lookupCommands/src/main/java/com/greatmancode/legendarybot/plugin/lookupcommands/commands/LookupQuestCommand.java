@@ -83,6 +83,14 @@ public class LookupQuestCommand implements PublicCommand {
 
     @Override
     public String help() {
-        return "lookupquest - Lookup a Quest in WoW database. Supports partial queries.";
+        return "Lookup a quest in the WoW database. Supports partial queries.\n\n" +
+                "__Parameters__\n" +
+                "**Quest** (Required): A quest name\n\n" +
+                "**Example**: ``!lookupquest boar``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Lookup a Quest in WoW database. Supports partial queries.";
     }
 }

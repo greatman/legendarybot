@@ -83,6 +83,14 @@ public class LookupItemCommand implements PublicCommand {
 
     @Override
     public String help() {
-        return "lookupitem [Item] - Lookup an item in the WoW database. Supports partial queries.";
+        return "Lookup an item in the WoW database. Supports partial queries.\n\n" +
+                "__Parameters__\n" +
+                "**Item** (Required): An item name\n\n" +
+                "**Example**: ``!lookupitem Astral Warden``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Lookup an item in the WoW database. Supports partial queries.";
     }
 }

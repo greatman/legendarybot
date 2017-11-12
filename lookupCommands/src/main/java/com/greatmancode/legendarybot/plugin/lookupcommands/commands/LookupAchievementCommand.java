@@ -83,6 +83,14 @@ public class LookupAchievementCommand implements PublicCommand {
 
     @Override
     public String help() {
-        return "lookupachievement [Achievement] - Lookup an achievement on World of Warcraft. Supports partial queries.";
+        return "Lookup an achievement on World of Warcraft. Supports partial queries.\n\n" +
+                "__Parameters__\n" +
+                "**Achivement** (Required): The achivement you want to search.\n\n" +
+                "**Example**: ``!lookupachievement pet``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Lookup an achievement on World of Warcraft. Supports partial queries.";
     }
 }

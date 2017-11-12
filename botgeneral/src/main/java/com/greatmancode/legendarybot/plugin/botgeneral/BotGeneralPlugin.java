@@ -48,11 +48,11 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("invite", new InviteCommand());
+        getBot().getCommandHandler().addCommand("invite", new InviteCommand(), "General Commands");
         log.info("Command !invite loaded!");
-        getBot().getCommandHandler().addCommand("help", new HelpCommand(getBot()));
+        getBot().getCommandHandler().addCommand("help", new HelpCommand(getBot()), "General Commands");
         log.info("Command !help loaded!");
-        getBot().getCommandHandler().addCommand("info", new InfoCommand());
+        getBot().getCommandHandler().addCommand("info", new InfoCommand(), "General Commands");
         getBot().getJDA().addEventListener(listener);
     }
 

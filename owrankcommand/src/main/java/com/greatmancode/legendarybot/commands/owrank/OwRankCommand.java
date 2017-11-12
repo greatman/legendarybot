@@ -55,7 +55,7 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("owrank", this);
+        getBot().getCommandHandler().addCommand("owrank", this, "Overwatch");
         log.info("Command !owrank loaded");
     }
 
@@ -131,6 +131,14 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public String help() {
-        return "owrank [BattleTag] - Get a player's Overwatch competitive rank. The BattleTag format is Username-numbers. Example: Greatman-1189.";
+        return "Get a player's Overwatch competitive rank.\n\n" +
+                "__Parameters__\n" +
+                "**BattleTag** (Required): The BattleTag ID you want to check. The format is Username-numbers.\n\n" +
+                "**Example**: ``!owrank Greatman-1189``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Get a player's Overwatch competitive rank.";
     }
 }

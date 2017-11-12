@@ -57,6 +57,15 @@ public class EnableLegendaryCheckCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "enablelc [Channel Name] - Enable the Legendary checker for the channel provided. **WARNING: This will spam a lot on the first run!**";
+        return "enablelc [Channel Name] - Enable the Legendary checker for the channel provided. **WARNING: This will spam a lot on the first run!**\n" +
+                "**Format**: ``!enablelc [Channel Name]``\n" +
+                "__Parameters__\n" +
+                "**Channel Name** (Required): The channel name you want the Legendary Check to write in. Be sure that the bot can write in this channel!\n\n" +
+                "**Example**: ``!enablelc LegendaryAlert";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Enable the Legendary checker for the channel provided.";
     }
 }

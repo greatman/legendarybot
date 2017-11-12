@@ -81,4 +81,9 @@ public class ReloadPluginsCommand implements Command {
     public String help() {
         return "reload [Plugin ID] - Reload the plugins";
     }
+
+    @Override
+    public String shortDescription() {
+        return help();
+    }
 }

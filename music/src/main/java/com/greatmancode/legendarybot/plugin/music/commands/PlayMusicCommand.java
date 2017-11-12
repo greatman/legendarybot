@@ -64,6 +64,14 @@ public class PlayMusicCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "playmusic [Link] - Play music in the channel you are currently in.";
+        return "Play music in the voice channel you are currently in.\n\n" +
+                "__Parameters__\n" +
+                "**URL** (Required) : The URL to the song you want to add.\n\n" +
+                "**Example**: ``!playmusic https://youtube.com/v/myawesomevideo``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Play music in the voice channel you are currently in.";
     }
 }

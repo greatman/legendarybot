@@ -54,6 +54,14 @@ public class CreateCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "createcmd [name] [args...] - Create a command that the bot will return the stuff in args";
+        return "This command allows you to create custom commands with the bot.\n\n" +
+                "**Example**: ``!createcmd cats I love cats!`` will make the bot answer to the command ``!cats`` with the sentence ``I love cats!``.\n" +
+                "**You cannot override commands like !lookup with this command**\n" +
+                "If you want to change a custom command, simply type ``!createcmd`` again.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Create a command that the bot will return what you typed";
     }
 }

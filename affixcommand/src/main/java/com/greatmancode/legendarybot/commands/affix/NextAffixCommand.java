@@ -52,6 +52,11 @@ public class NextAffixCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "nextaffix - Shows next week Mythic+ US affixes";
+        return "Shows next week Mythic+ affixes.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Shows next week Mythic+ affixes.";
     }
 }

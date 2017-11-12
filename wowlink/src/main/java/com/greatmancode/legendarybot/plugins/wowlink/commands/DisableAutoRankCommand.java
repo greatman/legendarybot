@@ -39,7 +39,7 @@ public class DisableAutoRankCommand extends AdminCommand implements ZeroArgsComm
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         if (plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() == null || plugin.getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
-            event.getChannel().sendMessage("You can't run this command. A server administrator need to set GUILD_NAME and WOW_REGION_NAME. Refer to documentation.").queue();
+            event.getChannel().sendMessage("You can't run this command. A server administrator needs to configure the bot first. Ask him to use !setup.").queue();
             return;
         }
 
@@ -49,6 +49,11 @@ public class DisableAutoRankCommand extends AdminCommand implements ZeroArgsComm
 
     @Override
     public String help() {
-        return "disableautorank - Disable the automatic set of the rank according to the WoW guild rank.";
+        return "Disable the automatic set of the rank according to the WoW guild rank.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return help();
     }
 }

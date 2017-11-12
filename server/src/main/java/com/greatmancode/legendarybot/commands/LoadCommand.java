@@ -72,4 +72,9 @@ public class LoadCommand implements Command {
     public String help() {
         return "load - Load the plugins";
     }
+
+    @Override
+    public String shortDescription() {
+        return help();
+    }
 }

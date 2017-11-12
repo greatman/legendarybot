@@ -27,9 +27,7 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Handle commands sent by the user
@@ -50,6 +48,8 @@ public class CommandHandler {
      * The alias list
      */
     private Map<String, String> aliasMap = new LinkedHashMap<>();
+
+    private Map<String, List<String>> commandGroup = new LinkedHashMap<>();
 
     /**
      * An instance of a {@link UnknownCommandHandler} to handle commands that are unknown
@@ -78,8 +78,12 @@ public class CommandHandler {
      * @param name The trigger of the command
      * @param command The {@link Command} instance related to the trigger
      */
-    public void addCommand(String name, Command command) {
+    public void addCommand(String name, Command command, String group) {
         commandMap.put(name, command);
+        if (!commandGroup.containsKey(group)) {
+            commandGroup.put(group, new ArrayList<>());
+        }
+        commandGroup.get(group).add(name);
     }
 
     /**
@@ -88,6 +92,8 @@ public class CommandHandler {
      */
     public void removeCommand(String name) {
         commandMap.remove(name);
+
+        commandGroup.forEach((k,v) -> v.remove(name));
     }
 
     /**
@@ -162,6 +168,10 @@ public class CommandHandler {
      */
     public void setUnknownCommandHandler(UnknownCommandHandler handler) {
         this.unknownCommandHandler = handler;
+    }
+
+    public Map<String, List<String>> getCommandGroup() {
+        return Collections.unmodifiableMap(commandGroup);
     }
 
 }

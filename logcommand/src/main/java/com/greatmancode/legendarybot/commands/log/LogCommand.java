@@ -98,7 +98,12 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
 
     @Override
     public String help() {
-        return "log - Retrieve the last log of the guild";
+        return "Retrieve the last log of the guild on Warcraft Logs.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Retrieve the last log of the guild on Warcraft Logs.";
     }
 
     @Override
@@ -111,7 +116,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
-        getBot().getCommandHandler().addCommand("log", this);
+        getBot().getCommandHandler().addCommand("log", this, "World of Warcraft");
         log.info("Command !log loaded");
     }
 

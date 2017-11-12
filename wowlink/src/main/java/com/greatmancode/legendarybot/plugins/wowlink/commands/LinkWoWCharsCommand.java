@@ -57,6 +57,11 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public String help() {
-        return "linkwowchars - Link your WoW characters to your Discord account.";
+        return "Link your WoW characters to your Discord account.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return help();
     }
 }

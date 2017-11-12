@@ -42,7 +42,7 @@ public class GuildCharsCommand implements PublicCommand {
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         if (plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() == null || plugin.getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
-            event.getChannel().sendMessage("You can't run this command. A server administrator need to set GUILD_NAME and WOW_REGION_NAME. Refer to documentation.").queue();
+            event.getChannel().sendMessage("You can't run this command. A server administrator needs to configure the bot first. Ask him to use !setup.").queue();
             return;
         }
 
@@ -79,5 +79,10 @@ public class GuildCharsCommand implements PublicCommand {
     @Override
     public String help() {
         return "guildchars <User> - Show all the characters that belongs to you or the mentioned user related to a discord server's guild.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return null;
     }
 }

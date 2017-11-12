@@ -170,14 +170,14 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         }));
 
 
-        getBot().getCommandHandler().addCommand("linkwowchars", new LinkWoWCharsCommand(this));
-        getBot().getCommandHandler().addCommand("guildchars", new GuildCharsCommand(this));
-        getBot().getCommandHandler().addCommand("setmainchar", new SetMainCharacterCommand(this));
-        getBot().getCommandHandler().addCommand("enableautorank", new EnableAutoRankCommand(this));
-        getBot().getCommandHandler().addCommand("disableautorank", new DisableAutoRankCommand(this));
-        getBot().getCommandHandler().addCommand("setwowrank", new SetWoWRankCommand(this));
-        getBot().getCommandHandler().addCommand("syncrank", new SyncRankCommand(this));
-        getBot().getCommandHandler().addCommand("syncguild", new SyncGuildCommand(this));
+        getBot().getCommandHandler().addCommand("linkwowchars", new LinkWoWCharsCommand(this), "World of Warcraft Character");
+        getBot().getCommandHandler().addCommand("guildchars", new GuildCharsCommand(this), "World of Warcraft Character");
+        getBot().getCommandHandler().addCommand("setmainchar", new SetMainCharacterCommand(this),"World of Warcraft Character");
+        getBot().getCommandHandler().addCommand("enableautorank", new EnableAutoRankCommand(this),"Admin Commands");
+        getBot().getCommandHandler().addCommand("disableautorank", new DisableAutoRankCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("setwowrank", new SetWoWRankCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("syncrank", new SyncRankCommand(this), "World of Warcraft Character");
+        getBot().getCommandHandler().addCommand("syncguild", new SyncGuildCommand(this), "Admin Commands");
     }
 
     @Override

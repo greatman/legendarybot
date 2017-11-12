@@ -104,12 +104,17 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
 
     @Override
     public String help() {
-        return "token - Return the WoW token price";
+        return "Return the WoW token price of the Discord's server region.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Return the WoW token price of the Discord's server region.";
     }
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("token", this);
+        getBot().getCommandHandler().addCommand("token", this, "World of Warcraft");
         log.info("Command !token loaded.");
     }
 

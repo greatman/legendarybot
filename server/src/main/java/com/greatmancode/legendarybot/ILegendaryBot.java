@@ -143,9 +143,9 @@ public class ILegendaryBot extends LegendaryBot {
         SimpleLog.getLog("JDA").addListener(new LogListener(stacktraceHandler));
 
         //Register the server specific commands
-        commandHandler.addCommand("reloadplugins", new ReloadPluginsCommand(this));
-        commandHandler.addCommand("load", new LoadCommand(this));
-        commandHandler.addCommand("unload", new UnloadCommand(this));
+        commandHandler.addCommand("reloadplugins", new ReloadPluginsCommand(this), "Admin Commands");
+        commandHandler.addCommand("load", new LoadCommand(this), "Admin Commands");
+        commandHandler.addCommand("unload", new UnloadCommand(this), "Admin Commands");
 
         //We register the message listener
         jda.addEventListener(new MessageListener(this));

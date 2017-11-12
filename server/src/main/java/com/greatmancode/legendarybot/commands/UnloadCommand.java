@@ -75,4 +75,9 @@ public class UnloadCommand implements Command {
     public String help() {
         return "unload [pluginID] - Unload a plugin";
     }
+
+    @Override
+    public String shortDescription() {
+        return help();
+    }
 }

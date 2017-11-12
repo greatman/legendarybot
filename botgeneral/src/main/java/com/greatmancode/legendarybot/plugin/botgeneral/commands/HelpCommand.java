@@ -25,6 +25,7 @@
 package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
+import com.greatmancode.legendarybot.api.commands.Command;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -33,7 +34,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 /**
  * Command to show all the command's help available to the executor.
  */
-public class HelpCommand implements PublicCommand,ZeroArgsCommand {
+public class HelpCommand implements PublicCommand {
 
     /**
      * A instance of the bot
@@ -50,28 +51,66 @@ public class HelpCommand implements PublicCommand,ZeroArgsCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
+        if (args.length == 1) {
+            if (bot.getCommandHandler().getCommandList().containsKey(args[0])) {
+                event.getAuthor().openPrivateChannel().complete().sendMessage(bot.getCommandHandler().getCommandList().get(args[0]).help()).queue();
+                return;
+            }
+        }
         final MessageBuilder[] builder = {new MessageBuilder()};
         String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");
         if (prefix == null) {
             prefix = "!";
         }
-        builder[0].append("Available commands ([] - Required, <> - Optional):\n");
         String finalPrefix = prefix;
-        bot.getCommandHandler().getCommandList().forEach((k, v) -> {
+        builder[0].append("Available commands ([] - Required, <> - Optional):\n");
+        builder[0].append("Type ``!help [Command]``to know more about a command.\n");
+        bot.getCommandHandler().getCommandGroup().forEach((k,v) -> {
             if (builder[0].length() >= 1700) {
                 event.getAuthor().openPrivateChannel().complete().sendMessage(builder[0].build()).queue();
                 builder[0] = new MessageBuilder();
             }
-            if (v.canExecute(event.getMember())) {
-                builder[0].append(finalPrefix + v.help());
-                builder[0].append("\n");
-            }
+            builder[0].append("\n__");
+            builder[0].append(k);
+            builder[0].append("__\n");
+            v.forEach((commandName) -> {
+                if (builder[0].length() >= 1700) {
+                    event.getAuthor().openPrivateChannel().complete().sendMessage(builder[0].build()).queue();
+                    builder[0] = new MessageBuilder();
+                }
+                Command command = bot.getCommandHandler().getCommandList().get(commandName);
+                if (command.canExecute(event.getMember())) {
+                    builder[0].append("**");
+                    builder[0].append(finalPrefix);
+                    builder[0].append(commandName);
+                    builder[0].append("**: ");
+                    builder[0].append(command.shortDescription());
+                    builder[0].append("\n");
+                }
+            });
         });
         event.getAuthor().openPrivateChannel().complete().sendMessage(builder[0].build()).queue();
     }
 
     @Override
+    public int minArgs() {
+        return 0;
+    }
+
+    @Override
+    public int maxArgs() {
+        return 1;
+    }
+
+    @Override
     public String help() {
-        return "help - Return this help";
+
+        //TODO better help
+        return "Return this help. You can get a specific command's help with !help [Command].";
+    }
+
+    @Override
+    public String shortDescription() {
+        return help();
     }
 }

@@ -60,7 +60,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
 
     @Override
     public void start() {
-        getBot().getCommandHandler().addCommand("lookup", this);
+        getBot().getCommandHandler().addCommand("lookup", this, "World of Warcraft");
         getBot().getCommandHandler().addAlias("ilvl", "lookup");
         getBot().getCommandHandler().addAlias("mplusrank", "lookup");
         getBot().getCommandHandler().addAlias("raidrank", "lookup");
@@ -75,6 +75,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public void execute(MessageReceivedEvent event, String[] args) {
+        //todo support non-slugs for realms
         String serverName = null, region = null;
         try {
             if (args.length == 1) {
@@ -245,6 +246,17 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public String help() {
-        return  "lookup [Character Name] <Server Name> <region> - Lookup a character information (iLVL/Raid Progression/Mythic+)";
+        return "Lookup a World of Warcraft character statistics.\n" +
+                "**Format**: ``!lookup <Character Name> <Server Name> <Region>``\n\n" +
+                "__Parameters__\n" +
+                "**Character Name** (Required/Optional): A World of Warcraft character Name. This parameter is required if you don't have a main character set in this Discord server. Optional if you have one.\n" +
+                "**Server Name** (Optional): The World of Warcraft realm you want to search on. If omitted, will take this Discord's default server.\n" +
+                "**Region** (Optional): The Region you want to do the search in. If omitted, will take this Discord's default server.\n\n" +
+                "**Example**: ``!lookup Kugruon Arthas US``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Lookup a character information (iLVL/Raid Progression/Mythic+)";
     }
 }

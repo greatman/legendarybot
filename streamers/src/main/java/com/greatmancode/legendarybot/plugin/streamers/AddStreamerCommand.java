@@ -68,6 +68,15 @@ public class AddStreamerCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "addstreamer [Streamer username] [Platform (Twitch/Mixer)] - Add a streamer to the streamer list!";
+        return "[Streamer username] [Platform (Twitch/Mixer)] - Add a streamer to the streamer list.\n\n" +
+                "__Parameters__\n" +
+                "**Streamer username** (Required): The name of the streamer.\n" +
+                "**Platform** (Required). Either Twitch or Mixer.\n\n" +
+                "**Example**: ``!addstreamer greamtan mixer``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Add a streamer to the streamer list.";
     }
 }

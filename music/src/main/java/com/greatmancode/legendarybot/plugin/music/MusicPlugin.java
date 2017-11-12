@@ -43,12 +43,12 @@ public class MusicPlugin extends LegendaryBotPlugin {
     @Override
     public void start() throws PluginException {
 
-        getBot().getCommandHandler().addCommand("addsong", new AddSongCommand(this));
-        getBot().getCommandHandler().addCommand("playmusic", new PlayMusicCommand(this));
-        getBot().getCommandHandler().addCommand("skipsong", new SkipSongCommand(this));
-        getBot().getCommandHandler().addCommand("stopmusic", new StopMusicCommand(this));
-        getBot().getCommandHandler().addCommand("disallowmembermusic", new DisallowMemberMusicCommand(this));
-        getBot().getCommandHandler().addCommand("allowmembermusic", new AllowMemberMusicCommand(this));
+        getBot().getCommandHandler().addCommand("addsong", new AddSongCommand(this), "Music");
+        getBot().getCommandHandler().addCommand("playmusic", new PlayMusicCommand(this), "Music");
+        getBot().getCommandHandler().addCommand("skipsong", new SkipSongCommand(this), "Music");
+        getBot().getCommandHandler().addCommand("stopmusic", new StopMusicCommand(this), "Music");
+        getBot().getCommandHandler().addCommand("disallowmembermusic", new DisallowMemberMusicCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("allowmembermusic", new AllowMemberMusicCommand(this), "Admin Commands");
         log.info("Music plugin loaded! Added commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 

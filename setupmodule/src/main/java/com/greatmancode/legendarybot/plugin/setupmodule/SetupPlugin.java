@@ -45,7 +45,7 @@ public class SetupPlugin extends LegendaryBotPlugin {
     @Override
     public void start() throws PluginException {
         getBot().getJDA().addEventListener(setupMessageListener);
-        getBot().getCommandHandler().addCommand("setup", new SetupCommand(this));
+        getBot().getCommandHandler().addCommand("setup", new SetupCommand(this), "Admin Commands");
     }
 
     @Override

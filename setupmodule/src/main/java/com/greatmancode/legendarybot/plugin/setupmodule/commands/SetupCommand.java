@@ -74,6 +74,11 @@ public class SetupCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "setup - Setup LegendaryBot for your server.";
+        return "Setup LegendaryBot for your server.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Setup LegendaryBot for your server.";
     }
 }

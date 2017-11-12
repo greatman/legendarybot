@@ -38,11 +38,11 @@ public class LookupCommandsPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("lookupitem", new LookupItemCommand(this));
+        getBot().getCommandHandler().addCommand("lookupitem", new LookupItemCommand(this), "World of Warcraft");
         log.info("Command !lookupitem loaded!");
-        getBot().getCommandHandler().addCommand("lookupachievement", new LookupAchievementCommand(this));
+        getBot().getCommandHandler().addCommand("lookupachievement", new LookupAchievementCommand(this), "World of Warcraft");
         log.info("Command !lookupachievement loaded!");
-        getBot().getCommandHandler().addCommand("lookupquest", new LookupQuestCommand(this));
+        getBot().getCommandHandler().addCommand("lookupquest", new LookupQuestCommand(this), "World of Warcraft");
         log.info("Command !lookupquest loaded!");
     }
 

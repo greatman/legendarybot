@@ -68,6 +68,11 @@ public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
 
     @Override
     public String help() {
-        return "syncrank - Sync your Guild rank with your Discord account";
+        return "Sync your Guild rank with your Discord account";
+    }
+
+    @Override
+    public String shortDescription() {
+        return help();
     }
 }

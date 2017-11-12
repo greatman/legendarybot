@@ -64,7 +64,7 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("server", this);
+        getBot().getCommandHandler().addCommand("server", this, "World of Warcraft");
         log.info("Command !server loaded.");
     }
 
@@ -129,7 +129,14 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public String help() {
-        return "server <Server Name> - Retrieve a server status.";
+        return "Retrieve a Realm status.\n\n" +
+                "__Parameters__\n" +
+                "**Realm Name** (Optional/Required) : The Realm name that you want the status. If this parameter is omitted, the command will take this Discord's server configured realm.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Retrieve a Realm status.";
     }
 
     /**

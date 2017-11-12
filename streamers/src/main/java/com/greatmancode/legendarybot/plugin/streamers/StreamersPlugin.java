@@ -84,11 +84,11 @@ public class StreamersPlugin extends LegendaryBotPlugin {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
-        getBot().getCommandHandler().addCommand("streamers", new StreamersCommand(this));
+        getBot().getCommandHandler().addCommand("streamers", new StreamersCommand(this), "General Commands");
         log.info("Command !streamers loaded!");
-        getBot().getCommandHandler().addCommand("addstreamer", new AddStreamerCommand(this));
+        getBot().getCommandHandler().addCommand("addstreamer", new AddStreamerCommand(this), "Admin Commands");
         log.info("Command !addstreamer loaded!");
-        getBot().getCommandHandler().addCommand("removestreamer", new RemoveStreamerCommand(this));
+        getBot().getCommandHandler().addCommand("removestreamer", new RemoveStreamerCommand(this), "Admin Commands");
         log.info("Command !removestreamer unloaded!");
     }
 

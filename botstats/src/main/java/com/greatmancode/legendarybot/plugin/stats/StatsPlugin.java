@@ -53,7 +53,7 @@ public class StatsPlugin extends LegendaryBotPlugin {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
-        getBot().getCommandHandler().addCommand("botstats", new BotStatsCommands(this));
+        getBot().getCommandHandler().addCommand("botstats", new BotStatsCommands(this), "Admin Commands");
         dashboardStatsHandler = new DashboardStatsHandler(this);
         messageListener = new MessageListener(this);
         getBot().getJDA().addEventListener(messageListener);

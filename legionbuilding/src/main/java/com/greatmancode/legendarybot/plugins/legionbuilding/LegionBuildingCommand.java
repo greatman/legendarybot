@@ -69,12 +69,17 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
 
     @Override
     public String help() {
-        return "legionbuilding - Give the current status of the Broken Shore buildings!";
+        return "Give the current status of the Broken Shore buildings!";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Give the current status of the Broken Shore buildings";
     }
 
     @Override
     public void start() throws PluginException {
-        getBot().getCommandHandler().addCommand("legionbuilding", this);
+        getBot().getCommandHandler().addCommand("legionbuilding", this, "World of Warcraft");
     }
 
     @Override

@@ -70,7 +70,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
-        getBot().getCommandHandler().addCommand("blizzardcs", this);
+        getBot().getCommandHandler().addCommand("blizzardcs", this, "General Commands");
         log.info("Command !blizzardcs loaded!");
     }
 
@@ -148,6 +148,11 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
 
     @Override
     public String help() {
-        return "blizzardcs - Get the last tweet of Blizzardcs US";
+        return "Get the last tweet of the blizzardcs US twitter account";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Get the last tweet of the blizzardcs US twitter account";
     }
 }

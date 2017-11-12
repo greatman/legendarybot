@@ -64,6 +64,12 @@ public interface Command {
      */
     String help();
 
+    /**
+     * Returns a short description of the command
+     * @return A String containing the short description.
+     */
+    String shortDescription();
+
     default String[] preFlight(MessageReceivedEvent event, LegendaryBot bot, String[] args) {
         return args;
     }

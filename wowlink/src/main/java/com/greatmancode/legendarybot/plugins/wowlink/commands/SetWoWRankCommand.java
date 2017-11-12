@@ -65,6 +65,16 @@ public class SetWoWRankCommand extends AdminCommand {
 
     @Override
     public String help() {
-        return "setwowrank [Rank ID] [Discord Rank Name] - Link a WoW Guild Rank ID to a Discord Rank. To find the Rank ID, go in the **Guild Control** panel in WoW. Do -1 to the rank when typing the command (Example, Guild Master is Rank 0 but in WoW is shown 1)";
+        return "Link a WoW Guild Rank ID to a Discord Rank.\n" +
+                "To find the Rank ID, go in the **Guild Control** panel in WoW. Substract 1 to the rank when typing the command (Example, Guild Master is Rank 0 but in WoW is shown 1)\n\n" +
+                "__Parameters__\n" +
+                "**Rank ID** (Required): The Guild Rank ID.\n" +
+                "**Discord Rank Name** (Required): The name of the Discord Rank\n\n" +
+                "**Example**: ``!setwowrank 1 Raider``";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Link a WoW Guild Rank ID to a Discord Rank.";
     }
 }

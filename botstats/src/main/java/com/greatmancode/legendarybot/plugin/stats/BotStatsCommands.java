@@ -91,6 +91,11 @@ public class BotStatsCommands implements Command {
 
     @Override
     public String help() {
-        return "botstats - Shows Global stats about the bot";
+        return "Shows Global stats about the bot.";
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Shows Global stats about the bot.";
     }
 }
