@@ -23,21 +23,15 @@
  */
 package com.greatmancode.legendarybot.plugin.setupmodule;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
+import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Response;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -45,9 +39,7 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 
 public class SetupMessageListener extends ListenerAdapter {
 
@@ -142,18 +134,13 @@ public class SetupMessageListener extends ListenerAdapter {
             String realm = event.getMessage().getContent();
 
             try {
-                HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+realm+"\" } } }", ContentType.APPLICATION_JSON);
-                Response response = plugin.getBot().getElasticSearch().performRequest("POST", "/wow/realm_"+plugin.getBot().getGuildSettings(event.getGuild()).getRegionName().toLowerCase()+"/_search", Collections.emptyMap(), entity);
-                String jsonResponse = EntityUtils.toString(response.getEntity());
-                JSONParser jsonParser = new JSONParser();
-                JSONObject obj = (JSONObject) jsonParser.parse(jsonResponse);
-                JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
-                if (hit.size() == 0) {
+                String realmData = WoWUtils.getRealmInformation(plugin.getBot(),plugin.getBot().getGuildSettings(event.getGuild()).getRegionName(), realm);
+                if (realmData == null) {
                     event.getChannel().sendMessage("I did not found a Realm with the name of " + realm + ". Did you make a typo?").queue();
                     return;
                 }
-                JSONObject firstItem = (JSONObject) hit.get(0);
-                JSONObject source = (JSONObject)  firstItem.get("_source");
+                JSONParser jsonParser = new JSONParser();
+                JSONObject source = (JSONObject) jsonParser.parse(realmData);
                 String serverSlug = (String) source.get("slug");
                 String timezone = (String) source.get("timezone");
                 String name = (String) source.get("name");
@@ -165,10 +152,6 @@ public class SetupMessageListener extends ListenerAdapter {
                 event.getChannel().sendMessage("Say ``yes`` or ``no``.").queue();
 
                 setupHandler.setState(SetupState.STEP_REALM_CONFIRM);
-            } catch (IOException e) {
-                e.printStackTrace();
-                plugin.getBot().getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(), "realm:" + realm + "setupwizard:" + setupHandler.getState());
-                event.getChannel().sendMessage("An error occured. Try retyping the Realm name. If this still happens, feel free to get help from the LegendaryBot Discord server @ https://discord.gg/Cr7G28H").queue();
             } catch (ParseException e) {
                 e.printStackTrace();
                 plugin.getBot().getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(), "realm:" + realm + "setupwizard:" + setupHandler.getState());

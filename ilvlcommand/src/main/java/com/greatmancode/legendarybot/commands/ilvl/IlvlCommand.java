@@ -28,6 +28,7 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.api.utils.Hero;
 import com.greatmancode.legendarybot.api.utils.HeroClass;
+import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -75,7 +76,6 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public void execute(MessageReceivedEvent event, String[] args) {
-        //todo support non-slugs for realms
         String serverName = null, region = null;
         try {
             if (args.length == 1) {
@@ -85,22 +85,49 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                 serverName = args[1];
                 region = getBot().getGuildSettings(event.getGuild()).getRegionName();
             } else {
-                serverName = args[1];
-                region = args[2];
+                //We got a long server name potentially
+                if (args[args.length - 1].equalsIgnoreCase("US") || args[args.length - 1].equalsIgnoreCase("EU")) {
+                    //Last argument is the region, taking the rest for the realm info
+                    String[] argsend = new String[args.length - 2];
+                    System.arraycopy(args,1,argsend,0,args.length - 2);
+                    StringBuilder builder = new StringBuilder();
+                    for(String s : argsend) {
+                        builder.append(" ").append(s);
+                    }
+                    serverName = builder.toString().trim();
+                    region = args[args.length - 1];
+                } else {
+                    String[] argsend = new String[args.length - 1];
+                    System.arraycopy(args,1,argsend,0,args.length - 1);
+                    StringBuilder builder = new StringBuilder();
+                    for(String s : argsend) {
+                        builder.append(" ").append(s);
+                    }
+                    serverName = builder.toString().trim();
+                    region = getBot().getGuildSettings(event.getGuild()).getRegionName();
+                }
             }
+
+            String realmData = WoWUtils.getRealmInformation(getBot(),region,serverName);
+            if (realmData == null) {
+                event.getChannel().sendMessage("Realm not found! Did you make a typo?").queue();
+                return;
+            }
+            JSONParser parser = new JSONParser();
+            JSONObject realmInformation = (JSONObject) parser.parse(realmData);
+            String serverSlug = (String) realmInformation.get("slug");
 
             HttpUrl url = new HttpUrl.Builder().scheme("https")
                     .host("raider.io")
                     .addPathSegments("api/v1/characters/profile")
                     .addQueryParameter("region", region)
-                    .addQueryParameter("realm", serverName)
+                    .addQueryParameter("realm", serverSlug)
                     .addQueryParameter("name", args[0])
                     .addQueryParameter("fields", "gear,raid_progression,mythic_plus_scores,previous_mythic_plus_scores,mythic_plus_best_runs")
                     .build();
             Request request = new Request.Builder().url(url).build();
             String result = client.newCall(request).execute().body().string();
             if (result != null) {
-                JSONParser parser = new JSONParser();
                 JSONObject jsonObject = (JSONObject) parser.parse(result);
                 if (!jsonObject.containsKey("error")) {
                     EmbedBuilder eb = new EmbedBuilder();
@@ -111,43 +138,8 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     }
 
                     String className = jsonObject.get("class").toString().toLowerCase();
-                    switch (className) {
-                        case "death knight":
-                            eb.setColor(new Color(196,30,59));
-                            break;
-                        case "demon hunter":
-                            eb.setColor(new Color(163,48,201));
-                            break;
-                        case "druid":
-                            eb.setColor(new Color(255,125,10));
-                            break;
-                        case "hunter":
-                            eb.setColor(new Color(171,212,115));
-                            break;
-                        case "mage":
-                            eb.setColor(new Color(105,204,240));
-                            break;
-                        case "monk":
-                            eb.setColor(new Color(0,255,150));
-                            break;
-                        case "paladin":
-                            eb.setColor(new Color(245,140,186));
-                            break;
-                        case "priest":
-                            eb.setColor(new Color(255,255,255));
-                            break;
-                        case "rogue":
-                            eb.setColor(new Color(255,245,105));
-                            break;
-                        case "shaman":
-                            eb.setColor(new Color(0,112,222));
-                            break;
-                        case "warlock":
-                            eb.setColor(new Color(148,130,201));
-                            break;
-                        case "warrior":
-                            eb.setColor(new Color(199,156,110));
-                    }
+                    eb.setColor(WoWUtils.getClassColor(className));
+                    
                     StringBuilder titleBuilder = new StringBuilder();
                     titleBuilder.append(jsonObject.get("name"));
                     titleBuilder.append(" ");
@@ -219,7 +211,16 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                         runsBuilder.append(" Chest(s)\n\n");
                     }
                     eb.addField("Best Mythic+ Runs", runsBuilder.toString(), false);
-
+                    String wowLink = null;
+                    if (((String) jsonObject.get("region")).equalsIgnoreCase("us")) {
+                        wowLink = "https://worldofwarcraft.com/en-us/character/" + serverSlug + "/" + jsonObject.get("name");
+                    } else {
+                        wowLink = "https://worldofwarcraft.com/en-gb/character/" + serverSlug + "/" + jsonObject.get("name");
+                    }
+                    eb.addField("Battle.Net", "[Click Here]("+wowLink+")", true);
+                    eb.addField("WoWProgress", "[Click Here](https://www.wowprogress.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
+                    eb.addField("Raider.IO", "[Click Here](https://raider.io/characters/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
+                    eb.addField("WarcraftLogs","[Click Here](https://www.warcraftlogs.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
                     event.getChannel().sendMessage(eb.build()).queue();
                 } else {
                     event.getChannel().sendMessage(jsonObject.get("message").toString()).queue();
@@ -242,7 +243,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public int maxArgs() {
-        return 3;
+        return 99;
     }
 
     public String help() {
