@@ -1,3 +1,8 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e39be91f74de4ea48d35bc95d9508f5e)](https://www.codacy.com/app/greatman/legendarybot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=greatman/legendarybot&amp;utm_campaign=Badge_Grade)
+
+[![Discord Bots](https://discordbots.org/api/widget/status/267134720700186626.png)](https://discordbots.org/bot/267134720700186626)
+[![Discord Bots](https://discordbots.org/api/widget/servers/267134720700186626.png)](https://discordbots.org/bot/267134720700186626)
+
 # Legendarybot
 
 Originally a Discord bot for alerting of new Legendary drops in a World of Warcraft Guild, it became a fully pledged bot offering multiple features:

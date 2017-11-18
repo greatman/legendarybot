@@ -152,7 +152,13 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     titleBuilder.append(jsonObject.get("active_spec_name"));
                     titleBuilder.append(" ");
                     titleBuilder.append(jsonObject.get("class"));
-                    eb.setTitle(titleBuilder.toString());
+                    String wowLink = null;
+                    if (((String) jsonObject.get("region")).equalsIgnoreCase("us")) {
+                        wowLink = "https://worldofwarcraft.com/en-us/character/" + serverSlug + "/" + jsonObject.get("name");
+                    } else {
+                        wowLink = "https://worldofwarcraft.com/en-gb/character/" + serverSlug + "/" + jsonObject.get("name");
+                    }
+                    eb.setTitle(titleBuilder.toString(), wowLink);
 
                     StringBuilder progressionBuilder = new StringBuilder();
                     JSONObject raidProgression = (JSONObject) jsonObject.get("raid_progression");
@@ -211,16 +217,11 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                         runsBuilder.append(" Chest(s)\n\n");
                     }
                     eb.addField("Best Mythic+ Runs", runsBuilder.toString(), false);
-                    String wowLink = null;
-                    if (((String) jsonObject.get("region")).equalsIgnoreCase("us")) {
-                        wowLink = "https://worldofwarcraft.com/en-us/character/" + serverSlug + "/" + jsonObject.get("name");
-                    } else {
-                        wowLink = "https://worldofwarcraft.com/en-gb/character/" + serverSlug + "/" + jsonObject.get("name");
-                    }
-                    eb.addField("Battle.Net", "[Click Here]("+wowLink+")", true);
                     eb.addField("WoWProgress", "[Click Here](https://www.wowprogress.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
                     eb.addField("Raider.IO", "[Click Here](https://raider.io/characters/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
                     eb.addField("WarcraftLogs","[Click Here](https://www.warcraftlogs.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
+                    eb.setFooter("Information taken from https://raider.io",null);
+
                     event.getChannel().sendMessage(eb.build()).queue();
                 } else {
                     event.getChannel().sendMessage(jsonObject.get("message").toString()).queue();
