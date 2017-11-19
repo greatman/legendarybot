@@ -43,7 +43,6 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.TimeZone;
 
-//TODO Support EU
 public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, PublicCommand {
 
     private OkHttpClient client = new OkHttpClient();

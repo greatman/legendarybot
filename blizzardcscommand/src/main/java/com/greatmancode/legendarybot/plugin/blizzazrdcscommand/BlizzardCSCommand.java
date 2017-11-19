@@ -142,17 +142,24 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        //TODO Support EU.
-        event.getChannel().sendMessage(getLastTweet("blizzardcs")).queue();
+        String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
+        if (region != null) {
+            if (region.equalsIgnoreCase("us")) {
+                event.getChannel().sendMessage(getLastTweet("blizzardcs")).queue();
+            } else if (region.equalsIgnoreCase("eu")) {
+                event.getChannel().sendMessage(getLastTweet("blizzardcseu_en")).queue();
+            }
+        }
+
     }
 
     @Override
     public String help() {
-        return "Get the last tweet of the blizzardcs US twitter account";
+        return "Get the last tweet of the blizzardcs twitter account of your region.";
     }
 
     @Override
     public String shortDescription() {
-        return "Get the last tweet of the blizzardcs US twitter account";
+        return help();
     }
 }

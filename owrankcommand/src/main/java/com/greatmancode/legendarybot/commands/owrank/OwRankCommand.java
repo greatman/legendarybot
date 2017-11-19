@@ -66,7 +66,6 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        //TODO support multiple regions by the command
         String user = args[0].substring(0, 1).toUpperCase() + args[0].substring(1);
         new Thread(() -> {
             Request webRequest = new Request.Builder().url("https://owapi.net/api/v3/u/"+user+"/stats").build();
@@ -88,6 +87,9 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
                     return;
                 }
                 String region = getBot().getGuildSettings(event.getGuild()).getRegionName().toLowerCase();
+                if (args.length == 2) {
+                    region = args[1].toLowerCase();
+                }
                 if (json.get(region) == null) {
                     MessageBuilder builder = new MessageBuilder();
                     builder.append("User ").append(args[0]).append(" doesn't play competitive!");
@@ -126,14 +128,15 @@ public class OwRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public int maxArgs() {
-        return 1;
+        return 2;
     }
 
     @Override
     public String help() {
         return "Get a player's Overwatch competitive rank.\n\n" +
                 "__Parameters__\n" +
-                "**BattleTag** (Required): The BattleTag ID you want to check. The format is Username-numbers.\n\n" +
+                "**BattleTag** (Required): The BattleTag ID you want to check. The format is Username-numbers.\n" +
+                "**Region** (Optional): The player's region. Either us/eu/kr.\n\n" +
                 "**Example**: ``!owrank Greatman-1189``";
     }
 

@@ -104,8 +104,6 @@ public class HelpCommand implements PublicCommand {
 
     @Override
     public String help() {
-
-        //TODO better help
         return "Return this help. You can get a specific command's help with !help [Command].";
     }
 

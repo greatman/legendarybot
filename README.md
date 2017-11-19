@@ -9,19 +9,20 @@ Originally a Discord bot for alerting of new Legendary drops in a World of Warcr
 
 - Lookup an item/Achievement (!lookupitem !lookupachievement)
 - Mythic+ affix displayer (!affix)
-- Mythic+ rank checker (!mplusrank)
-- Get a player's raid completion status (!raidrank)
-- Give a player iLVL (!ilvl)
+- Get a player's PVE progression/Mythic+ Rank/iLVL/etc. (!lookup)
 - Get the current status of the buildings on Broken Shore (!legionbuilding)
 - Say if an invasion is on Broken Shore (!invasion)
 - Check if someone in the guild looted a new Legendary (!enablelc !disablelc !mutelc)
 - Give the latest log of the guild on WarcraftLogs (!log)
 - Play some music in a voice channel! (!playmusic !stopmusic !skipsong !addsong)
-- Give the Competitive rank of a player in Overwatch (!owrank) *Only supports US stats.*
+- Give the Competitive rank of a player in Overwatch (!owrank)
 - Show the current status of a Warcraft Realm (!server)
 - Give the current price of the WoW token (!token)
-- Give the latest tweet of the US @blizzardcs Twitter account (!blizzardcs)
+- Give the latest tweet of the @blizzardcs Twitter account of your region (!blizzardcs)
 - Manage a streamer list on your server (!addstreamer !removestreamer !streamers). Supports Twitch & Mixer.
+- Sync your World of Warcraft Guild rank to your Discord server. (!setwowrank !syncguild and more)
+- Have custom commands for your server (!createcmd !removecmd !listcommands)
+- Search gifs (!gif)
 
 ## Initial Bot configuration
 
