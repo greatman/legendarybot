@@ -24,6 +24,9 @@
 package com.greatmancode.legendarybot.plugin.customcommands;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.plugin.customcommands.commands.CreateCommand;
+import com.greatmancode.legendarybot.plugin.customcommands.commands.ListCommand;
+import com.greatmancode.legendarybot.plugin.customcommands.commands.RemoveCommand;
 import net.dv8tion.jda.core.entities.Guild;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
@@ -86,6 +89,8 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         log.info("Custom commands loaded");
         getBot().getCommandHandler().setUnknownCommandHandler(new IUnknownCommandHandler(this));
         getBot().getCommandHandler().addCommand("createcmd", new CreateCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("removecmd", new RemoveCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("listcommands", new ListCommand(this), "General Commands");
         log.info("Plugin Custom Commands loaded!");
         log.info("Command !createcmd loaded!");
     }
@@ -93,6 +98,8 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
     @Override
     public void stop() throws PluginException {
         getBot().getCommandHandler().removeCommand("createcmd");
+        getBot().getCommandHandler().removeCommand("removecmd");
+        getBot().getCommandHandler().removeCommand("listcommands");
         getBot().getCommandHandler().setUnknownCommandHandler(null);
         getBot().getJDA().removeEventListener(listener);
         log.info("Plugin Custom Commands unloaded!");
@@ -113,6 +120,26 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         } catch (SQLException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "guildID:" + guild.getId(), "commandName:" + commandName, "commandValue:" + value);
+        }
+    }
+
+    public void removeCommand(Guild guild, String commandName) {
+        if (guildCustomCommands.get(guild.getId()).containsKey(commandName)) {
+            try {
+                Connection conn = getBot().getDatabase().getConnection();
+                PreparedStatement statement = conn.prepareStatement("DELETE FROM guild_commands WHERE guild_id=? AND command_name=?");
+                statement.setString(1,guild.getId());
+                statement.setString(2, commandName);
+                int result = statement.executeUpdate();
+                if (result == 1) {
+                    guildCustomCommands.get(guild.getId()).remove(commandName);
+                }
+                statement.close();
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 

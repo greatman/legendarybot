@@ -21,9 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.greatmancode.legendarybot.plugin.customcommands;
+package com.greatmancode.legendarybot.plugin.customcommands.commands;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
+import com.greatmancode.legendarybot.plugin.customcommands.CustomCommandsPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class CreateCommand extends AdminCommand {
