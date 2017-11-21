@@ -106,9 +106,15 @@ public class CommandHandler {
         if (prefix == null) {
             prefix = "!";
         }
-        if (text.startsWith(prefix)) {
+        if (text.startsWith(prefix) || event.getMessage().isMentioned(event.getJDA().getSelfUser())) {
+            String command = null;
             String[] commandArray = text.split(" ");
-            String command = commandArray[0].substring(prefix.length()).toLowerCase();
+            if (text.startsWith(prefix)) {
+                command = commandArray[0].substring(prefix.length()).toLowerCase();
+            } else {
+                command = commandArray[1].toLowerCase();
+            }
+
             if (commandMap.containsKey(command) || aliasMap.containsKey(command)) {
                 Command commandClass = null;
                 if (commandMap.containsKey(command)) {
@@ -122,11 +128,21 @@ public class CommandHandler {
                 }
 
                 if (commandClass.canExecute(event.getMember())) {
-                    String[] args = new String[commandArray.length - 1];
+                    String[] args = null;
+                    if (text.startsWith(prefix)) {
+                        args = new String[commandArray.length - 1];
+                    } else {
+                        args = new String[commandArray.length - 2];
+                    }
                     try {
                         args = commandClass.preFlight(event, bot, args);
                         if (args.length >= commandClass.minArgs() && args.length <= commandClass.maxArgs()) {
-                            System.arraycopy(commandArray, 1, args,0,commandArray.length - 1);
+                            if (text.startsWith(prefix)) {
+                                System.arraycopy(commandArray, 1, args,0,commandArray.length - 1);
+                            } else {
+                                System.arraycopy(commandArray, 2, args,0,commandArray.length - 2);
+                            }
+
 
                             bot.getStatsClient().incrementCounter("legendarybot.commands","command:"+command);
                             commandClass.execute(event, args);
