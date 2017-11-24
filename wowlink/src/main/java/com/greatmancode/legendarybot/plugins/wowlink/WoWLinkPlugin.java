@@ -282,6 +282,23 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         if (rank == null) {
             return;
         }
+        List<Role> botRole = guild.getMember(getBot().getJDA().getSelfUser()).getRoles();
+        final int[] botRoleRank = {-999};
+        botRole.forEach(r -> {
+            if (r.getPosition() > botRoleRank[0]) {
+                botRoleRank[0] = r.getPosition();
+            }
+        });
+
+        List<Role> rolesToAdd = guild.getRolesByName(rank, true);
+        if (rolesToAdd.isEmpty()) {
+            return;
+        }
+
+        if (rolesToAdd.get(0).getPosition() > botRoleRank[0]) {
+            return; //Can't set a rank higher than us.
+        }
+
 
         //We try to load all the other ranks so we do a cleanup at the same time.
         Set<String> allRanks = new HashSet<>();
@@ -297,13 +314,34 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         }
 
         List<Role> rolesToRemove = new ArrayList<>();
+        List<Role> memberRoles = guild.getMember(user).getRoles();
         for(String rankEntry: allRanks) {
-            rolesToRemove.add(guild.getRolesByName(rankEntry, true).get(0));
+            List<Role> roles = guild.getRolesByName(rankEntry, false);
+            if (!roles.isEmpty()){
+                if (memberRoles.contains(roles.get(0))) {
+                    if (roles.get(0).getPosition() < botRoleRank[0]) {
+                        rolesToRemove.add(roles.get(0));
+                    } else {
+                        System.out.println("The bot can't remove rank " + rankEntry + " on user " + user.getName());
+                    }
+
+                } else {
+                    System.out.println("Role " + rankEntry + " not on user" + user.getName());
+                }
+
+            } else {
+                System.out.println("Role " + rankEntry + " not found!");
+            }
         }
-        List<Role> rolesToAdd = new ArrayList<>();
-        rolesToAdd.add(guild.getRolesByName(rank, true).get(0));
+
+
+
         try {
-            System.out.println(guild.getRolesByName(rank, true));
+            System.out.println(guild.getRolesByName(rank, false));
+            System.out.println("Adding roles:");
+            rolesToAdd.forEach(r -> System.out.println(r));
+            System.out.println("Removing roles:");
+            rolesToRemove.forEach(r -> System.out.println(r));
             guild.getController().modifyMemberRoles(guild.getMember(user), rolesToAdd, rolesToRemove).reason("LegendaryBot - Rank Sync with WoW Guild.").queue();
         } catch (PermissionException e) {
             e.printStackTrace();
