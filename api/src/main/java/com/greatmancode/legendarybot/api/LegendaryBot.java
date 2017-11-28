@@ -33,6 +33,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import org.elasticsearch.client.RestClient;
 import ro.fortsoft.pf4j.PluginManager;
 
+import java.util.List;
+
 /**
  * Represents a LegendaryBot bot
  */
@@ -67,7 +69,9 @@ public abstract class LegendaryBot {
      * Retrieve the Discord Bot library
      * @return An instance of the {@link JDA} class
      */
-    public abstract JDA getJDA();
+    public abstract JDA getJDA(Guild guild);
+
+    public abstract List<JDA> getJDA();
 
     /**
      * Add a Guild to the bot.

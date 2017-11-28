@@ -67,25 +67,27 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
         log.info("Loading custom commands");
-        getBot().getJDA().getGuilds().forEach(g -> {
-            Map<String, String> result = new HashMap<>();
-            try {
-                Connection connection = getBot().getDatabase().getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM guild_commands WHERE guild_id=?");
-                statement.setString(1, g.getId());
-                ResultSet set = statement.executeQuery();
-                while (set.next()) {
-                    result.put(set.getString("command_name"), set.getString("text"));
+        getBot().getJDA().forEach(jda -> {
+            jda.getGuilds().forEach(g -> {
+                Map<String, String> result = new HashMap<>();
+                try {
+                    Connection connection = getBot().getDatabase().getConnection();
+                    PreparedStatement statement = connection.prepareStatement("SELECT * FROM guild_commands WHERE guild_id=?");
+                    statement.setString(1, g.getId());
+                    ResultSet set = statement.executeQuery();
+                    while (set.next()) {
+                        result.put(set.getString("command_name"), set.getString("text"));
+                    }
+                    statement.close();
+                    connection.close();
+                    guildCustomCommands.put(g.getId(), result);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + g.getId());
                 }
-                statement.close();
-                connection.close();
-                guildCustomCommands.put(g.getId(), result);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + g.getId());
-            }
+            });
         });
-        getBot().getJDA().addEventListener(listener);
+        getBot().getJDA().forEach(jda -> jda.addEventListener(listener));
         log.info("Custom commands loaded");
         getBot().getCommandHandler().setUnknownCommandHandler(new IUnknownCommandHandler(this));
         getBot().getCommandHandler().addCommand("createcmd", new CreateCommand(this), "Admin Commands");
@@ -101,7 +103,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("removecmd");
         getBot().getCommandHandler().removeCommand("listcommands");
         getBot().getCommandHandler().setUnknownCommandHandler(null);
-        getBot().getJDA().removeEventListener(listener);
+        getBot().getJDA().forEach((jda) -> jda.removeEventListener(listener));
         log.info("Plugin Custom Commands unloaded!");
         log.info("Command !createcmd unloaded!");
     }

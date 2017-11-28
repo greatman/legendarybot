@@ -44,13 +44,13 @@ public class SetupPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() throws PluginException {
-        getBot().getJDA().addEventListener(setupMessageListener);
+        getBot().getJDA().forEach(jda ->jda.addEventListener(setupMessageListener));
         getBot().getCommandHandler().addCommand("setup", new SetupCommand(this), "Admin Commands");
     }
 
     @Override
     public void stop() throws PluginException {
-        getBot().getJDA().removeEventListener(setupMessageListener);
+        getBot().getJDA().forEach(jda -> jda.removeEventListener(setupMessageListener));
         getBot().getCommandHandler().removeCommand("setup");
     }
 

@@ -56,7 +56,7 @@ public class StatsPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("botstats", new BotStatsCommands(this), "Admin Commands");
         dashboardStatsHandler = new DashboardStatsHandler(this);
         messageListener = new MessageListener(this);
-        getBot().getJDA().addEventListener(messageListener);
+        getBot().getJDA().forEach(jda -> jda.addEventListener(messageListener));
         log.info("Command !botstats loaded!");
         if (Boolean.parseBoolean(props.getProperty("stats.enable"))) {
             statsHandler = new DiscordBotListHandler(props, this);
@@ -70,13 +70,13 @@ public class StatsPlugin extends LegendaryBotPlugin {
             statsHandler.stop();
         }
         dashboardStatsHandler.stop();
-        getBot().getJDA().removeEventListener(messageListener);
+        getBot().getJDA().forEach(jda -> jda.removeEventListener(messageListener));
         log.info("Command !botstats unloaded!");
     }
 
     public int getMemberCount() {
         final int[] membersAmount = new int[1];
-        getBot().getJDA().getGuilds().forEach(g -> membersAmount[0] += g.getMembers().stream().filter((m) -> !m.getUser().isBot()).count());
+        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> membersAmount[0] += g.getMembers().stream().filter((m) -> !m.getUser().isBot()).count()));
         return membersAmount[0];
     }
 
@@ -88,7 +88,7 @@ public class StatsPlugin extends LegendaryBotPlugin {
 
     public int getAudioConnections() {
         final int[] i = {0};
-        getBot().getJDA().getGuilds().forEach(g -> i[0] += g.getAudioManager().isConnected() ? 1 : 0);
+        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> i[0] += g.getAudioManager().isConnected() ? 1 : 0));
         return i[0];
     }
 
@@ -99,11 +99,15 @@ public class StatsPlugin extends LegendaryBotPlugin {
     }
 
     public int getTextChannelCount() {
-        return getBot().getJDA().getTextChannels().size();
+        final int[] i = {0};
+        getBot().getJDA().forEach(jda -> i[0] += jda.getTextChannels().size() );
+        return i[0];
     }
 
     public int getVoiceChannelCount() {
-        return getBot().getJDA().getVoiceChannels().size();
+        final int[] i = {0};
+        getBot().getJDA().forEach(jda -> i[0] += jda.getVoiceChannels().size() );
+        return i[0];
     }
 
     public int getLegendaryCount() {
@@ -111,17 +115,19 @@ public class StatsPlugin extends LegendaryBotPlugin {
     }
 
     public int getGuildCount() {
-        return getBot().getJDA().getGuilds().size();
+        final int[] i = {0};
+        getBot().getJDA().forEach(jda -> i[0] += jda.getGuilds().size());
+        return i[0];
     }
 
     public int getGuildConfiguredCount() {
         final int[] i = {0};
-        getBot().getJDA().getGuilds().forEach(g -> {
+        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> {
             GuildSettings setting = getBot().getGuildSettings(g);
             if (setting.getRegionName() != null && setting.getWowServerName() != null && setting.getGuildName() != null) {
                 i[0]++;
             }
-        });
+        }));
         return i[0];
     }
 }

@@ -41,7 +41,7 @@ public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (!plugin.getBot().getJDA().getGuildById(event.getGuild().getId()).getMember(event.getJDA().getSelfUser()).hasPermission(Permission.MANAGE_ROLES)) {
+        if (!plugin.getBot().getJDA(event.getGuild()).getGuildById(event.getGuild().getId()).getMember(event.getJDA().getSelfUser()).hasPermission(Permission.MANAGE_ROLES)) {
             event.getChannel().sendMessage("The bot need the \"**Manage Roles**\" permission to be able to set roles to the users.").queue();
             return;
         }

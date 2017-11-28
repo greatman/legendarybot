@@ -28,6 +28,8 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.botgeneral.commands.HelpCommand;
 import com.greatmancode.legendarybot.plugin.botgeneral.commands.InfoCommand;
 import com.greatmancode.legendarybot.plugin.botgeneral.commands.InviteCommand;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
@@ -39,7 +41,7 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
     /**
      * A Event Listener to log to the bot's discord log channel.
      */
-    private MessageListener listener = new MessageListener();
+    private MessageListener listener;
 
 
     public BotGeneralPlugin(PluginWrapper wrapper) {
@@ -53,7 +55,17 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("help", new HelpCommand(getBot()), "General Commands");
         log.info("Command !help loaded!");
         getBot().getCommandHandler().addCommand("info", new InfoCommand(), "General Commands");
-        getBot().getJDA().addEventListener(listener);
+
+        //We find our main guild
+        Guild guild = null;
+        for (JDA jda : getBot().getJDA()) {
+            Guild guildEntry = jda.getGuildById("330748360673722381");
+            if (guildEntry != null) {
+                guild = guildEntry;
+            }
+        }
+        listener = new MessageListener(guild);
+        getBot().getJDA().forEach(jda -> jda.addEventListener(listener));
     }
 
     @Override
@@ -63,6 +75,6 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("help");
         log.info("Command !help unloaded.");
         getBot().getCommandHandler().removeCommand("info");
-        getBot().getJDA().removeEventListener(listener);
+        getBot().getJDA().forEach(jda -> jda.removeEventListener(listener));
     }
 }

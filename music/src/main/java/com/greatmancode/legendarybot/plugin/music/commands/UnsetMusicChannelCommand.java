@@ -21,37 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.greatmancode.legendarybot.plugin.music.commands;
 
-package com.greatmancode.legendarybot;
+import com.greatmancode.legendarybot.api.commands.AdminCommand;
+import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import net.dv8tion.jda.core.utils.SimpleLog;
-import org.slf4j.event.Level;
+public class UnsetMusicChannelCommand extends AdminCommand {
 
-/**
- * Class to support catching errors from JDA threads.
- */
-public class LogListener implements SimpleLog.LogListener {
+    private MusicPlugin plugin;
 
-    /**
-     * The StacktraceHandler to send the errors to.
-     */
-    private final StacktraceHandler stacktraceHandler;
-
-    /**
-     * Create a LogListener to catch errors from JDA threads
-     * @param stacktraceHandler The {@link StacktraceHandler} that we will send the stacktraces to.
-     */
-    public LogListener(StacktraceHandler stacktraceHandler) {
-        this.stacktraceHandler = stacktraceHandler;
+    public UnsetMusicChannelCommand(MusicPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @Override
-    public void onLog(SimpleLog simpleLog, Level level, Object o) {
+    public void execute(MessageReceivedEvent event, String[] args) {
+        plugin.getBot().getGuildSettings(event.getGuild()).unsetSetting(MusicPlugin.MUSIC_CHANNEL_SETTING);
+        event.getChannel().sendMessage("The bot can now play music in any channels.").queue();
     }
 
     @Override
-    public void onError(SimpleLog log, Throwable err) {
-        stacktraceHandler.sendStacktrace(err,"uncaughtexception:true");
+    public int minArgs() {
+        return 0;
+    }
+
+    @Override
+    public int maxArgs() {
+        return 0;
+    }
+
+    @Override
+    public String help() {
+        return shortDescription();
+    }
+
+    @Override
+    public String shortDescription() {
+        return "Remove the voice channel restriction of the bot for music.";
     }
 }

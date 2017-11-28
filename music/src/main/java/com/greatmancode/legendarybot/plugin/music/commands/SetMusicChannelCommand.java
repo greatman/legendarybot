@@ -23,47 +23,38 @@
  */
 package com.greatmancode.legendarybot.plugin.music.commands;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public class PlayMusicCommand extends AdminCommand {
+public class SetMusicChannelCommand extends AdminCommand {
 
     private MusicPlugin plugin;
 
-    public PlayMusicCommand(MusicPlugin plugin) {
+    public SetMusicChannelCommand(MusicPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (!event.getMember().getVoiceState().inVoiceChannel()) {
-            event.getChannel().sendMessage("You need to be yourself in a voice channel!").queue();
+        StringBuilder builder = new StringBuilder();
+        for(String s : args) {
+            builder.append(" ").append(s);
+        }
+
+        List<VoiceChannel> channels = event.getGuild().getVoiceChannelsByName(builder.toString().trim(), false);
+
+        if (channels.isEmpty()) {
+            event.getChannel().sendMessage("Channel " + builder.toString().trim() + " not found!").queue();
             return;
         }
-        String musicChannel = plugin.getBot().getGuildSettings(event.getGuild()).getSetting(MusicPlugin.MUSIC_CHANNEL_SETTING);
-        VoiceChannel voiceChannel;
-        if (musicChannel != null) {
-            List<VoiceChannel> channels = event.getGuild().getVoiceChannelsByName(musicChannel, false);
-            if (channels.isEmpty()) {
-                event.getChannel().sendMessage("The channel the bot can play in doesn't exist anymore. Please ask an admin to fix it with the ``setmusicchannel`` command.").queue();
-                return;
-            }
-            voiceChannel = channels.get(0);
-        } else {
-            voiceChannel = event.getMember().getVoiceState().getChannel();
-        }
 
-        plugin.getMusicManager().loadAndPlay(event.getTextChannel(), args[0], voiceChannel);
-    }
-
-    @Override
-    public boolean canExecute(Member member) {
-        return (super.canExecute(member) || plugin.getBot().getGuildSettings(member.getGuild()).getSetting(MusicPlugin.MEMBER_ALLOWED_SETTING) != null);
+        plugin.getBot().getGuildSettings(event.getGuild()).setSetting(MusicPlugin.MUSIC_CHANNEL_SETTING, builder.toString().trim());
+        event.getChannel().sendMessage("Channel set! LegendaryBot will only play music in this channel.").queue();
     }
 
     @Override
@@ -73,19 +64,18 @@ public class PlayMusicCommand extends AdminCommand {
 
     @Override
     public int maxArgs() {
-        return 1;
+        return 99;
     }
 
     @Override
     public String help() {
-        return "Play music in the voice channel you are currently in.\n\n" +
+        return "Set the channel the bot will be only be able to play music in.\n" +
                 "__Parameters__\n" +
-                "**URL** (Required) : The URL to the song you want to add.\n\n" +
-                "**Example**: ``!playmusic https://youtube.com/v/myawesomevideo``";
+                "**Channel name**: The voice channel name.";
     }
 
     @Override
     public String shortDescription() {
-        return "Play music in the voice channel you are currently in.";
+        return "Set the channel the bot will play music in.";
     }
 }

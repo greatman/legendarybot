@@ -33,6 +33,7 @@ import ro.fortsoft.pf4j.PluginWrapper;
 public class MusicPlugin extends LegendaryBotPlugin {
 
     public static String MEMBER_ALLOWED_SETTING = "musicplugin_memberallowed";
+    public static String MUSIC_CHANNEL_SETTING = "musicplugin_channel";
 
     private MusicManager musicManager = new MusicManager();
 
@@ -49,6 +50,8 @@ public class MusicPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("stopmusic", new StopMusicCommand(this), "Music");
         getBot().getCommandHandler().addCommand("disallowmembermusic", new DisallowMemberMusicCommand(this), "Admin Commands");
         getBot().getCommandHandler().addCommand("allowmembermusic", new AllowMemberMusicCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("setmusicchannel", new SetMusicChannelCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("unsetmusicchannel", new UnsetMusicChannelCommand(this), "Admin Commands");
         log.info("Music plugin loaded! Added commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 
@@ -61,6 +64,8 @@ public class MusicPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("stopmusic");
         getBot().getCommandHandler().removeCommand("disallowmembermusic");
         getBot().getCommandHandler().removeCommand("allowmembermusic");
+        getBot().getCommandHandler().removeCommand("setmusicchannel");
+        getBot().getCommandHandler().removeCommand("unsetmusicchannel");
         log.info("Music plugin unloaded! Removed commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 

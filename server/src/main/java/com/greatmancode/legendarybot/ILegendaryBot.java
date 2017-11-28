@@ -43,7 +43,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
-import net.dv8tion.jda.core.utils.SimpleLog;
+import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
@@ -57,10 +57,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Implementation of a {@link LegendaryBot} bot.
@@ -76,11 +73,6 @@ public class ILegendaryBot extends LegendaryBot {
      * The Command handler
      */
     private CommandHandler commandHandler = new CommandHandler(this);
-
-    /**
-     * The instance of JDA being linked to this Bot.
-     */
-    private JDA jda;
 
     /**
      * The settings of every guilds that this bot is connected to
@@ -112,18 +104,20 @@ public class ILegendaryBot extends LegendaryBot {
      */
     private static Properties props;
 
+    private List<JDA> jdaList = new ArrayList<>();
+
 
     /**
      * Start all the feature of the LegendaryBot
-     * @param jda the JDA instance
      */
-    public ILegendaryBot(JDA jda) {
-        this.jda = jda;
+    public ILegendaryBot() throws IOException, LoginException, InterruptedException, RateLimitedException {
         if (props.containsKey("sentry.key")) {
             this.stacktraceHandler = new IStacktraceHandler(this, props.getProperty("sentry.key"));
         } else {
             this.stacktraceHandler = new NullStacktraceHandler();
         }
+
+
 
         //Load the database
         HikariConfig config = new HikariConfig();
@@ -140,15 +134,11 @@ public class ILegendaryBot extends LegendaryBot {
 
         //We configure our Stacktrace catchers
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(stacktraceHandler));
-        SimpleLog.getLog("JDA").addListener(new LogListener(stacktraceHandler));
-
         //Register the server specific commands
         commandHandler.addCommand("reloadplugins", new ReloadPluginsCommand(this), "Admin Commands");
         commandHandler.addCommand("load", new LoadCommand(this), "Admin Commands");
         commandHandler.addCommand("unload", new UnloadCommand(this), "Admin Commands");
 
-        //We register the message listener
-        jda.addEventListener(new MessageListener(this));
 
         //We create the Config table
         String SERVER_CONFIG_TABLE = "CREATE TABLE IF NOT EXISTS `guild_config` (\n" +
@@ -166,54 +156,30 @@ public class ILegendaryBot extends LegendaryBot {
             getStacktraceHandler().sendStacktrace(e);
         }
 
+        //We build JDA and connect.
+        JDABuilder builder = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).setReconnectQueue(new SessionReconnectQueue());
+        builder.addEventListener(new MessageListener(this));
+        int maxShard = props.containsKey("bot.shard") ? Integer.parseInt(props.getProperty("bot.shard")) : 1;
+        for (int i = 0; i < maxShard; i++) {
+            System.out.println("Starting shard " + i);
+            jdaList.add(builder.useSharding(i,maxShard)
+                    .buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION));
+            Thread.sleep(5000);
+        }
         //Load the settings for each guild
-        jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings(guild, this)));
+        jdaList.forEach((jda) -> jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings(guild, this))));
+
 
 
 
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
-        //We set LegendaryBot version
-        /*Version systemVersion = Version.valueOf("1.0.0");
-        pluginManager.setSystemVersion("1.0.0");
-        UpdateManager updateManager = new UpdateManager(pluginManager);
-
-
-
-        if (updateManager.hasUpdates()) {
-            updateManager.getUpdates().forEach((plugin) -> {
-                PluginInfo.PluginRelease lastRelease = plugin.getLastRelease(systemVersion);
-                String lastVersion = lastRelease.version;
-                try {
-                    updateManager.updatePlugin(plugin.id, lastVersion);
-                } catch (PluginException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-
-        // check for available (new) plugins
-        if (updateManager.hasAvailablePlugins()) {
-            List<PluginInfo> availablePlugins = updateManager.getAvailablePlugins();
-            for (PluginInfo plugin : availablePlugins) {
-                PluginInfo.PluginRelease lastRelease = plugin.getLastRelease(systemVersion);
-                String lastVersion = lastRelease.version;
-                try {
-                    updateManager.installPlugin(lastRelease.url,lastVersion);
-                } catch (PluginException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
-
-
-
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {
                 getPluginManager().unloadPlugin(wrapper.getPluginId());
             }
-            jda.shutdown();
+            jdaList.forEach((jda) -> jda.shutdown());
 
             File plugins = new File("plugins");
             Arrays.stream(plugins.listFiles(File::isDirectory)).forEach(file -> {
@@ -246,14 +212,10 @@ public class ILegendaryBot extends LegendaryBot {
      * @throws RateLimitedException RateLimitedException
      */
     public static void main(String[] args) throws IOException, LoginException, InterruptedException, RateLimitedException {
-
-        //Load the configuration
+        //We load the properties file.
         props = new Properties();
         props.load(new FileInputStream("app.properties"));
-        JDA jda = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).buildBlocking();
-
-        //We launch the bot
-        new ILegendaryBot(jda);
+        new ILegendaryBot();
     }
 
     @Override
@@ -301,7 +263,17 @@ public class ILegendaryBot extends LegendaryBot {
     }
 
     @Override
-    public JDA getJDA() {
-        return jda;
+    public JDA getJDA(Guild guild) {
+        for (JDA jda : jdaList) {
+            if (jda.getGuildById(guild.getId()) != null) {
+                return jda;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<JDA> getJDA() {
+        return Collections.unmodifiableList(jdaList);
     }
 }

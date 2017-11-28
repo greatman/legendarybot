@@ -171,7 +171,7 @@ public class LegendaryCheck {
                 bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId());
             }
         };
-        scheduler.scheduleAtFixedRate(checkNews, initialDelay,600, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(checkNews, initialDelay,900, TimeUnit.SECONDS);
     }
 
     public void shutdown() {

@@ -24,6 +24,7 @@
 
 package com.greatmancode.legendarybot.plugin.botgeneral;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -34,17 +35,22 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 public class MessageListener extends ListenerAdapter {
 
 
+    private Guild guild;
+    public MessageListener(Guild guild) {
+        this.guild = guild;
+    }
+
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
 
         //We log the event
-        event.getJDA().getGuildsByName("LegendaryBot",false).get(0).getTextChannelsByName("logs-guild",true).get(0).sendMessage(":robot: Joined guild " + event.getGuild().getName() + ". Members: " + event.getGuild().getMembers().size()).queue();
+        guild.getTextChannelsByName("logs-guild",true).get(0).sendMessage(":robot: Joined guild " + event.getGuild().getName() + ". Members: " + event.getGuild().getMembers().size()).queue();
     }
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         //We log the event
-        event.getJDA().getGuildsByName("LegendaryBot",false).get(0).getTextChannelsByName("logs-guild",true).get(0).sendMessage(":broken_heart: Left guild " + event.getGuild().getName() + ".").queue();
+        guild.getTextChannelsByName("logs-guild",true).get(0).sendMessage(":broken_heart: Left guild " + event.getGuild().getName() + ".").queue();
     }
 
 }

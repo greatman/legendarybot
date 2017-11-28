@@ -24,6 +24,7 @@
 package com.greatmancode.legendarybot.plugin.stats;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
+import net.dv8tion.jda.core.JDA;
 import okhttp3.*;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -47,7 +48,11 @@ public class DiscordBotListHandler {
             Logger logger = LoggerFactory.getLogger(getClass());
             logger.info("Sending stats");
             JSONObject object = new JSONObject();
-            object.put("server_count", bot.getJDA().getGuilds().size());
+            int count = 0;
+            for (JDA jda : bot.getJDA()) {
+                count += jda.getGuilds().size();
+            }
+            object.put("server_count", plugin.getGuildCount());
             Request request = new Request.Builder().url("https://bots.discord.pw/api/bots/267134720700186626/stats")
                     .post(RequestBody.create(MEDIA_TYPE_JSON, object.toJSONString()))
                     .addHeader("Authorization",properties.getProperty("stats.botsdiscordpw")).build();

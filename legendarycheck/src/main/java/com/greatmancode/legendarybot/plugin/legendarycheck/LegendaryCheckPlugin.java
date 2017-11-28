@@ -68,7 +68,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         }
         log.info("Starting LegendaryCheck plugin.");
         final int[] i = {0};
-        getBot().getJDA().getGuilds().forEach(guild -> startLegendaryCheck(guild, i[0]++));
+        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(guild -> startLegendaryCheck(guild, i[0]++)));
         getBot().getCommandHandler().addCommand("enablelc", new EnableLegendaryCheckCommand(this), "Admin Commands");
         getBot().getCommandHandler().addCommand("disablelc", new DisableLegendaryCheckCommand(this), "Admin Commands");
         getBot().getCommandHandler().addCommand("mutelc", new MuteLegendaryCheckCommand(this), "Admin Commands");

@@ -282,7 +282,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         if (rank == null) {
             return;
         }
-        List<Role> botRole = guild.getMember(getBot().getJDA().getSelfUser()).getRoles();
+        List<Role> botRole = guild.getMember(getBot().getJDA(guild).getSelfUser()).getRoles();
         final int[] botRoleRank = {-999};
         botRole.forEach(r -> {
             if (r.getPosition() > botRoleRank[0]) {
