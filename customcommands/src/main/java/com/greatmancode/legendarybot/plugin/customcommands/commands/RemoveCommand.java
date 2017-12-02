@@ -27,8 +27,14 @@ import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.CustomCommandsPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !removecmd command.
+ */
 public class RemoveCommand extends AdminCommand {
 
+    /**
+     * An instance of the CustomCommands plugin.
+     */
     private CustomCommandsPlugin plugin;
 
     public RemoveCommand(CustomCommandsPlugin plugin) {

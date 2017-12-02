@@ -27,8 +27,14 @@ import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !mutelc command.
+ */
 public class MuteLegendaryCheckCommand extends AdminCommand implements ZeroArgsCommand {
 
+    /**
+     * An instance of the Legendary Check plugin
+     */
     private LegendaryCheckPlugin plugin;
 
     public MuteLegendaryCheckCommand(LegendaryCheckPlugin plugin) {

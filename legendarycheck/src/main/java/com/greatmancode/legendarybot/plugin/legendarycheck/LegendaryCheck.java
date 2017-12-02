@@ -53,13 +53,38 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
+/**
+ * The LegendaryCheck handler.
+ */
 public class LegendaryCheck {
 
+    /**
+     * The scheduler for the checks.
+     */
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    /**
+     * The LegendaryBot instance.
+     */
     private LegendaryBot bot;
+
+    /**
+     * ItemIDs to ignore, those are not Legendaries that we want to announce.
+     */
     private long[] itemIDIgnore = {147451,151462, 152626, 154880};
+
+    /**
+     * The Logger
+     */
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    /**
+     * Instantiate a LegendaryCheck handler
+     * @param bot The bot instance.
+     * @param guild The guild to check legendaries in.
+     * @param plugin The Legendary Check plugin instance.
+     * @param initialDelay The initial delay before starting the check.
+     */
     public LegendaryCheck(LegendaryBot bot, Guild guild, LegendaryCheckPlugin plugin, int initialDelay) {
         this.bot = bot;
         final Runnable checkNews = () -> {
@@ -178,10 +203,19 @@ public class LegendaryCheck {
         scheduler.scheduleAtFixedRate(checkNews, initialDelay,1200, TimeUnit.SECONDS);
     }
 
+    /**
+     * Stop the legendary checker. Stops the scheduler.
+     */
     public void shutdown() {
         scheduler.shutdownNow();
     }
 
+    /**
+     * Check if an item is a legendary. Checks in the ES cache if we have the item. If not, we retrieve the information from Battle.Net API and cache it.
+     * @param regionName The region to check the item in.
+     * @param itemID The Item ID to check.
+     * @return True if the item is a legendary. Else false.
+     */
     public boolean isItemLegendary(String regionName, long itemID) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new BattleNetAPIInterceptor(bot))
@@ -239,6 +273,12 @@ public class LegendaryCheck {
         }
     }
 
+    /**
+     * Retrieve the item name. Checks in the ES cache if we have the item. If not, we retrieve the information from Battle.Net API and cache it.
+     * @param regionName The region to check in.
+     * @param itemID The item ID.
+     * @return The name of the item. Else null if not found.
+     */
     public String getItemName(String regionName, long itemID) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new BattleNetAPIInterceptor(bot))

@@ -32,10 +32,20 @@ import ro.fortsoft.pf4j.PluginWrapper;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The Setup Plugin main class.
+ */
 public class SetupPlugin extends LegendaryBotPlugin {
 
 
+    /**
+     * A Map containing all running setup wizards.
+     */
     private Map<Guild,SetupHandler> setupHandlerMap = new HashMap<>();
+
+    /**
+     * The MessageListener that handle all the setup steps.
+     */
     private SetupMessageListener setupMessageListener = new SetupMessageListener(this);
 
     public SetupPlugin(PluginWrapper wrapper) {
@@ -43,25 +53,39 @@ public class SetupPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getJDA().forEach(jda ->jda.addEventListener(setupMessageListener));
         getBot().getCommandHandler().addCommand("setup", new SetupCommand(this), "Admin Commands");
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getJDA().forEach(jda -> jda.removeEventListener(setupMessageListener));
         getBot().getCommandHandler().removeCommand("setup");
     }
 
+    /**
+     * Retrieve the setup handler of a guild.
+     * @param guild The guild to retrieve the setup handler from.
+     * @return The {@link SetupHandler} instance of the guild. If none found returns null.
+     */
     public SetupHandler getSetupHandler(Guild guild) {
         return setupHandlerMap.get(guild);
     }
 
+    /**
+     * Remove the {@link SetupHandler} of a guild.
+     * @param guild The guild to remove the {@link SetupHandler} from
+     */
     public void setupDone(Guild guild) {
         setupHandlerMap.remove(guild);
     }
 
+    /**
+     * Add a {@link SetupHandler} for a guild
+     * @param guild The guild to add the {@link SetupHandler} to.
+     * @param handler The {@link SetupHandler} instance.
+     */
     public void addSetupHandler(Guild guild, SetupHandler handler) {
         setupHandlerMap.put(guild, handler);
     }

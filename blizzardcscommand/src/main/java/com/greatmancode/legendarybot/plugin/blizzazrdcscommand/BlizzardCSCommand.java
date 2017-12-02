@@ -56,6 +56,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
      */
     private Properties props;
 
+
     public BlizzardCSCommand(PluginWrapper wrapper) {
         super(wrapper);
     }

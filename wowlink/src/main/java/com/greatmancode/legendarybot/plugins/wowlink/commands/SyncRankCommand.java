@@ -31,8 +31,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.sql.SQLException;
 
+/**
+ * The !syncrank command
+ */
 public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
 
+    /**
+     * The WowLink plugin instance.
+     */
     private WoWLinkPlugin plugin;
 
     public SyncRankCommand(WoWLinkPlugin plugin) {

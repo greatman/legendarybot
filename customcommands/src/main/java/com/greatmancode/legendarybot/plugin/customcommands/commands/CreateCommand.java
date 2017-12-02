@@ -27,8 +27,14 @@ import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.CustomCommandsPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !createcmd command.
+ */
 public class CreateCommand extends AdminCommand {
 
+    /**
+     * An instance of the CustomCommands plugin.
+     */
     private CustomCommandsPlugin plugin;
 
     public CreateCommand(CustomCommandsPlugin plugin) {

@@ -48,6 +48,9 @@ public class IStacktraceHandler implements StacktraceHandler {
      */
     private LegendaryBot bot;
 
+    /**
+     * The Logger
+     */
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public IStacktraceHandler(LegendaryBot bot, String sentryKey) {

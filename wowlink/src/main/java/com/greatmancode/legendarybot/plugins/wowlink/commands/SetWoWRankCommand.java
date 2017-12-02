@@ -30,8 +30,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
+/**
+ * The !setwowrank command.
+ */
 public class SetWoWRankCommand extends AdminCommand {
 
+    /**
+     * The WowLink plugin instance.
+     */
     private WoWLinkPlugin plugin;
 
     public SetWoWRankCommand(WoWLinkPlugin plugin) {

@@ -29,8 +29,14 @@ import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !stopmusic command
+ */
 public class StopMusicCommand extends AdminCommand implements ZeroArgsCommand {
 
+    /**
+     * An instance of the Music Plugin.
+     */
     private MusicPlugin plugin;
 
     public StopMusicCommand(MusicPlugin plugin) {

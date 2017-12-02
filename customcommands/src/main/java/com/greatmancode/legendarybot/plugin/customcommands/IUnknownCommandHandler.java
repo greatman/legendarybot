@@ -27,8 +27,14 @@ import com.greatmancode.legendarybot.api.commands.UnknownCommandHandler;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * Custom commands handler
+ */
 public class IUnknownCommandHandler implements UnknownCommandHandler {
 
+    /**
+     * An instance of the Custom Commands plugin.
+     */
     private CustomCommandsPlugin plugin;
 
     public IUnknownCommandHandler(CustomCommandsPlugin plugin) {

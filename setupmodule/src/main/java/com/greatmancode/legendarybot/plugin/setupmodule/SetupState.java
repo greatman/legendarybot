@@ -23,6 +23,9 @@
  */
 package com.greatmancode.legendarybot.plugin.setupmodule;
 
+/**
+ * Different Setup wizard steps.
+ */
 public enum SetupState {
 
     STEP_REGION,

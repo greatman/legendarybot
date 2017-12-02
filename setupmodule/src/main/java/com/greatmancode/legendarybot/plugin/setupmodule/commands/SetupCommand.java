@@ -28,8 +28,14 @@ import com.greatmancode.legendarybot.plugin.setupmodule.SetupHandler;
 import com.greatmancode.legendarybot.plugin.setupmodule.SetupPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !setup command
+ */
 public class SetupCommand extends AdminCommand {
 
+    /**
+     * The Setup Plugin instance.
+     */
     private SetupPlugin plugin;
 
     public SetupCommand(SetupPlugin plugin) {

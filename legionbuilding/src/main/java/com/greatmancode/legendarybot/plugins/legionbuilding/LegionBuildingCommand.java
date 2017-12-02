@@ -36,6 +36,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The !legionbuilding command
+ */
 public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicCommand, ZeroArgsCommand {
 
     public LegionBuildingCommand(PluginWrapper wrapper) {
@@ -78,12 +81,12 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getCommandHandler().addCommand("legionbuilding", this, "World of Warcraft");
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("legionbuilding");
     }
 }

@@ -106,11 +106,20 @@ public class ILegendaryBot extends LegendaryBot {
      */
     private static Properties props;
 
+    /**
+     * The List of all JDA instances
+     */
     private List<JDA> jdaList = new ArrayList<>();
 
+    /**
+     * The Logger
+     */
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private boolean ready = false;
+    /**
+     * The state of the bot. True = Ready to accept commands, False = not ready to accept commands.
+     */
+    private boolean ready;
 
     /**
      * Start all the feature of the LegendaryBot

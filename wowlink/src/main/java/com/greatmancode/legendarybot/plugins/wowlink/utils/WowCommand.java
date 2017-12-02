@@ -30,6 +30,9 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.sql.SQLException;
 
+/**
+ * A WoW Command. Adds the character & the realm to the arguments of a command if the user did !setmainchar.
+ */
 public interface WowCommand extends Command {
 
     @Override

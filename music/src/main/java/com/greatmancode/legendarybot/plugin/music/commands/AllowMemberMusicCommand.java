@@ -27,8 +27,14 @@ import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !allowmembermusic command
+ */
 public class AllowMemberMusicCommand extends AdminCommand {
 
+    /**
+     * An instance of the Music Plugin.
+     */
     private MusicPlugin plugin;
 
     public AllowMemberMusicCommand(MusicPlugin plugin) {

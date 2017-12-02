@@ -26,11 +26,29 @@ package com.greatmancode.legendarybot.plugin.setupmodule;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 
+/**
+ * The setup Handler. Holds the state. The user that initiated it and the channel to send messages in.
+ */
 public class SetupHandler {
 
+    /**
+     * The user that initiated the setup.
+     */
     private final User user;
+
+    /**
+     * The channel the setup was initiated in.
+     */
     private final MessageChannel channel;
+
+    /**
+     * The step in the Setup wizard the guild is in.
+     */
     private SetupState state = SetupState.STEP_PREFIX;
+
+    /**
+     * Value storage.
+     */
     private String tempValue;
 
     public SetupHandler(User user, MessageChannel channel) {
@@ -38,26 +56,50 @@ public class SetupHandler {
         this.channel = channel;
     }
 
+    /**
+     * Retrieve the user that initiated the setup
+     * @return The {@link User} that initiated the setup.
+     */
     public User getUser() {
         return user;
     }
 
+    /**
+     * The channel where the setup wizard was initiated in.
+     * @return The channel where teh setup was initiated.
+     */
     public MessageChannel getChannel() {
         return channel;
     }
 
+    /**
+     * Retrieve the state of the setup wizard. What step the user is now in.
+     * @return The state of the setup.
+     */
     public SetupState getState() {
         return state;
     }
 
+    /**
+     * Set the state of the setup wizard.
+     * @param state The state of the setup wizard
+     */
     public void setState(SetupState state) {
         this.state = state;
     }
 
+    /**
+     * Retrieve the value saved.
+     * @return The value that was saved.
+     */
     public String getTempValue() {
         return tempValue;
     }
 
+    /**
+     * Set the value to save temporarely.
+     * @param tempValue The value.
+     */
     public void setTempValue(String tempValue) {
         this.tempValue = tempValue;
     }

@@ -35,8 +35,17 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 public class MessageListener extends ListenerAdapter {
 
 
+    /**
+     * An instance of the guild where the logging message will be sent
+     */
     private Guild guild;
+
+    /**
+     * Build an instance of the MessageListener.
+     * @param guild The guild where the messages will be sent.
+     */
     public MessageListener(Guild guild) {
+        //TODO Support custom channels
         this.guild = guild;
     }
 

@@ -122,7 +122,7 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         //Load the configuration
         props = new Properties();
         try {
@@ -135,7 +135,7 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("gif");
     }
 }

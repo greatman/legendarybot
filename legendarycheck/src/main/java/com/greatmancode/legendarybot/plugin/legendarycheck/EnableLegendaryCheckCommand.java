@@ -26,8 +26,14 @@ package com.greatmancode.legendarybot.plugin.legendarycheck;
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !enablelc command
+ */
 public class EnableLegendaryCheckCommand extends AdminCommand {
 
+    /**
+     * An instance of the Legendary Check plugin
+     */
     private LegendaryCheckPlugin plugin;
 
     public EnableLegendaryCheckCommand(LegendaryCheckPlugin plugin) {

@@ -197,6 +197,10 @@ public class CommandHandler {
         this.unknownCommandHandler = handler;
     }
 
+    /**
+     * Get all the commands per group
+     * @return Returns a Map containing the command group name and a list of commands inside that group.
+     */
     public Map<String, List<String>> getCommandGroup() {
         return Collections.unmodifiableMap(commandGroup);
     }

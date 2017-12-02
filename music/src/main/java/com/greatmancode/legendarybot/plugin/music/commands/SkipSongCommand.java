@@ -29,8 +29,14 @@ import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !skipsong command
+ */
 public class SkipSongCommand extends AdminCommand implements ZeroArgsCommand {
 
+    /**
+     * An instance of the Music Plugin.
+     */
     private MusicPlugin plugin;
 
     public SkipSongCommand(MusicPlugin plugin) {

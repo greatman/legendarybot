@@ -39,8 +39,14 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.Collections;
 
+/**
+ * The !lookupachivement command
+ */
 public class LookupAchievementCommand implements PublicCommand {
 
+    /**
+     * An instance of the Lookup Commands plugin.
+     */
     private LookupCommandsPlugin plugin;
 
     public LookupAchievementCommand(LookupCommandsPlugin plugin) {

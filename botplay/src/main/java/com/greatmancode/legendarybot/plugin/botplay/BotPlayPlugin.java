@@ -48,7 +48,7 @@ public class BotPlayPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         final Runnable run = () -> {
                 Game game = Game.streaming("on " + ((StatsPlugin)getBot().getPluginManager().getPlugin("statsPlugin").getPlugin()).getGuildCount()  + " servers","https://github.com/greatman/legendarybot");
                 getBot().getJDA().forEach(jda -> jda.getPresence().setGame(game));
@@ -58,7 +58,7 @@ public class BotPlayPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         scheduler.shutdownNow();
         log.info("BotPlay unloaded!");
     }

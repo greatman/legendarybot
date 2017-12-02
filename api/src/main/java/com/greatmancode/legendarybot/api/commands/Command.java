@@ -70,6 +70,13 @@ public interface Command {
      */
     String shortDescription();
 
+    /**
+     * Execute code before the actual command being run
+     * @param event The {@link MessageReceivedEvent} event.
+     * @param bot The instance of the bot
+     * @param args The arguments for the command
+     * @return A String array of arguments.
+     */
     default String[] preFlight(MessageReceivedEvent event, LegendaryBot bot, String[] args) {
         return args;
     }

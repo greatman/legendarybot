@@ -38,9 +38,19 @@ import net.dv8tion.jda.core.managers.AudioManager;
 
 import java.util.*;
 
+/**
+ * The Music Manager. Handles all the loading of the songs.
+ */
 public class MusicManager {
 
+    /**
+     * The AudioPlayerManager instance.
+     */
     private final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+
+    /**
+     * Contains all the music manager instances per guild.
+     */
     private final Map<Long, GuildMusicManager> musicManagers = new HashMap<>();
 
     public MusicManager() {
@@ -48,10 +58,19 @@ public class MusicManager {
         AudioSourceManagers.registerRemoteSources(playerManager);
     }
 
+    /**
+     * Get a Map of all guild music managers.
+     * @return A Map containing all {@link GuildMusicManager} for all connected guilds.
+     */
     public synchronized Map<Long,GuildMusicManager> getGuildsMusicManager() {
         return Collections.unmodifiableMap(musicManagers);
     }
 
+    /**
+     * Retrieve a GuildMusicManager for a specific guild
+     * @param guild The Guild to retrieve the music manager for.
+     * @return The {@link GuildMusicManager} instance for a guild.
+     */
     private synchronized GuildMusicManager getGuildAudioPlayer(Guild guild) {
         long guildId = Long.parseLong(guild.getId());
         GuildMusicManager musicManager = musicManagers.computeIfAbsent(guildId, k -> new GuildMusicManager(playerManager,guild));
@@ -61,6 +80,12 @@ public class MusicManager {
         return musicManager;
     }
 
+    /**
+     * Load a song
+     * @param channel The channel to send the alert in.
+     * @param trackUrl The song URL
+     * @param voiceChannel the voice channel to play the music in.
+     */
     public void loadAndPlay(final TextChannel channel, final String trackUrl, VoiceChannel voiceChannel) {
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild());
 
@@ -97,6 +122,10 @@ public class MusicManager {
         });
     }
 
+    /**
+     * Stop the music for a guild.
+     * @param channel The channel to send the alert in.
+     */
     public void stopMusic(TextChannel channel) {
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild());
         musicManager.scheduler.stopAll();
@@ -105,12 +134,23 @@ public class MusicManager {
         channel.sendMessage("Music stopped!").queue();
     }
 
+    /**
+     * Play a Audio Track.
+     * @param guild The guidl to play the music in.
+     * @param musicManager The Guild Music Manager
+     * @param track The track to play
+     * @param voiceChannel The voice channel to play in.
+     */
     private void play(Guild guild, GuildMusicManager musicManager, AudioTrack track, VoiceChannel voiceChannel) {
         connectToVoiceChannel(guild.getAudioManager(), voiceChannel);
 
         musicManager.scheduler.queue(track);
     }
 
+    /**
+     * Skip a track and go to the next in the queue.
+     * @param channel The channel to send the alert in.
+     */
     public void skipTrack(TextChannel channel) {
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild());
         musicManager.scheduler.nextTrack();
@@ -118,6 +158,11 @@ public class MusicManager {
         channel.sendMessage("Skipped to next track.").queue();
     }
 
+    /**
+     * Connect the bot to a voice channel
+     * @param audioManager The AudioManager of a guild
+     * @param voiceChannel The voice channel to connect in.
+     */
     private static void connectToVoiceChannel(AudioManager audioManager, VoiceChannel voiceChannel) {
         audioManager.setSelfMuted(false);
         if (!audioManager.isConnected() && !audioManager.isAttemptingToConnect()) {
@@ -125,11 +170,22 @@ public class MusicManager {
         }
     }
 
+    /**
+     * Check if the bot is connected in a guild voice channel.
+     * @param guild The guild to check
+     * @return True if the bot is in a voice channel, else false.
+     */
     public boolean isConnected(Guild guild) {
         return guild.getAudioManager().isConnected();
     }
 
 
+    /**
+     * Add a song to the queue of a guild
+     * @param guild The guild to add the song in
+     * @param channel The channel to send the alert in.
+     * @param url The URL of the song.
+     */
     public void addMusicOnly(Guild guild, MessageChannel channel, String url) {
         getPlayerManager().loadItemOrdered(getPlayerManager(), url, new AudioLoadResultHandler() {
             @Override
@@ -162,6 +218,10 @@ public class MusicManager {
         });
     }
 
+    /**
+     * Get the global AudioPlayerManager
+     * @return An instance of the {@link AudioPlayerManager}
+     */
     public AudioPlayerManager getPlayerManager() {
         return playerManager;
     }

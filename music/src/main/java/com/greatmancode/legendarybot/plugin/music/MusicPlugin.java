@@ -30,11 +30,24 @@ import com.greatmancode.legendarybot.plugin.music.music.MusicManager;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+/**
+ * The Music plugin
+ */
 public class MusicPlugin extends LegendaryBotPlugin {
 
+    /**
+     * The setting to allow member to use music commands
+     */
     public static String MEMBER_ALLOWED_SETTING = "musicplugin_memberallowed";
+
+    /**
+     * The setting that contains the only channel the bot is allowed to connect in.
+     */
     public static String MUSIC_CHANNEL_SETTING = "musicplugin_channel";
 
+    /**
+     * The Music Manager
+     */
     private MusicManager musicManager = new MusicManager();
 
     public MusicPlugin(PluginWrapper wrapper) {
@@ -42,7 +55,7 @@ public class MusicPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
 
         getBot().getCommandHandler().addCommand("addsong", new AddSongCommand(this), "Music");
         getBot().getCommandHandler().addCommand("playmusic", new PlayMusicCommand(this), "Music");
@@ -56,7 +69,7 @@ public class MusicPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getMusicManager().getPlayerManager().shutdown();
         getBot().getCommandHandler().removeCommand("addsong");
         getBot().getCommandHandler().removeCommand("playmusic");
@@ -69,6 +82,10 @@ public class MusicPlugin extends LegendaryBotPlugin {
         log.info("Music plugin unloaded! Removed commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 
+    /**
+     * Retrieve the Music Manager
+     * @return The Music Manager instance.
+     */
     public MusicManager getMusicManager() {
         return musicManager;
     }

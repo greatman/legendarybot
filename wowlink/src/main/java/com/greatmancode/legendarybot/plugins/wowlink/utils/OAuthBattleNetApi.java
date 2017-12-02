@@ -26,8 +26,14 @@ package com.greatmancode.legendarybot.plugins.wowlink.utils;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
+/**
+ * OAuth class to Battle.
+ */
 public class OAuthBattleNetApi extends DefaultApi20 {
 
+    /**
+     * The region to auth to.
+     */
     private final String region;
 
     public OAuthBattleNetApi(String region) {

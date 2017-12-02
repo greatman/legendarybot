@@ -43,9 +43,19 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.TimeZone;
 
+/**
+ * The !log command
+ */
 public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, PublicCommand {
 
+    /**
+     * The OKHttp client
+     */
     private OkHttpClient client = new OkHttpClient();
+
+    /**
+     * The properties file containing the settings.
+     */
     private Properties props;
 
     public LogCommand(PluginWrapper wrapper) {
@@ -106,7 +116,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         //Load the configuration
         props = new Properties();
         try {
@@ -120,7 +130,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("log");
         log.info("Command !log unloaded");
     }

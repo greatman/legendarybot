@@ -31,8 +31,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
+/**
+ * The !guildchars command
+ */
 public class GuildCharsCommand implements PublicCommand {
 
+    /**
+     * The WowLink plugin instance.
+     */
     private WoWLinkPlugin plugin;
 
     public GuildCharsCommand(WoWLinkPlugin plugin) {

@@ -46,12 +46,15 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The !lookup command
+ */
 public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, PublicCommand {
 
-    private final OkHttpClient battleNetClient = new OkHttpClient.Builder()
-            .addInterceptor(new BattleNetAPIInterceptor(getBot()))
-            .build();
 
+    /**
+     * The OKHttp client
+     */
     private final OkHttpClient client = new OkHttpClient.Builder()
             .build();
 

@@ -66,11 +66,16 @@ public abstract class LegendaryBot {
     public abstract HikariDataSource getDatabase();
 
     /**
-     * Retrieve the Discord Bot library
-     * @return An instance of the {@link JDA} class
+     * Retrieve the Discord Bot library instance of a specific guild
+     * @param guild The Guild to get the JDA instance from
+     * @return An instance of the {@link JDA} class linked to the guild
      */
     public abstract JDA getJDA(Guild guild);
 
+    /**
+     * Retrieve all JDA instances of the Bot
+     * @return A List containing all JDA instances.
+     */
     public abstract List<JDA> getJDA();
 
     /**
@@ -80,14 +85,21 @@ public abstract class LegendaryBot {
     public abstract void addGuild(Guild guild);
 
     /**
-     * Retrieve the unhandler StacktraceHandler
+     * Retrieve the StacktraceHandler
      * @return The {@link StacktraceHandler} instance
      */
     public abstract StacktraceHandler getStacktraceHandler();
 
-
+    /**
+     * Retrieve the ElasticSearch client
+     * @return a instance of the ElasticSearch client.
+     */
     public abstract RestClient getElasticSearch();
 
+    /**
+     * Retrieve the DataDog client
+     * @return The DataDog client instance.
+     */
     public abstract StatsDClient getStatsClient();
 
     /**

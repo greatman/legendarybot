@@ -27,11 +27,15 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import net.dv8tion.jda.core.audio.AudioSendHandler;
 
+/**
+ * The Audio player audio sending handler
+ */
 public class AudioPlayerSendHandler implements AudioSendHandler {
     private final AudioPlayer audioPlayer;
     private AudioFrame lastFrame;
 
     /**
+     * Build the Audio Player audio sending handler
      * @param audioPlayer Audio player to wrap.
      */
     public AudioPlayerSendHandler(AudioPlayer audioPlayer) {

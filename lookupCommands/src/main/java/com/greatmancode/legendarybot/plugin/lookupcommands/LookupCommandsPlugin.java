@@ -30,6 +30,9 @@ import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupQuestC
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+/**
+ * The Lookup Commands Plugin main class.
+ */
 public class LookupCommandsPlugin extends LegendaryBotPlugin {
 
     public LookupCommandsPlugin(PluginWrapper wrapper) {
@@ -37,7 +40,7 @@ public class LookupCommandsPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getCommandHandler().addCommand("lookupitem", new LookupItemCommand(this), "World of Warcraft");
         log.info("Command !lookupitem loaded!");
         getBot().getCommandHandler().addCommand("lookupachievement", new LookupAchievementCommand(this), "World of Warcraft");
@@ -47,7 +50,7 @@ public class LookupCommandsPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("lookupitem");
         log.info("Command !lookupitem unloaded!");
         getBot().getCommandHandler().removeCommand("lookupachievement");

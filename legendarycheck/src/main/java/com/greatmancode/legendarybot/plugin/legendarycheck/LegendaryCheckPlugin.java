@@ -38,9 +38,19 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The Legendary Check plugin
+ */
 public class LegendaryCheckPlugin extends LegendaryBotPlugin{
 
+    /**
+     * The setting name where we save the legendary check channel name.
+     */
     public static final String SETTING_NAME = "legendary_check";
+
+    /**
+     * The Map of running legendary check.
+     */
     private Map<String, LegendaryCheck> legendaryCheckMap = new HashMap<>();
 
     public LegendaryCheckPlugin(PluginWrapper wrapper) {
@@ -48,8 +58,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
     }
 
     @Override
-    public void start() throws PluginException {
-        Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
+    public void start() {
         String LEGENDARY_TABLE = "CREATE TABLE IF NOT EXISTS `legendarycheck` (\n" +
                 "  `region` VARCHAR(25) NOT NULL,\n" +
                 "  `serverName` VARCHAR(25) NOT NULL,\n" +
@@ -77,7 +86,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         legendaryCheckMap.forEach((k,v) -> v.shutdown());
         legendaryCheckMap.clear();
         getBot().getCommandHandler().removeCommand("enablelc");
@@ -87,10 +96,19 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
     }
 
 
+    /**
+     * Start the legendary check for a guild
+     * @param guild The guild to start the Legendary check.
+     */
     public void startLegendaryCheck(Guild guild) {
         startLegendaryCheck(guild, 0);
     }
 
+    /**
+     * Start a legendary check for a guild.
+     * @param guild The guild to start the LC check in.
+     * @param initialDelay the initial delay before starting the check.
+     */
     public void startLegendaryCheck(Guild guild, int initialDelay) {
         if (getBot().getGuildSettings(guild).getSetting(SETTING_NAME) != null) {
             if (legendaryCheckMap.containsKey(guild.getId())) {
@@ -102,6 +120,10 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         }
     }
 
+    /**
+     * Stops and deletes the config of a legendary check for a guild.
+     * @param guild The guild to disable the legendary check.
+     */
     public void destroyLegendaryCheck(Guild guild) {
         getBot().getGuildSettings(guild).unsetSetting(SETTING_NAME);
         if (legendaryCheckMap.containsKey(guild.getId())) {
@@ -110,6 +132,10 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         }
     }
 
+    /**
+     * Stops the legendary check for a guild.
+     * @param guild The guild to stop the legendary check.
+     */
     public void stopLegendaryCheck(Guild guild) {
         if (legendaryCheckMap.containsKey(guild.getId())) {
             legendaryCheckMap.get(guild.getId()).shutdown();
@@ -117,6 +143,13 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         }
     }
 
+    /**
+     * Retrieve the last modified date of a player in the database.
+     * @param region The region of the player
+     * @param serverName The server name of the player.
+     * @param playerName The player name.
+     * @return a long containing the last modified date in UNIX timestamp format. If not found, returns -1.
+     */
     public long getPlayerInventoryDate(String region, String serverName, String playerName) {
         long time = -1;
         try {
@@ -139,6 +172,13 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         return time;
     }
 
+    /**
+     * Set the last modified date of a player in the database.
+     * @param region The region of the player
+     * @param serverName The server name of the player.
+     * @param playerName The player name
+     * @param time The time of the last modified in UNIX timestamp format.
+     */
     public void setPlayerInventoryDate(String region, String serverName, String playerName, long time) {
         try {
             Connection conn = getBot().getDatabase().getConnection();
@@ -156,6 +196,10 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         }
     }
 
+    /**
+     * Retrieve the count of enabled LC check.
+     * @return The amount of enabled LC checks.
+     */
     public int getLegendaryCheckEnabledCount() {
         return legendaryCheckMap.size();
     }

@@ -41,9 +41,19 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * The Message Listener for the setup wizard
+ */
 public class SetupMessageListener extends ListenerAdapter {
 
+    /**
+     * The OKHttp client.
+     */
     private final OkHttpClient client;
+
+    /**
+     * The instance of the Setup Plugin
+     */
     private SetupPlugin plugin;
 
     public SetupMessageListener(SetupPlugin plugin) {

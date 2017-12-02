@@ -39,8 +39,14 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.Collections;
 
+/**
+ * The !lookupquest command
+ */
 public class LookupQuestCommand implements PublicCommand {
 
+    /**
+     * An instance of the Lookup Commands plugin.
+     */
     private LookupCommandsPlugin plugin;
 
     public LookupQuestCommand(LookupCommandsPlugin plugin) {

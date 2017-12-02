@@ -36,13 +36,36 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Handler to send stats to different website list of discord bots.
+ */
 public class DiscordBotListHandler {
 
+    /**
+     * The scheduler that handles the update
+     */
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    /**
+     * Represents JSON for a Media Type.
+     */
     private static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+
+    /**
+     * The OKHttp client.
+     */
     private OkHttpClient client = new OkHttpClient();
+
+    /**
+     * The logger
+     */
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    /**
+     * Create a DiscordBotList Handler to send stats to Discord bot websites.
+     * @param properties The properties file containing the API keys.
+     * @param plugin The {@link StatsPlugin} plugin instance.
+     */
     public DiscordBotListHandler(Properties properties, StatsPlugin plugin) {
         LegendaryBot bot = plugin.getBot();
         final Runnable postStats = () -> {

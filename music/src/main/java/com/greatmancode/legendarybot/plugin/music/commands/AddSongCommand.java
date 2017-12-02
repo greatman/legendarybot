@@ -27,8 +27,14 @@ import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !addsong command
+ */
 public class AddSongCommand implements PublicCommand {
 
+    /**
+     * An instance of the Music Plugin.
+     */
     private MusicPlugin plugin;
 
     public AddSongCommand(MusicPlugin plugin) {

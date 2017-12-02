@@ -64,18 +64,29 @@ import java.util.*;
 import static spark.Spark.get;
 import static spark.Spark.path;
 
+/**
+ * The WowLink plugin main class.
+ */
 public class WoWLinkPlugin extends LegendaryBotPlugin {
 
     public static final String SETTING_RANKSET_ENABLED = "wowlink_rankset";
     public static final String SETTING_RANK_PREFIX = "wowlink_rank_";
+
     /**
      * The HttpClient to do web requests.
      */
     private OkHttpClient client = new OkHttpClient.Builder()
             .addInterceptor(new BattleNetAPIInterceptor(getBot()))
             .build();
+
+    /**
+     * The settings file
+     */
     private Properties props;
 
+    /**
+     * The Logger
+     */
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public WoWLinkPlugin(PluginWrapper wrapper) {
@@ -83,12 +94,16 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
     }
 
 
+    /**
+     * Get the properties file.
+     * @return
+     */
     public Properties getProps() {
         return props;
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         //Load the configuration
         props = new Properties();
         try {
@@ -184,7 +199,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         Spark.stop();
         getBot().getCommandHandler().removeCommand("linkwowchars");
         getBot().getCommandHandler().removeCommand("guildchars");
@@ -196,6 +211,12 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("syncguild");
     }
 
+    /**
+     * Retrieve all characters of a player in a specific guild
+     * @param user The user to get the characters from
+     * @param guild The guild to retrieve the characters from.
+     * @return A List containing all characters of a player that belong to a specific guild.
+     */
     public List<String> getUserCharactersInGuild(User user, Guild guild) {
         List<String> charactersList = new ArrayList<>();
         try {
@@ -218,6 +239,13 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         return charactersList;
     }
 
+    /**
+     * Set the main character of a character in a guild.
+     * @param user The user to set the main character to
+     * @param guild The guild to set the main character of the user in.
+     * @param character The character name that is the main character of the player.
+     * @throws SQLException
+     */
     public void setMainCharacterForGuild(User user, Guild guild, String character) throws SQLException {
         Connection conn = getBot().getDatabase().getConnection();
         PreparedStatement statement = conn.prepareStatement("INSERT INTO user_characters_guild VALUES(?,?,?) ON DUPLICATE KEY UPDATE characterName=VALUES(characteRName)");
@@ -229,6 +257,13 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         conn.close();
     }
 
+    /**
+     * Retrieve the main character of a user in a guild.
+     * @param user The user to retrieve the main character from.
+     * @param guild The guild to retrieve the main character from.
+     * @return The name of the main character of a user. Returns null if not found.
+     * @throws SQLException
+     */
     public String getMainCharacterForUserInGuild(User user, Guild guild) throws SQLException {
         String character = null;
         Connection connection = getBot().getDatabase().getConnection();
@@ -245,6 +280,12 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         return character;
     }
 
+    /**
+     * Get the Discord rank linked to a WoW guild rank.
+     * @param guild The guild to get the setting from.
+     * @param character The character to get the rank from.
+     * @return
+     */
     public String getWoWRank(Guild guild, String character) {
         int[] rank = new int[1];
         rank[0] = -1;
@@ -281,6 +322,12 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         return rankDiscord;
     }
 
+    /**
+     * Set the Discord rank of a player. If the bot doesn't find the rank in the Discord Guild or can't set the rank, nothing happens.
+     * @param user The user to set the rank to.
+     * @param guild The guild we want to set the rank in
+     * @param rank The rank we want to set.
+     */
     public void setDiscordRank(User user, Guild guild, String rank) {
         if (rank == null) {
             return;

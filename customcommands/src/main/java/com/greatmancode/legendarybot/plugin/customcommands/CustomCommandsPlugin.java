@@ -49,7 +49,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         try {
             Connection connection = getBot().getDatabase().getConnection();
             //We create the commands table
@@ -67,26 +67,24 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
         log.info("Loading custom commands");
-        getBot().getJDA().forEach(jda -> {
-            jda.getGuilds().forEach(g -> {
-                Map<String, String> result = new HashMap<>();
-                try {
-                    Connection connection = getBot().getDatabase().getConnection();
-                    PreparedStatement statement = connection.prepareStatement("SELECT * FROM guild_commands WHERE guild_id=?");
-                    statement.setString(1, g.getId());
-                    ResultSet set = statement.executeQuery();
-                    while (set.next()) {
-                        result.put(set.getString("command_name"), set.getString("text"));
-                    }
-                    statement.close();
-                    connection.close();
-                    guildCustomCommands.put(g.getId(), result);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + g.getId());
+        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> {
+            Map<String, String> result = new HashMap<>();
+            try {
+                Connection connection = getBot().getDatabase().getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM guild_commands WHERE guild_id=?");
+                statement.setString(1, g.getId());
+                ResultSet set = statement.executeQuery();
+                while (set.next()) {
+                    result.put(set.getString("command_name"), set.getString("text"));
                 }
-            });
-        });
+                statement.close();
+                connection.close();
+                guildCustomCommands.put(g.getId(), result);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + g.getId());
+            }
+        }));
         getBot().getJDA().forEach(jda -> jda.addEventListener(listener));
         log.info("Custom commands loaded");
         getBot().getCommandHandler().setUnknownCommandHandler(new IUnknownCommandHandler(this));
@@ -98,7 +96,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("createcmd");
         getBot().getCommandHandler().removeCommand("removecmd");
         getBot().getCommandHandler().removeCommand("listcommands");
@@ -108,6 +106,12 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         log.info("Command !createcmd unloaded!");
     }
 
+    /**
+     * Create a custom command.
+     * @param guild The guild to create the custom command in.
+     * @param commandName The command name (The trigger)
+     * @param value The value of the custom command (What the bot will say).
+     */
     public void createCommand(Guild guild, String commandName, String value) {
         try {
             Connection conn = getBot().getDatabase().getConnection();
@@ -125,6 +129,11 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         }
     }
 
+    /**
+     * Remove a custom command
+     * @param guild The guild to remove the custom command from.
+     * @param commandName The command name (The trigger)
+     */
     public void removeCommand(Guild guild, String commandName) {
         if (guildCustomCommands.get(guild.getId()).containsKey(commandName)) {
             try {
@@ -145,10 +154,19 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         }
     }
 
+    /**
+     * Handler for the joinGuild event. Add the guild to the map.
+     * @param guild The guild to add
+     */
     public void joinGuildEvent(Guild guild) {
         guildCustomCommands.put(guild.getId(), new HashMap<>());
     }
 
+    /**
+     * Retrieve the list of custom commands of the Guild.
+     * @param guild The Guild to retrieve the custom commands from.
+     * @return A Map containing the Trigger and the value of each custom commands.
+     */
     public Map<String,String> getServerCommands(Guild guild) {
         return Collections.unmodifiableMap(guildCustomCommands.get(guild.getId()));
     }

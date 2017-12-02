@@ -36,10 +36,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * OKHttp interceptor to do Battle.Net queries
+ */
 public class BattleNetAPIInterceptor implements Interceptor {
 
+    /**
+     * List containing all available battle.net API keys
+     */
     private final List<String> battleNetKey = new ArrayList<>();
+
+    /**
+     * An instance of the bot.
+     */
     private LegendaryBot bot;
+
+    /**
+     * Build an instance of the Interceptor
+     * @param bot A instance of the bot.
+     */
     public BattleNetAPIInterceptor(LegendaryBot bot) {
         this.bot = bot;
         Properties props = new Properties();
@@ -57,6 +72,7 @@ public class BattleNetAPIInterceptor implements Interceptor {
             bot.getStacktraceHandler().sendStacktrace(e);
         }
     }
+
     @Override
     public Response intercept(Chain chain) throws IOException {
         bot.getStatsClient().incrementCounter("legendarybot.battlenet.query");

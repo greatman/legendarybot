@@ -34,8 +34,14 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The !syncguild command
+ */
 public class SyncGuildCommand extends AdminCommand implements ZeroArgsCommand {
 
+    /**
+     * The WowLink plugin instance.
+     */
     private WoWLinkPlugin plugin;
 
     public SyncGuildCommand(WoWLinkPlugin plugin) {

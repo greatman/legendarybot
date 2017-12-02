@@ -41,6 +41,13 @@ import java.util.Collections;
 public class WoWUtils {
 
 
+    /**
+     * Retrieve the informatoin of a realm
+     * @param bot The bot instance.
+     * @param region The region the realm is in
+     * @param realm The realm name
+     * @return A Json string containing information about the realm. Returns null if no realm is found.
+     */
     public static String getRealmInformation(LegendaryBot bot, String region, String realm) {
         HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+realm+"\" } } }", ContentType.APPLICATION_JSON);
         try {
@@ -62,7 +69,12 @@ public class WoWUtils {
         }
         return null;
     }
-    
+
+    /**
+     * Retrieve the {@link Color} of a World of Warcraft class.
+     * @param className The class name to get the color from
+     * @return A instance of {@link Color} representing the class color. Null if the class is not found.
+     */
     public static Color getClassColor(String className) {
         Color color = null;
         className = className.toLowerCase();

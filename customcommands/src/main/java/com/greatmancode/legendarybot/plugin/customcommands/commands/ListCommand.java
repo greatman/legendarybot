@@ -30,8 +30,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Map;
 
+/**
+ * The !listcommands command.
+ */
 public class ListCommand implements PublicCommand, ZeroArgsCommand {
 
+    /**
+     * An instance of the CustomCommands plugin.
+     */
     private CustomCommandsPlugin plugin;
 
     public ListCommand(CustomCommandsPlugin plugin) {

@@ -30,8 +30,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * The !setmainchar command
+ */
 public class SetMainCharacterCommand implements PublicCommand {
 
+    /**
+     * The WowLink plugin instance.
+     */
     private WoWLinkPlugin plugin;
 
     public SetMainCharacterCommand(WoWLinkPlugin plugin) {

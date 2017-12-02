@@ -31,8 +31,14 @@ import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !linkwowchars command
+ */
 public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
 
+    /**
+     * The WowLink plugin instance.
+     */
     private WoWLinkPlugin plugin;
 
     public LinkWoWCharsCommand(WoWLinkPlugin plugin) {

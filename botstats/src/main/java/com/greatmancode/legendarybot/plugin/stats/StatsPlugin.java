@@ -33,10 +33,24 @@ import ro.fortsoft.pf4j.PluginWrapper;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+/**
+ * The stats plugin
+ */
 public class StatsPlugin extends LegendaryBotPlugin {
 
+    /**
+     * The handler for the DataDog stats
+     */
     private DashboardStatsHandler dashboardStatsHandler;
+
+    /**
+     * The MessageListener that listens for all messages that comes in for stats purpose.
+     */
     private MessageListener messageListener;
+
+    /**
+     * The Discord bot list handler.
+     */
     private DiscordBotListHandler statsHandler;
 
     public StatsPlugin(PluginWrapper wrapper) {
@@ -44,7 +58,7 @@ public class StatsPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         //Load the configuration
         Properties props = new Properties();
         try {
@@ -64,7 +78,7 @@ public class StatsPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("botstats");
         if (statsHandler != null) {
             statsHandler.stop();
@@ -74,52 +88,88 @@ public class StatsPlugin extends LegendaryBotPlugin {
         log.info("Command !botstats unloaded!");
     }
 
+    /**
+     * Retrieve the total member count on all servers.
+     * @return The number of members on all discord servers the bot is connected to.
+     */
     public int getMemberCount() {
         final int[] membersAmount = new int[1];
         getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> membersAmount[0] += g.getMembers().stream().filter((m) -> !m.getUser().isBot()).count()));
         return membersAmount[0];
     }
 
+    /**
+     * Get the Used ram of the bot
+     * @return The used ram of the bot in MB.
+     */
     public long getUsedRam() {
         Runtime runtime = Runtime.getRuntime();
         int mb = 1024*1024;
         return (runtime.totalMemory() - runtime.freeMemory()) / mb;
     }
 
+    /**
+     * Get the total amount of audio connections the bot is currently connected in.
+     * @return The amount of audio connections.
+     */
     public int getAudioConnections() {
         final int[] i = {0};
         getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> i[0] += g.getAudioManager().isConnected() ? 1 : 0));
         return i[0];
     }
 
+    /**
+     * Get the amount of songs in the queue
+     * @return The total amount of songs in the queue.
+     */
     public int getSongQueue() {
         final int[] i = {0};
         ((MusicPlugin)getBot().getPluginManager().getPlugin("musicPlugin").getPlugin()).getMusicManager().getGuildsMusicManager().forEach((k, v) -> i[0] += v.scheduler.getQueueLength());
         return i[0];
     }
 
+    /**
+     * Get the total count of text channels in all Discord guilds currently connected to.
+     * @return The total count of text channels.
+     */
     public int getTextChannelCount() {
         final int[] i = {0};
         getBot().getJDA().forEach(jda -> i[0] += jda.getTextChannels().size() );
         return i[0];
     }
 
+    /**
+     * Get the total count of voice channels in all Discord guilds currently connected to.
+     * @return The total count of voice channels.
+     */
     public int getVoiceChannelCount() {
         final int[] i = {0};
         getBot().getJDA().forEach(jda -> i[0] += jda.getVoiceChannels().size() );
         return i[0];
     }
 
+    /**
+     * Get the amount of guilds that enabled the LegendaryCheck feature.
+     * @return The amount of guilds that enabled legendaryCheck.
+     */
     public int getLegendaryCount() {
         return ((LegendaryCheckPlugin)getBot().getPluginManager().getPlugin("legendaryCheckPlugin").getPlugin()).getLegendaryCheckEnabledCount();
     }
 
+    /**
+     * Get the amount of guilds the bot is connected to.
+     * @return The total amount of guilds the bot is connected to.
+     */
     public int getGuildCount() {
         final int[] i = {0};
         getBot().getJDA().forEach(jda -> i[0] += jda.getGuilds().size());
         return i[0];
     }
 
+    /**
+     * Get the amount of guilds that went through the setup wizard.
+     * @return The amount of guilds that went through the setup wizard.
+     */
     public int getGuildConfiguredCount() {
         final int[] i = {0};
         getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> {

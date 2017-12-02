@@ -31,8 +31,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
+/**
+ * The !setmusicchannel command
+ */
 public class SetMusicChannelCommand extends AdminCommand {
 
+    /**
+     * An instance of the Music Plugin.
+     */
     private MusicPlugin plugin;
 
     public SetMusicChannelCommand(MusicPlugin plugin) {

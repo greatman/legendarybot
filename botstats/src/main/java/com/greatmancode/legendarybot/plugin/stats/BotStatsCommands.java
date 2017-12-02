@@ -33,10 +33,20 @@ import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 
+/**
+ * The !botstats command.
+ */
 public class BotStatsCommands implements Command {
 
+    /**
+     * An instance of the stats plugin.
+     */
     private StatsPlugin plugin;
 
+    /**
+     * Build the !botstats command
+     * @param plugin An instance of the class {@link StatsPlugin}
+     */
     public BotStatsCommands(StatsPlugin plugin) {
         this.plugin = plugin;
     }

@@ -31,8 +31,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
+/**
+ * The !playmusic command
+ */
 public class PlayMusicCommand extends AdminCommand {
 
+    /**
+     * An instance of the Music Plugin.
+     */
     private MusicPlugin plugin;
 
     public PlayMusicCommand(MusicPlugin plugin) {

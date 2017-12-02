@@ -29,8 +29,14 @@ import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+/**
+ * The !enableautorank command
+ */
 public class EnableAutoRankCommand extends AdminCommand implements ZeroArgsCommand {
 
+    /**
+     * The WowLink plugin instance.
+     */
     private WoWLinkPlugin plugin;
 
     public EnableAutoRankCommand(WoWLinkPlugin plugin) {

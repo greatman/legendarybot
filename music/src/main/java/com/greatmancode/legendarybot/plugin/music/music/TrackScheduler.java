@@ -82,10 +82,17 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
+    /**
+     * Clear the whole queue.
+     */
     public void stopAll() {
         queue.clear();
     }
 
+    /**
+     * Retrieve the length of the queue
+     * @return The size of the queue.
+     */
     public int getQueueLength() {
         return queue.size();
     }
