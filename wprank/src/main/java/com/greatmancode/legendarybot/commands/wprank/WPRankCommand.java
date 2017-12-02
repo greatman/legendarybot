@@ -65,7 +65,7 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
         String result;
         try {
             result = client.newCall(request).execute().body().string();
-            if (result.equals("null")) {
+            if ("null".equals(result)) {
                 event.getChannel().sendMessage("Guild not found on WowProgress!").queue();
                 return;
             }

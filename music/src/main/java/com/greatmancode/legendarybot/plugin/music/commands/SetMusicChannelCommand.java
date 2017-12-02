@@ -23,7 +23,6 @@
  */
 package com.greatmancode.legendarybot.plugin.music.commands;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
 import net.dv8tion.jda.core.entities.VoiceChannel;

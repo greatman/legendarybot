@@ -26,7 +26,6 @@ package com.greatmancode.legendarybot.plugin.setupmodule;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.setupmodule.commands.SetupCommand;
 import net.dv8tion.jda.core.entities.Guild;
-import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.util.HashMap;

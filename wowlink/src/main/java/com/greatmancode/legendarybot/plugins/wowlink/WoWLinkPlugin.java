@@ -49,7 +49,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 import spark.Spark;
 
@@ -96,7 +95,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
 
     /**
      * Get the properties file.
-     * @return
+     * @return The Properties file.
      */
     public Properties getProps() {
         return props;
@@ -244,7 +243,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * @param user The user to set the main character to
      * @param guild The guild to set the main character of the user in.
      * @param character The character name that is the main character of the player.
-     * @throws SQLException
+     * @throws SQLException SQLException
      */
     public void setMainCharacterForGuild(User user, Guild guild, String character) throws SQLException {
         Connection conn = getBot().getDatabase().getConnection();
@@ -262,7 +261,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * @param user The user to retrieve the main character from.
      * @param guild The guild to retrieve the main character from.
      * @return The name of the main character of a user. Returns null if not found.
-     * @throws SQLException
+     * @throws SQLException SQLException
      */
     public String getMainCharacterForUserInGuild(User user, Guild guild) throws SQLException {
         String character = null;
@@ -284,7 +283,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * Get the Discord rank linked to a WoW guild rank.
      * @param guild The guild to get the setting from.
      * @param character The character to get the rank from.
-     * @return
+     * @return The Discord rank of a character.
      */
     public String getWoWRank(Guild guild, String character) {
         int[] rank = new int[1];

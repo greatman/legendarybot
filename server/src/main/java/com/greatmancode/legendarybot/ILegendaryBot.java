@@ -195,7 +195,7 @@ public class ILegendaryBot extends LegendaryBot {
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {
                 getPluginManager().unloadPlugin(wrapper.getPluginId());
             }
-            jdaList.forEach((jda) -> jda.shutdown());
+            jdaList.forEach(JDA::shutdown);
 
             File plugins = new File("plugins");
             Arrays.stream(plugins.listFiles(File::isDirectory)).forEach(file -> {

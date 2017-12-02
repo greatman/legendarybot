@@ -23,10 +23,24 @@
  */
 package com.greatmancode.legendarybot.commands.affix;
 
+/**
+ * Represents a Affix
+ */
 public class AffixDescription {
 
+    /**
+     * The ID of the affix
+     */
     private final int id;
+
+    /**
+     * The Description of the affix
+     */
     private final String description;
+
+    /**
+     * The difficulty of an affix. The value can be 1 = easy, 2 = medium, 3 = hard
+     */
     private final int difficulty;
 
     public AffixDescription(int id, String description, int difficulty) {
@@ -35,14 +49,26 @@ public class AffixDescription {
         this.difficulty = difficulty;
     }
 
+    /**
+     * Get The ID of the affix
+     * @return The ID of the prefix
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Get the description of the affix
+     * @return The description of the affix.
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Get the difficulty of the affix
+     * @return The Difficulty of the affix.
+     */
     public int getDifficulty() {
         return difficulty;
     }

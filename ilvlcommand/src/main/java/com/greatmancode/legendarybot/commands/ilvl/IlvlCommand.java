@@ -25,9 +25,6 @@ package com.greatmancode.legendarybot.commands.ilvl;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
-import com.greatmancode.legendarybot.api.utils.Hero;
-import com.greatmancode.legendarybot.api.utils.HeroClass;
 import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -42,7 +39,6 @@ import org.json.simple.parser.ParseException;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -81,7 +77,8 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public void execute(MessageReceivedEvent event, String[] args) {
-        String serverName = null, region = null;
+        String serverName = null;
+        String region = null;
         try {
             if (args.length == 1) {
                 serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();

@@ -29,7 +29,6 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;

@@ -27,7 +27,6 @@ package com.greatmancode.legendarybot.plugin.music;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.music.commands.*;
 import com.greatmancode.legendarybot.plugin.music.music.MusicManager;
-import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 /**

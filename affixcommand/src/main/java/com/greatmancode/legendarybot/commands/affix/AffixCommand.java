@@ -26,14 +26,11 @@ package com.greatmancode.legendarybot.commands.affix;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Weeks;
-
-import java.awt.*;
 
 /**
  * Command that provides this week's Mythic+ Affixes

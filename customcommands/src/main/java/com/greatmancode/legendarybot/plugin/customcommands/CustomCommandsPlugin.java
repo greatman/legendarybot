@@ -28,7 +28,6 @@ import com.greatmancode.legendarybot.plugin.customcommands.commands.CreateComman
 import com.greatmancode.legendarybot.plugin.customcommands.commands.ListCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.commands.RemoveCommand;
 import net.dv8tion.jda.core.entities.Guild;
-import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.sql.Connection;

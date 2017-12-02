@@ -25,8 +25,6 @@ package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import net.dv8tion.jda.core.entities.Guild;
-import okhttp3.OkHttpClient;
-import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.sql.Connection;
@@ -35,8 +33,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The Legendary Check plugin

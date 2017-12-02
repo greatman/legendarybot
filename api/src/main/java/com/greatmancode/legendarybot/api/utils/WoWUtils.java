@@ -62,9 +62,7 @@ public class WoWUtils {
             JSONObject firstItem = (JSONObject) hit.get(0);
             JSONObject source = (JSONObject)  firstItem.get("_source");
             return source.toJSONString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
         return null;
@@ -73,12 +71,12 @@ public class WoWUtils {
     /**
      * Retrieve the {@link Color} of a World of Warcraft class.
      * @param className The class name to get the color from
-     * @return A instance of {@link Color} representing the class color. Null if the class is not found.
+     * @return A instance of {@link Color} representing the class color. Returns white if not found
      */
     public static Color getClassColor(String className) {
         Color color = null;
-        className = className.toLowerCase();
-        switch (className) {
+        String classNameLower = className.toLowerCase();
+        switch (classNameLower) {
             case "death knight":
                 color = new Color(196,30,59);
                 break;
@@ -115,6 +113,8 @@ public class WoWUtils {
             case "warrior":
                 color = new Color(199,156,110);
                 break;
+            default:
+                color = Color.WHITE;
         }
         return color;
     }

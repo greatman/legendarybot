@@ -27,8 +27,8 @@ package com.greatmancode.legendarybot.plugin.botplay;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.stats.StatsPlugin;
 import net.dv8tion.jda.core.entities.Game;
-import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

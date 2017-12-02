@@ -27,7 +27,6 @@ package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.Command;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -51,11 +50,9 @@ public class HelpCommand implements PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (args.length == 1) {
-            if (bot.getCommandHandler().getCommandList().containsKey(args[0])) {
-                event.getAuthor().openPrivateChannel().complete().sendMessage(bot.getCommandHandler().getCommandList().get(args[0]).help()).queue();
-                return;
-            }
+        if (args.length == 1 && bot.getCommandHandler().getCommandList().containsKey(args[0])) {
+            event.getAuthor().openPrivateChannel().complete().sendMessage(bot.getCommandHandler().getCommandList().get(args[0]).help()).queue();
+            return;
         }
         final MessageBuilder[] builder = {new MessageBuilder()};
         String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");

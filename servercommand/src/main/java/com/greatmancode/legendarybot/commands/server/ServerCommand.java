@@ -28,7 +28,6 @@ import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -99,9 +98,9 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
                     eb.setColor(Color.GREEN);
                 }
                 eb.setTitle(map.get("name") + " - " + map.get("region").toUpperCase());
-                eb.addField("Status", map.get("status").toString(), true);
-                eb.addField("Population", map.get("population").toString(), true);
-                eb.addField("Currently a Queue?", map.get("queue").toString(), true);
+                eb.addField("Status", map.get("status"), true);
+                eb.addField("Population", map.get("population"), true);
+                eb.addField("Currently a Queue?", map.get("queue"), true);
             } else {
                 eb.addField("Error","An error occured. Try again later.", false);
             }

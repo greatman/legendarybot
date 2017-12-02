@@ -42,6 +42,9 @@ public class Utils {
      */
     public static final DateTime startDateMythicPlus = new DateTime(2017,3,28,0,0, DateTimeZone.forID("America/Montreal"));
 
+    /**
+     * Contains all the prefix descriptions/difficulty.
+     */
     public static final Map<String,AffixDescription> affixDescription = new HashMap<>();
 
     static {
@@ -79,7 +82,12 @@ public class Utils {
             {"Bursting", "Quaking", "Fortified"}
     };
 
-    public static final EmbedBuilder createMythicEmbed(String[] weekAffixes) {
+    /**
+     * Create an embed of a Mythic week
+     * @param weekAffixes The affixes to add to the embed.
+     * @return A {@link EmbedBuilder} to send to the user.
+     */
+    public static EmbedBuilder createMythicEmbed(String[] weekAffixes) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setThumbnail("http://wow.zamimg.com/images/wow/icons/large/inv_relics_hourglass.jpg");
 
