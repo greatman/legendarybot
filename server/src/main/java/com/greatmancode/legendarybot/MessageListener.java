@@ -43,11 +43,6 @@ public class MessageListener extends ListenerAdapter {
     private LegendaryBot bot;
 
     /**
-     * A instance of {@link Logger} to send logs to
-     */
-    private Logger log = LoggerFactory.getLogger(getClass());
-
-    /**
      * Create a Message Listener
      * @param bot The {@link LegendaryBot} instance this Message Listener is linked to.
      */
@@ -61,8 +56,6 @@ public class MessageListener extends ListenerAdapter {
         if (event.isFromType(ChannelType.PRIVATE) || event.getAuthor().isBot()) {
             return;
         }
-
-        log.info("[" + event.getGuild().getName() + "]" + event.getAuthor().getName() + ": " + event.getMessage().getContent());
         bot.getCommandHandler().handle(event);
     }
 

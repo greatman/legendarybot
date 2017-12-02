@@ -47,6 +47,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 import spark.Spark;
@@ -73,6 +75,9 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             .addInterceptor(new BattleNetAPIInterceptor(getBot()))
             .build();
     private Properties props;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     public WoWLinkPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -125,7 +130,6 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                     .build(new OAuthBattleNetApi(region));
             String oAuthCode = req.queryParams("code");
             OAuth2AccessToken token = service.getAccessToken(oAuthCode); //TODO: Save oauth code to do a character refresh.
-            System.out.println(token);
             OAuthRequest request = new OAuthRequest(Verb.GET,"https://"+region+".api.battle.net/wow/user/characters");
             service.signRequest(token, request);
             Response response = service.execute(request);
@@ -146,7 +150,6 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                     characterList.forEach((c) -> statement[0] += "(?,?,?,?,?),");
                     statement[0] = statement[0].substring(0,statement[0].length() - 1);
                     statement[0] += " ON DUPLICATE KEY UPDATE guildName=VALUES(guildName)";
-                    System.out.println(statement[0]);
                     PreparedStatement preparedStatement = conn.prepareStatement(statement[0]);
                     final int[] i = {1};
                     characterList.forEach((c) -> {
@@ -173,11 +176,11 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("linkwowchars", new LinkWoWCharsCommand(this), "World of Warcraft Character");
         getBot().getCommandHandler().addCommand("guildchars", new GuildCharsCommand(this), "World of Warcraft Character");
         getBot().getCommandHandler().addCommand("setmainchar", new SetMainCharacterCommand(this),"World of Warcraft Character");
-        getBot().getCommandHandler().addCommand("enableautorank", new EnableAutoRankCommand(this),"Admin Commands");
-        getBot().getCommandHandler().addCommand("disableautorank", new DisableAutoRankCommand(this), "Admin Commands");
-        getBot().getCommandHandler().addCommand("setwowrank", new SetWoWRankCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("enableautorank", new EnableAutoRankCommand(this),"WoW Admin Commands");
+        getBot().getCommandHandler().addCommand("disableautorank", new DisableAutoRankCommand(this), "WoW Admin Commands");
+        getBot().getCommandHandler().addCommand("setwowrank", new SetWoWRankCommand(this), "WoW Admin Commands");
         getBot().getCommandHandler().addCommand("syncrank", new SyncRankCommand(this), "World of Warcraft Character");
-        getBot().getCommandHandler().addCommand("syncguild", new SyncGuildCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("syncguild", new SyncGuildCommand(this), "WoW Admin Commands");
     }
 
     @Override
@@ -322,26 +325,20 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                     if (roles.get(0).getPosition() < botRoleRank[0]) {
                         rolesToRemove.add(roles.get(0));
                     } else {
-                        System.out.println("The bot can't remove rank " + rankEntry + " on user " + user.getName());
+                        log.info("The bot can't remove rank " + rankEntry + " on user " + user.getName());
                     }
-
                 } else {
-                    System.out.println("Role " + rankEntry + " not on user" + user.getName());
+                    log.info("Role " + rankEntry + " not on user" + user.getName());
                 }
 
             } else {
-                System.out.println("Role " + rankEntry + " not found!");
+                log.info("Role " + rankEntry + " not found!");
             }
         }
 
 
 
         try {
-            System.out.println(guild.getRolesByName(rank, false));
-            System.out.println("Adding roles:");
-            rolesToAdd.forEach(r -> System.out.println(r));
-            System.out.println("Removing roles:");
-            rolesToRemove.forEach(r -> System.out.println(r));
             guild.getController().modifyMemberRoles(guild.getMember(user), rolesToAdd, rolesToRemove).reason("LegendaryBot - Rank Sync with WoW Guild.").queue();
         } catch (PermissionException e) {
             e.printStackTrace();

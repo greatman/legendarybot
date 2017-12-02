@@ -28,6 +28,8 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -46,6 +48,8 @@ public class IStacktraceHandler implements StacktraceHandler {
      */
     private LegendaryBot bot;
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     public IStacktraceHandler(LegendaryBot bot, String sentryKey) {
         this.bot = bot;
         client = Sentry.init(sentryKey);
@@ -57,6 +61,6 @@ public class IStacktraceHandler implements StacktraceHandler {
         Arrays.stream(tags).forEach((v) -> client.addTag(v.split(":")[0], v.split(":")[1]));
         client.sendException(e);
         client.setTags(null);
-        System.out.println("Sent error to Sentry");
+        log.info("Sent error to Sentry");
     }
 }

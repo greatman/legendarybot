@@ -48,10 +48,10 @@ public class MusicPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("playmusic", new PlayMusicCommand(this), "Music");
         getBot().getCommandHandler().addCommand("skipsong", new SkipSongCommand(this), "Music");
         getBot().getCommandHandler().addCommand("stopmusic", new StopMusicCommand(this), "Music");
-        getBot().getCommandHandler().addCommand("disallowmembermusic", new DisallowMemberMusicCommand(this), "Admin Commands");
-        getBot().getCommandHandler().addCommand("allowmembermusic", new AllowMemberMusicCommand(this), "Admin Commands");
-        getBot().getCommandHandler().addCommand("setmusicchannel", new SetMusicChannelCommand(this), "Admin Commands");
-        getBot().getCommandHandler().addCommand("unsetmusicchannel", new UnsetMusicChannelCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("disallowmembermusic", new DisallowMemberMusicCommand(this), "Music Admin Commands");
+        getBot().getCommandHandler().addCommand("allowmembermusic", new AllowMemberMusicCommand(this), "Music Admin Commands");
+        getBot().getCommandHandler().addCommand("setmusicchannel", new SetMusicChannelCommand(this), "Music Admin Commands");
+        getBot().getCommandHandler().addCommand("unsetmusicchannel", new UnsetMusicChannelCommand(this), "Music Admin Commands");
         log.info("Music plugin loaded! Added commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 

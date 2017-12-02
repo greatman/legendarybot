@@ -70,8 +70,10 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
 
     @Override
     public void stop() throws PluginException {
-        getBot().getCommandHandler().removeCommand("ilvl");
-        getBot().getCommandHandler().removeCommand("info");
+        getBot().getCommandHandler().removeCommand("lookup");
+        getBot().getCommandHandler().removeAlias("ilvl");
+        getBot().getCommandHandler().removeAlias("mplusrank");
+        getBot().getCommandHandler().removeAlias("raidrank");
         log.info("command !ilvl unloaded");
     }
 
@@ -166,6 +168,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     JSONObject trialOfValor = (JSONObject) raidProgression.get("trial-of-valor");
                     JSONObject theNighthold = (JSONObject) raidProgression.get("the-nighthold");
                     JSONObject tombOfSargeras = (JSONObject) raidProgression.get("tomb-of-sargeras");
+                    JSONObject antorus = (JSONObject) raidProgression.get("antorus-the-burning-throne");
                     progressionBuilder.append("**EN**: ");
                     progressionBuilder.append(emeraldNightmare.get("summary"));
                     progressionBuilder.append(" - ");
@@ -177,6 +180,9 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     progressionBuilder.append(" - ");
                     progressionBuilder.append("**ToS**: ");
                     progressionBuilder.append(tombOfSargeras.get("summary"));
+                    progressionBuilder.append("\n");
+                    progressionBuilder.append("**Antorus**: ");
+                    progressionBuilder.append(antorus.get("summary"));
                     eb.addField("Progression", progressionBuilder.toString(), false);
 
                     JSONObject gear = (JSONObject) jsonObject.get("gear");

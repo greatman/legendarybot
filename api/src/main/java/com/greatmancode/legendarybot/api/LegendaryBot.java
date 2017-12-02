@@ -90,4 +90,10 @@ public abstract class LegendaryBot {
 
     public abstract StatsDClient getStatsClient();
 
+    /**
+     * Retrieve the status of the bot
+     * @return True if the bot is ready, else false.
+     */
+    public abstract boolean isReady();
+
 }

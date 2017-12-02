@@ -47,6 +47,8 @@ import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginManager;
 import ro.fortsoft.pf4j.PluginWrapper;
 
@@ -106,6 +108,9 @@ public class ILegendaryBot extends LegendaryBot {
 
     private List<JDA> jdaList = new ArrayList<>();
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private boolean ready = false;
 
     /**
      * Start all the feature of the LegendaryBot
@@ -161,7 +166,7 @@ public class ILegendaryBot extends LegendaryBot {
         builder.addEventListener(new MessageListener(this));
         int maxShard = props.containsKey("bot.shard") ? Integer.parseInt(props.getProperty("bot.shard")) : 1;
         for (int i = 0; i < maxShard; i++) {
-            System.out.println("Starting shard " + i);
+            log.info("Starting shard " + i);
             jdaList.add(builder.useSharding(i,maxShard)
                     .buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION));
             Thread.sleep(5000);
@@ -175,7 +180,9 @@ public class ILegendaryBot extends LegendaryBot {
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
+        ready = true;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            ready = false;
             for (PluginWrapper wrapper : getPluginManager().getPlugins()) {
                 getPluginManager().unloadPlugin(wrapper.getPluginId());
             }
@@ -198,8 +205,7 @@ public class ILegendaryBot extends LegendaryBot {
                     getStacktraceHandler().sendStacktrace(e);
                 }
             }
-
-            System.out.println("Legendarybot shutdown.");
+            log.info("Legendarybot Shutdown.");
         }));
     }
 
@@ -260,6 +266,11 @@ public class ILegendaryBot extends LegendaryBot {
     @Override
     public StatsDClient getStatsClient() {
         return statsClient;
+    }
+
+    @Override
+    public boolean isReady() {
+        return ready;
     }
 
     @Override

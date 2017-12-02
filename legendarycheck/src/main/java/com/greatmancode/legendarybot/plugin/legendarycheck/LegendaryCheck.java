@@ -40,6 +40,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -55,7 +57,9 @@ public class LegendaryCheck {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private LegendaryBot bot;
-    private long[] itemIDIgnore = {147451,151462};
+    private long[] itemIDIgnore = {147451,151462, 152626, 154880};
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     public LegendaryCheck(LegendaryBot bot, Guild guild, LegendaryCheckPlugin plugin, int initialDelay) {
         this.bot = bot;
         final Runnable checkNews = () -> {
@@ -88,7 +92,7 @@ public class LegendaryCheck {
                     return;
                 }
                 try {
-                    System.out.println("Starting Legendary check for server " + guild.getName());
+                    log.info("Starting Legendary check for server " + guild.getName());
                     JSONObject object = (JSONObject) new JSONParser().parse(request);
                     JSONArray membersArray = (JSONArray) object.get("members");
                     for (Object memberObject : membersArray) {
@@ -114,7 +118,7 @@ public class LegendaryCheck {
                         if (memberFeedRequest == null) {
                             continue;
                         } else if (!memberFeedRequest.contains("lastModified")) {
-                            System.out.println("Guild " + guild.getName() + "("+guild.getId()+") Member " + name + " with realm " + realm + " not found for WoW guild " + guildName + "-" + regionName);
+                            log.warn("Guild " + guild.getName() + "("+guild.getId()+") Member " + name + " with realm " + realm + " not found for WoW guild " + guildName + "-" + regionName);
                             continue;
                         }
                         JSONObject memberJson = (JSONObject) new JSONParser().parse(memberFeedRequest);
@@ -139,12 +143,12 @@ public class LegendaryCheck {
                                     continue;
                                 }
                                 if (isItemLegendary(regionName, itemID)) {
-                                    System.out.println(name + " just looted a legendary");
+                                    log.info(name + " just looted a legendary");
                                     //We got a legendary!
                                     List<TextChannel> channelList = guild.getTextChannelsByName(channelName, true);
                                     if (channelList.isEmpty()) {
-                                        plugin.stopLegendaryCheck(guild);
-                                        System.out.println("Guild " + guild + "("+guild.getId()+") have a invalid channel name " + channelName + ". Removing legendary check.");
+                                        plugin.destroyLegendaryCheck(guild);
+                                        log.warn("Guild " + guild + "("+guild.getId()+") have a invalid channel name " + channelName + ". Removing legendary check.");
                                     } else {
                                         channelList.get(0).sendMessage(name + " just looted the legendary " + getItemName(regionName, itemID) + "! :tada:  http://www.wowhead.com/item=" + itemID).queue();
                                     }
@@ -159,7 +163,7 @@ public class LegendaryCheck {
                             return;
                         }
                     }
-                    System.out.println("Went through Legendary check for server " + guild.getName());
+                    log.info("Went through Legendary check for server " + guild.getName());
                 } catch (ParseException | NullPointerException e) {
                     e.printStackTrace();
                     bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId(), "region:" + regionName, "wowGuild:" + guildName, "serverName:" + serverName, "channelName:" + channelName);
@@ -167,11 +171,11 @@ public class LegendaryCheck {
             } catch (Throwable e) {
                 e.printStackTrace();
 
-                System.out.println("Crashed for guild " + guild.getName() + ":" + guild.getId());
+                log.error("Crashed for guild " + guild.getName() + ":" + guild.getId());
                 bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guild.getId());
             }
         };
-        scheduler.scheduleAtFixedRate(checkNews, initialDelay,900, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(checkNews, initialDelay,1200, TimeUnit.SECONDS);
     }
 
     public void shutdown() {
@@ -192,7 +196,6 @@ public class LegendaryCheck {
                 JSONObject obj = (JSONObject) jsonParser.parse(EntityUtils.toString(response.getEntity()));
                 JSONObject hits = (JSONObject) obj.get("hits");
                 if ((long)hits.get("total") == 0) {
-                    //System.out.println("ID " + itemID + "not found on cache. Getting it + caching.");
                     HttpUrl url = new HttpUrl.Builder().scheme("https")
                             .host(regionName + ".api.battle.net")
                             .addPathSegments("/wow/item/" + itemID)
@@ -217,13 +220,10 @@ public class LegendaryCheck {
 
                     HttpEntity entity = new NStringEntity(itemObject.toJSONString(), ContentType.APPLICATION_JSON);
                     Response indexResponse = bot.getElasticSearch().performRequest("POST", "/wow/item/",Collections.emptyMap(), entity);
-                    System.out.println(EntityUtils.toString(indexResponse.getEntity()));
-                    System.out.println("Added item " + itemID);
                     long quality = (Long) itemObject.get("quality");
                     return quality == 5;
                 }
 
-                //System.out.println("checked in cache.");
                 JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
                 JSONObject firstItem = (JSONObject) hit.get(0);
                 JSONObject source = (JSONObject) firstItem.get("_source");
@@ -253,8 +253,6 @@ public class LegendaryCheck {
                 JSONObject obj = (JSONObject) jsonParser.parse(EntityUtils.toString(response.getEntity()));
                 JSONObject hits = (JSONObject) obj.get("hits");
                 if ((long)hits.get("total") == 0) {
-                    System.out.println("ID " + itemID + "not found on cache. Getting it + caching.");
-                    //TODO Not found, do something
                     HttpUrl url = new HttpUrl.Builder().scheme("https")
                             .host(regionName + ".api.battle.net")
                             .addPathSegments("/wow/item/" + itemID)

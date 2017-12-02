@@ -36,7 +36,6 @@
         <module>legionbuilding</module>
         <module>wowlink</module>
         <module>setupmodule</module>
-        <module>pubgcommand</module>
     </modules>
 
     <properties>
@@ -134,11 +133,6 @@
             <groupId>com.github.scribejava</groupId>
             <artifactId>scribejava-core</artifactId>
             <version>5.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>pro.lukasgorny</groupId>
-            <artifactId>jpubg</artifactId>
-            <version>1.3.7</version>
         </dependency>
     </dependencies>
 <build>

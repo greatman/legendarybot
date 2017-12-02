@@ -41,42 +41,44 @@ public class DiscordBotListHandler {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
     private OkHttpClient client = new OkHttpClient();
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public DiscordBotListHandler(Properties properties, StatsPlugin plugin) {
         LegendaryBot bot = plugin.getBot();
         final Runnable postStats = () -> {
             Logger logger = LoggerFactory.getLogger(getClass());
             logger.info("Sending stats");
-            JSONObject object = new JSONObject();
-            int count = 0;
             for (JDA jda : bot.getJDA()) {
-                count += jda.getGuilds().size();
-            }
-            object.put("server_count", plugin.getGuildCount());
-            Request request = new Request.Builder().url("https://bots.discord.pw/api/bots/267134720700186626/stats")
-                    .post(RequestBody.create(MEDIA_TYPE_JSON, object.toJSONString()))
-                    .addHeader("Authorization",properties.getProperty("stats.botsdiscordpw")).build();
-            try {
-                Response response = client.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    System.out.println("Sent stats to Discord PW");
-                } else {
-                    System.out.println("Error while sending stats to Discord PW");
-                }
-                response.close();
+                JSONObject object = new JSONObject();
+                object.put("shard_id", jda.getShardInfo().getShardId());
+                object.put("shard_count", jda.getShardInfo().getShardTotal());
+                object.put("server_count", jda.getGuilds().size());
+                Request request = new Request.Builder().url("https://bots.discord.pw/api/bots/267134720700186626/stats")
+                        .post(RequestBody.create(MEDIA_TYPE_JSON, object.toJSONString()))
+                        .addHeader("Authorization",properties.getProperty("stats.botsdiscordpw")).build();
+                try {
+                    Response response = client.newCall(request).execute();
+                    if (response.isSuccessful()) {
+                        log.info("Sent stats to Discord PW");
+                    } else {
+                        log.error("Error while sending stats to Discord PW");
+                    }
+                    response.close();
 
-                request = request.newBuilder().header("Authorization",properties.getProperty("stats.discordbotorg")).url("https://discordbots.org/api/bots/267134720700186626/stats").build();
-                response = client.newCall(request).execute();
-                if (client.newCall(request).execute().isSuccessful()) {
-                    System.out.println("Sent stats to Discordbots.org");
-                } else {
-                    System.out.println("Error while sending stats to Discordbots.org");
+                    request = request.newBuilder().header("Authorization",properties.getProperty("stats.discordbotorg")).url("https://discordbots.org/api/bots/267134720700186626/stats").build();
+                    response = client.newCall(request).execute();
+                    if (client.newCall(request).execute().isSuccessful()) {
+                        log.info("Sent stats to Discordbots.org");
+                    } else {
+                        log.error("Error while sending stats to Discordbots.org");
+                    }
+                    response.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    bot.getStacktraceHandler().sendStacktrace(e);
                 }
-                response.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                bot.getStacktraceHandler().sendStacktrace(e);
             }
+
             logger.info("Stats sent.");
         };
         scheduler.scheduleAtFixedRate(postStats,0, 60, TimeUnit.MINUTES);

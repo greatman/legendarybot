@@ -70,7 +70,6 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
                 builder.append(" ").append(s);
             }
         }
-        System.out.println(props.getProperty("giphy.key"));
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("http")
                 .host("api.giphy.com")
@@ -83,7 +82,6 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
         Request request = new Request.Builder().url(url).build();
         try {
             String result = client.newCall(request).execute().body().string();
-            System.out.println(result);
             try {
                 JSONParser parser = new JSONParser();
                 JSONObject json = (JSONObject) parser.parse(result);

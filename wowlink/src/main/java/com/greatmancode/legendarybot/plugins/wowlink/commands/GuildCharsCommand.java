@@ -83,6 +83,6 @@ public class GuildCharsCommand implements PublicCommand {
 
     @Override
     public String shortDescription() {
-        return null;
+        return "Retrive the characters of a player";
     }
 }

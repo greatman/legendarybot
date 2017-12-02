@@ -90,8 +90,8 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         getBot().getJDA().forEach(jda -> jda.addEventListener(listener));
         log.info("Custom commands loaded");
         getBot().getCommandHandler().setUnknownCommandHandler(new IUnknownCommandHandler(this));
-        getBot().getCommandHandler().addCommand("createcmd", new CreateCommand(this), "Admin Commands");
-        getBot().getCommandHandler().addCommand("removecmd", new RemoveCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("createcmd", new CreateCommand(this), "Custom Commands Admin Commands");
+        getBot().getCommandHandler().addCommand("removecmd", new RemoveCommand(this), "Custom Commands Admin Commands");
         getBot().getCommandHandler().addCommand("listcommands", new ListCommand(this), "General Commands");
         log.info("Plugin Custom Commands loaded!");
         log.info("Command !createcmd loaded!");

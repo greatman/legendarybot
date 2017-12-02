@@ -86,9 +86,9 @@ public class StreamersPlugin extends LegendaryBotPlugin {
         }
         getBot().getCommandHandler().addCommand("streamers", new StreamersCommand(this), "General Commands");
         log.info("Command !streamers loaded!");
-        getBot().getCommandHandler().addCommand("addstreamer", new AddStreamerCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("addstreamer", new AddStreamerCommand(this), "Streamers Admin Commands");
         log.info("Command !addstreamer loaded!");
-        getBot().getCommandHandler().addCommand("removestreamer", new RemoveStreamerCommand(this), "Admin Commands");
+        getBot().getCommandHandler().addCommand("removestreamer", new RemoveStreamerCommand(this), "Streamers Admin Commands");
         log.info("Command !removestreamer unloaded!");
     }
 

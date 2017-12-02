@@ -26,6 +26,8 @@ package com.greatmancode.legendarybot.api.commands;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -55,6 +57,11 @@ public class CommandHandler {
      * An instance of a {@link UnknownCommandHandler} to handle commands that are unknown
      */
     private UnknownCommandHandler unknownCommandHandler = null;
+
+    /**
+     * A instance of {@link Logger} to send logs to
+     */
+    private Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Build a CommandHandler
@@ -101,12 +108,16 @@ public class CommandHandler {
      * @param event The {@link MessageReceivedEvent} from JDA.
      */
     public void handle(MessageReceivedEvent event) {
+        if (!bot.isReady()) {
+            return;
+        }
         String text = event.getMessage().getContent();
         String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");
         if (prefix == null) {
             prefix = "!";
         }
         if (text.startsWith(prefix) || event.getMessage().isMentioned(event.getJDA().getSelfUser())) {
+            log.info("[" + event.getGuild().getName() + "]" + event.getAuthor().getName() + ": " + event.getMessage().getContent());
             String command = null;
             String[] commandArray = text.split(" ");
             if (text.startsWith(prefix)) {
