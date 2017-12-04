@@ -25,10 +25,12 @@ package com.greatmancode.legendarybot.commands.ilvl;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.ConnectionPool;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -40,6 +42,9 @@ import ro.fortsoft.pf4j.PluginException;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,6 +57,11 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
      * The OKHttp client
      */
     private final OkHttpClient client = new OkHttpClient.Builder()
+            .build();
+
+    OkHttpClient clientBattleNet = new OkHttpClient.Builder()
+            .addInterceptor(new BattleNetAPIInterceptor(getBot()))
+            .connectionPool(new ConnectionPool(300, 1, TimeUnit.SECONDS))
             .build();
 
     public IlvlCommand(PluginWrapper wrapper) {
@@ -132,6 +142,9 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
             if (result != null) {
                 JSONObject jsonObject = (JSONObject) parser.parse(result);
                 if (!jsonObject.containsKey("error")) {
+
+
+
                     EmbedBuilder eb = new EmbedBuilder();
                     if (jsonObject.get("name").equals("Pepyte") && jsonObject.get("realm").equals("Arthas")) {
                         eb.setThumbnail("https://lumiere-a.akamaihd.net/v1/images/b5e11dc889c5696799a6bd3ec5d819c1f7dfe8b4.jpeg");
@@ -185,9 +198,40 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     progressionBuilder.append(antorus.get("summary"));
                     eb.addField("Progression", progressionBuilder.toString(), false);
 
+
+                    //We fetch the Battle.net achivement record
+                    HttpUrl battleneturl = new HttpUrl.Builder().scheme("https")
+                            .host(region + ".api.battle.net")
+                            .addPathSegments("wow/character/"+serverSlug+"/" +args[0])
+                            .addQueryParameter("fields", "achievements")
+                            .build();
+                    Request battlenetRequest = new Request.Builder().url(battleneturl).build();
+                    String battlenetResult = clientBattleNet.newCall(battlenetRequest).execute().body().string();
+                    long apAmount = -1;
+                    if (battlenetResult != null) {
+                        JSONObject battleNetCharacter = (JSONObject) parser.parse(battlenetResult);
+                        JSONObject achivements = (JSONObject) battleNetCharacter.get("achievements");
+                        JSONArray criteriaObject = (JSONArray) achivements.get("criteria");
+                        int criteriaNumber = -1;
+                        for (int i = 0; i < criteriaObject.size(); i++) {
+                            if ((long)criteriaObject.get(i) == 30103) {
+                                criteriaNumber = i;
+                            }
+                        }
+
+                        if (criteriaNumber != -1) {
+                            apAmount = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+                        }
+                    }
                     JSONObject gear = (JSONObject) jsonObject.get("gear");
                     eb.addField("iLVL", gear.get("item_level_equipped") + "/" + gear.get("item_level_total"), true);
-                    eb.addField("Artifact Power", gear.get("artifact_traits").toString(), true);
+
+                    if (apAmount != -1) {
+                        eb.addField("Artifact Power", gear.get("artifact_traits").toString() + " / " + format(apAmount) + " AP Gathered", true);
+                    } else {
+                        eb.addField("Artifact Power", gear.get("artifact_traits").toString(), true);
+                    }
+
 
 
 
@@ -266,5 +310,30 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     @Override
     public String shortDescription() {
         return "Lookup a character information (iLVL/Raid Progression/Mythic+)";
+    }
+
+    private static final NavigableMap<Long, String> suffixes = new TreeMap<>();
+    static {
+        suffixes.put(1_000L, "k");
+        suffixes.put(1_000_000L, " Million(s)");
+        suffixes.put(1_000_000_000L, " Billion(s)");
+        suffixes.put(1_000_000_000_000L, " Trillion(s)");
+        suffixes.put(1_000_000_000_000_000L, " Quadrillion(s)");
+        suffixes.put(1_000_000_000_000_000_000L, " Quintillion(s)");
+    }
+
+    public static String format(long value) {
+        //Long.MIN_VALUE == -Long.MIN_VALUE so we need an adjustment here
+        if (value == Long.MIN_VALUE) return format(Long.MIN_VALUE + 1);
+        if (value < 0) return "-" + format(-value);
+        if (value < 1000) return Long.toString(value); //deal with easy case
+
+        Map.Entry<Long, String> e = suffixes.floorEntry(value);
+        Long divideBy = e.getKey();
+        String suffix = e.getValue();
+
+        long truncated = value / (divideBy / 10); //the number part of the output times 10
+        boolean hasDecimal = truncated < 100 && (truncated / 10d) != (truncated / 10);
+        return hasDecimal ? (truncated / 10d) + suffix : (truncated / 10) + suffix;
     }
 }
