@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.api.commands;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import org.influxdb.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,8 +155,9 @@ public class CommandHandler {
                                 System.arraycopy(commandArray, 2, args,0,commandArray.length - 2);
                             }
 
-
-                            bot.getStatsClient().incrementCounter("legendarybot.commands","command:"+command);
+                            bot.getStatsClient().write(Point.measurement("legendarybot")
+                            .addField("command", command)
+                            .build());
                             commandClass.execute(event, args);
                         } else {
                             sendMessage(event,prefix + commandClass.help());

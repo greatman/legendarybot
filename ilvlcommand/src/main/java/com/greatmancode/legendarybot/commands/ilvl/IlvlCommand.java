@@ -148,6 +148,8 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     EmbedBuilder eb = new EmbedBuilder();
                     if (jsonObject.get("name").equals("Pepyte") && jsonObject.get("realm").equals("Arthas")) {
                         eb.setThumbnail("https://lumiere-a.akamaihd.net/v1/images/b5e11dc889c5696799a6bd3ec5d819c1f7dfe8b4.jpeg");
+                    } else if (jsonObject.get("name").equals("Xdntgivitoya") && jsonObject.get("realm").equals("Arthas")) {
+                        eb.setThumbnail("https://cdn.discordapp.com/attachments/239729214004133889/389452254823841792/20171210_112359.jpg");
                     } else {
                         eb.setThumbnail(jsonObject.get("thumbnail_url").toString());
                     }

@@ -24,6 +24,8 @@
 package com.greatmancode.legendarybot.plugin.stats;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
+import org.influxdb.dto.BatchPoints;
+import org.influxdb.dto.Point;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,17 +43,42 @@ public class DashboardStatsHandler {
     public DashboardStatsHandler(StatsPlugin plugin) {
         LegendaryBot bot = plugin.getBot();
         final Runnable postStats = () -> {
-            bot.getStatsClient().gauge("legendarybot.totalservers", plugin.getGuildCount());
-            bot.getStatsClient().gauge("legendarybot.textchannels", plugin.getTextChannelCount());
-            bot.getStatsClient().gauge("legendarybot.voicechannels", plugin.getVoiceChannelCount());
-            bot.getStatsClient().gauge("legendarybot.membercount", plugin.getMemberCount());
-            bot.getStatsClient().gauge("legendarybot.legendary.enabled", plugin.getLegendaryCount());
-            bot.getStatsClient().gauge("legendarybot.music.songqueue",plugin.getSongQueue());
-            bot.getStatsClient().gauge("legendarybot.music.audioconnections", plugin.getAudioConnections());
-            bot.getStatsClient().gauge("legendarybot.system.usedram",plugin.getUsedRam());
-            bot.getStatsClient().gauge("legendarybot.system.ping",bot.getJDA().get(0).getPing());
-            bot.getStatsClient().gauge("legendarybot.guilds.configurated", plugin.getGuildConfiguredCount());
-
+            BatchPoints points = BatchPoints.database("legendarybot2")
+                    .build();
+            points.point(Point.measurement("legendarybot")
+            .addField("totalservers", plugin.getGuildCount())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("totalservers", plugin.getGuildCount())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("textchannels", plugin.getTextChannelCount())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("voicechannels", plugin.getVoiceChannelCount())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("membercount", plugin.getMemberCount())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("legendaryenabled", plugin.getLegendaryCount())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("music.songqueue", plugin.getSongQueue())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("music.audioconnections", plugin.getAudioConnections())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("usedram", plugin.getUsedRam())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("ping", bot.getJDA().get(0).getPing())
+                    .build());
+            points.point(Point.measurement("legendarybot")
+                    .addField("configurated", plugin.getGuildConfiguredCount())
+                    .build());
+            bot.getStatsClient().write(points);
         };
         scheduler.scheduleAtFixedRate(postStats,0, 10, TimeUnit.SECONDS);
     }

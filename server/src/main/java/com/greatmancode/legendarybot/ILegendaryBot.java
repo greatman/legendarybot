@@ -34,8 +34,6 @@ import com.greatmancode.legendarybot.commands.LoadCommand;
 import com.greatmancode.legendarybot.commands.ReloadPluginsCommand;
 import com.greatmancode.legendarybot.commands.UnloadCommand;
 import com.greatmancode.legendarybot.server.IGuildSettings;
-import com.timgroup.statsd.NonBlockingStatsDClient;
-import com.timgroup.statsd.StatsDClient;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.dv8tion.jda.core.AccountType;
@@ -47,6 +45,8 @@ import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
+import org.influxdb.InfluxDB;
+import org.influxdb.InfluxDBFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginManager;
@@ -96,10 +96,7 @@ public class ILegendaryBot extends LegendaryBot {
      */
     private RestClient restClient;
 
-    /**
-     * DataDog client
-     */
-    private StatsDClient statsClient = new NonBlockingStatsDClient(null, props.getProperty("statsd.address"), Integer.parseInt(props.getProperty("statsd.port")));
+    private InfluxDB influxDB;
 
     /**
      * The app.properties file.
@@ -125,6 +122,13 @@ public class ILegendaryBot extends LegendaryBot {
      * Start all the feature of the LegendaryBot
      */
     public ILegendaryBot() throws IOException, LoginException, InterruptedException, RateLimitedException {
+        if (props.containsKey("stats.enable") && (Boolean) props.get("stats.enable")) {
+            influxDB = InfluxDBFactory.connect("http://localhost:8086").setDatabase("legendarybot2");
+        } else {
+            influxDB = new InfluxDBNull();
+        }
+        influxDB.createDatabase("legendarybot2");
+
         if (props.containsKey("sentry.key")) {
             this.stacktraceHandler = new IStacktraceHandler(this, props.getProperty("sentry.key"));
         } else {
@@ -273,8 +277,8 @@ public class ILegendaryBot extends LegendaryBot {
     }
 
     @Override
-    public StatsDClient getStatsClient() {
-        return statsClient;
+    public InfluxDB getStatsClient() {
+        return influxDB;
     }
 
     @Override

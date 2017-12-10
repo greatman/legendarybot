@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.stats;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.influxdb.dto.Point;
 
 public class MessageListener extends ListenerAdapter {
 
@@ -44,6 +45,6 @@ public class MessageListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        plugin.getBot().getStatsClient().incrementCounter("legendarybot.message.received");
+        plugin.getBot().getStatsClient().write(Point.measurement("legendarybot").addField("messagereceived", 1).build());
     }
 }

@@ -26,11 +26,11 @@ package com.greatmancode.legendarybot.api;
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import com.timgroup.statsd.StatsDClient;
 import com.zaxxer.hikari.HikariDataSource;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import org.elasticsearch.client.RestClient;
+import org.influxdb.InfluxDB;
 import ro.fortsoft.pf4j.PluginManager;
 
 import java.util.List;
@@ -100,7 +100,7 @@ public abstract class LegendaryBot {
      * Retrieve the DataDog client
      * @return The DataDog client instance.
      */
-    public abstract StatsDClient getStatsClient();
+    public abstract InfluxDB getStatsClient();
 
     /**
      * Retrieve the status of the bot

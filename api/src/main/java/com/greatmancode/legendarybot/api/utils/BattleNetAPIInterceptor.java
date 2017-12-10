@@ -29,6 +29,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.influxdb.dto.Point;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -75,7 +76,9 @@ public class BattleNetAPIInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        bot.getStatsClient().incrementCounter("legendarybot.battlenet.query");
+        bot.getStatsClient().write(Point.measurement("legendarybot")
+        .addField("battlenet",1)
+        .build());
         int keyid = 0;
         HttpUrl url = chain.request().url().newBuilder()
                 .addQueryParameter("apikey", battleNetKey.get(0))
