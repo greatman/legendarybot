@@ -24,9 +24,9 @@
 package com.greatmancode.legendarybot.api.plugin;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import ro.fortsoft.pf4j.Plugin;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.Plugin;
+import org.pf4j.PluginException;
+import org.pf4j.PluginWrapper;
 
 /**
  * Represents a Plugin for the Bot

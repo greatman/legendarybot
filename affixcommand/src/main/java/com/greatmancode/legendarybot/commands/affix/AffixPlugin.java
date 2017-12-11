@@ -25,8 +25,7 @@
 package com.greatmancode.legendarybot.commands.affix;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 /**
  * Plugin that provides the current and next's week affix.
@@ -39,14 +38,14 @@ public class AffixPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getCommandHandler().addCommand("affix", new AffixCommand(), "World of Warcraft");
         getBot().getCommandHandler().addCommand("nextaffix", new NextAffixCommand(), "World of Warcraft");
         log.info("Command !affix & !nextaffix loaded");
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("affix");
         getBot().getCommandHandler().removeCommand("nextaffix");
         log.info("Command !affix & !nextaffix unloaded");

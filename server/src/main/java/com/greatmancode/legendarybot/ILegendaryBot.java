@@ -47,10 +47,10 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
+import org.pf4j.PluginManager;
+import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ro.fortsoft.pf4j.PluginManager;
-import ro.fortsoft.pf4j.PluginWrapper;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;

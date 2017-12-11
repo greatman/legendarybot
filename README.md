@@ -44,9 +44,9 @@ The default bot prefix is !. You can change it to whatever you want with the ```
 
 To compile Legendarybot, simply have JDK 8 & Maven installed and run the following command at the root of the project
 ```
-mvn clean package
+.\gradlew clean assemble installDist copyFiles
 ```
-This will create the .jar and .zip for the server and every plugins in their respective **target** folder.
+This will create a folder called ``dist`` that will include the bot and all plugins
 
 ## How to run
 
@@ -58,15 +58,7 @@ To run the bot, it requires some basic configuration
 2. You need a Discord bot token. You need to create one here: https://discordapp.com/developers/applications/me
 3. You need a Battle.net API key. You can create one here: https://dev.battle.net/
 
-This is the folder layout needed:
-```
--Root
---server.jar
---app.properties
---plugins
----Every plugins .zip wanted
-```
-In app.properties, the following needs to be added:
+Create a app.properties file at the root of the bot folder, the following needs to be added:
 ```
 mysql.address=Your MySQL host
 mysql.port=Your MySQL port (usually 3306)
@@ -77,9 +69,9 @@ bot.token=Your Discord bot token
 battlenet.key=Your Battle.net public API key
 ```
 
-You are now ready to start the bot, start it with the following command:
+You are now ready to start the bot, start it with the following command while being in the LegendaryBot folder:
 ```
-java -jar server.jar
+bin\server
 ```
 
 ## It looks hard! Can you run it for me?
@@ -88,4 +80,4 @@ Of course! You can add the bot to your server. Simply [click here](https://disco
 
 ## I need support, how can I reach you?
 
-Simply [open a ticket](https://github.com/greatman/legendarybot/issues) and I will gladly answer! You also join the [Discord](https://discord.gg/Cr7G28H) server!
+Simply [open a ticket](https://github.com/greatman/legendarybot/issues) and I will gladly answer! You can also join the [Discord](https://discord.gg/Cr7G28H) server!

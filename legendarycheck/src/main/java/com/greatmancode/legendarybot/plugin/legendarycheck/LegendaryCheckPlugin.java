@@ -25,7 +25,7 @@ package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import net.dv8tion.jda.core.entities.Guild;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

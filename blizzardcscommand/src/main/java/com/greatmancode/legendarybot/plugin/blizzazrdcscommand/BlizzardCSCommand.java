@@ -33,8 +33,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         //Load the configuration
         props = new Properties();
         try {
@@ -76,7 +75,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("blizzardcs");
         log.info("Command !blizzardcs unloaded!");
     }

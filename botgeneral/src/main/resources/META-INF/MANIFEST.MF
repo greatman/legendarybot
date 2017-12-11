@@ -1,5 +1,0 @@
-Plugin-Class: com.greatmancode.legendarybot.plugin.botgeneral.BotGeneralPlugin
-Plugin-Id: botGeneralPlugin
-Plugin-Provider: Greatman
-Plugin-Version: 0.0.1
-

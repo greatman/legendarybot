@@ -1,0 +1,23 @@
+dependencies {
+    provided project(':api')
+    compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+}
+
+jar {
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.commands.invasion.InvasionCommand',
+                'Plugin-Id' : 'invasionCommand',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1')
+
+    }
+    from {
+        (configurations.runtime - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}

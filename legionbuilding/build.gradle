@@ -1,0 +1,23 @@
+dependencies {
+    provided project(':api')
+    compile 'org.jsoup:jsoup:1.11.2'
+}
+
+jar {
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.plugins.legionbuilding.LegionBuildingCommand',
+                'Plugin-Id' : 'legionBuildingCommand',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1')
+
+    }
+    from {
+        (configurations.runtime - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}

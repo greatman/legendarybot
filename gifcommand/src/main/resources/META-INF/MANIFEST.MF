@@ -1,4 +1,0 @@
-Plugin-Class: com.greatmancode.legendarybot.commands.gif.GifCommand
-Plugin-Id: gifCommand
-Plugin-Provider: Greatman
-Plugin-Version: 0.0.1

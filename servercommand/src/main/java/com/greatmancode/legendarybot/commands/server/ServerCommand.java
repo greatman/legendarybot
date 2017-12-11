@@ -36,8 +36,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.awt.*;
 import java.io.IOException;
@@ -62,13 +61,13 @@ public class ServerCommand extends LegendaryBotPlugin implements PublicCommand {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getCommandHandler().addCommand("server", this, "World of Warcraft");
         log.info("Command !server loaded.");
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("server");
         log.info("Command !server disabled.");
     }

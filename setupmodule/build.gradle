@@ -1,0 +1,14 @@
+dependencies {
+    compile project(':api')
+}
+
+jar {
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.plugin.setupmodule.SetupPlugin',
+                'Plugin-Id' : 'setupPlugin',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1')
+
+    }
+}
+

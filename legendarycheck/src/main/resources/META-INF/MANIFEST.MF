@@ -1,4 +1,0 @@
-Plugin-Class: com.greatmancode.legendarybot.plugin.legendarycheck.LegendaryCheckPlugin
-Plugin-Id: legendaryCheckPlugin
-Plugin-Provider: Greatman
-Plugin-Version: 0.0.1

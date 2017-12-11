@@ -27,7 +27,7 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupAchievementCommand;
 import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupItemCommand;
 import com.greatmancode.legendarybot.plugin.lookupcommands.commands.LookupQuestCommand;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 /**
  * The Lookup Commands Plugin main class.

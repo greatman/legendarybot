@@ -1,0 +1,16 @@
+apply plugin: 'java'
+apply plugin : 'application'
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile project(':api')
+    compile 'mysql:mysql-connector-java:5.1.45'
+    compile 'io.sentry:sentry:1.6.1'
+    compile 'commons-io:commons-io:2.6'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+}
+mainClassName = 'com.greatmancode.legendarybot.ILegendaryBot'
+

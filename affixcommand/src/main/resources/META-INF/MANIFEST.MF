@@ -1,4 +1,0 @@
-Plugin-Class: com.greatmancode.legendarybot.commands.affix.AffixPlugin
-Plugin-Id: affixPlugin
-Plugin-Provider: Greatman
-Plugin-Version: 0.0.1

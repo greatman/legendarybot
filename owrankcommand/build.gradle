@@ -1,0 +1,13 @@
+dependencies {
+    compile project(':api')
+}
+
+jar {
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.commands.owrank.OwRankCommand',
+                'Plugin-Id' : 'owrankCommand',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1')
+
+    }
+}

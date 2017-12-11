@@ -1,0 +1,29 @@
+configurations {
+    provided
+    compile.extendsFrom provided
+}
+
+dependencies {
+    provided project(':api')
+    compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+}
+
+jar {
+    dependsOn configurations.runtime
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.commands.affix.AffixPlugin',
+                'Plugin-Id' : 'affixPlugin',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1')
+
+    }
+    from {
+        (configurations.runtime - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}

@@ -1,0 +1,15 @@
+dependencies {
+    compile project(':api')
+    compile project(':plugin-botstats')
+}
+
+jar {
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.plugin.botplay.BotPlayPlugin',
+                'Plugin-Id' : 'botPlayPlugin',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1',
+                'Plugin-Dependencies': 'statsPlugin')
+
+    }
+}

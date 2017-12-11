@@ -1,6 +1,0 @@
-Plugin-Class: com.greatmancode.legendarybot.plugin.stats.StatsPlugin
-Plugin-Id: statsPlugin
-Plugin-Provider: Greatman
-Plugin-Version: 0.0.1
-Plugin-Dependencies: musicPlugin, legendaryCheckPlugin
-

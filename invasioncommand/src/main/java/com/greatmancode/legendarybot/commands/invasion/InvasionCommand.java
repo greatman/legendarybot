@@ -39,8 +39,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.io.IOException;
 
@@ -58,14 +57,14 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getCommandHandler().addCommand("invasion", this, "World of Warcraft");
         log.info("Command !invasion loaded.");
 
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("invasion");
         log.info("Command !invasion disabled.");
     }
@@ -78,7 +77,6 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
         DateTime startDate;
         String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
         String realm = getBot().getGuildSettings(event.getGuild()).getWowServerName();
-        //String request = Utils.doRequest("https://"+region+".api.battle.net/wow/realm/status?locale=en_US&apikey="+getBot().getBattlenetKey()+"&realms="+realm);
         HttpUrl url = new HttpUrl.Builder().scheme("https")
                 .host(region + ".api.battle.net")
                 .addPathSegments("/wow/realm/status")

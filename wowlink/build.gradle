@@ -1,0 +1,24 @@
+dependencies {
+    provided project(':api')
+    compile 'com.github.scribejava:scribejava-core:5.0.0'
+    compile 'com.sparkjava:spark-core:2.7.1'
+}
+
+jar {
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin',
+                'Plugin-Id' : 'wowLink',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1')
+
+    }
+    from {
+        (configurations.runtime - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}

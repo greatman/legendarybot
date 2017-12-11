@@ -24,7 +24,7 @@
 
 package com.greatmancode.legendarybot.api.plugin;
 
-import ro.fortsoft.pf4j.PluginClasspath;
+import org.pf4j.PluginClasspath;
 
 
 /**

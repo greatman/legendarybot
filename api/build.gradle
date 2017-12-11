@@ -1,0 +1,13 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    compile group: 'org.influxdb', name: 'influxdb-java', version: '2.7'
+    compile group: 'org.elasticsearch.client', name: 'rest', version: '5.5.1'
+    compile group: 'com.zaxxer', name:'HikariCP', version: '2.7.3'
+}

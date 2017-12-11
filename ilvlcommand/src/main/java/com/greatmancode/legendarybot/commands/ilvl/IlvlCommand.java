@@ -38,8 +38,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.io.IOException;
 import java.util.Map;
@@ -78,7 +77,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("lookup");
         getBot().getCommandHandler().removeAlias("ilvl");
         getBot().getCommandHandler().removeAlias("mplusrank");

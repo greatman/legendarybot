@@ -31,7 +31,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import org.elasticsearch.client.RestClient;
 import org.influxdb.InfluxDB;
-import ro.fortsoft.pf4j.PluginManager;
+import org.pf4j.PluginManager;
 
 import java.util.List;
 

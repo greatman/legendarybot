@@ -34,8 +34,7 @@ import okhttp3.Request;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.awt.*;
 import java.io.IOException;
@@ -113,13 +112,13 @@ public class TokenCommand extends LegendaryBotPlugin implements ZeroArgsCommand,
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getCommandHandler().addCommand("token", this, "World of Warcraft");
         log.info("Command !token loaded.");
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("token");
         log.info("Command !token unloaded");
     }

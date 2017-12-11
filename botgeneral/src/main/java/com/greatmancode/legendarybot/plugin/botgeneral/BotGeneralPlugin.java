@@ -30,8 +30,7 @@ import com.greatmancode.legendarybot.plugin.botgeneral.commands.InfoCommand;
 import com.greatmancode.legendarybot.plugin.botgeneral.commands.InviteCommand;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 /**
  * Plugin containing some general commands for the bot.
@@ -49,7 +48,7 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getCommandHandler().addCommand("invite", new InviteCommand(), "General Commands");
         log.info("Command !invite loaded!");
         getBot().getCommandHandler().addCommand("help", new HelpCommand(getBot()), "General Commands");
@@ -69,7 +68,7 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("invite");
         log.info("Command !invite unloaded.");
         getBot().getCommandHandler().removeCommand("help");

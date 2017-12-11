@@ -27,8 +27,7 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.plugin.legendarycheck.LegendaryCheckPlugin;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
-import org.influxdb.dto.Point;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
 import java.util.Properties;

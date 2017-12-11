@@ -31,8 +31,7 @@ import okhttp3.Request;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -75,7 +74,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         //Load the configuration
         props = new Properties();
         try {
@@ -93,7 +92,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("streamers");
         log.info("Command !streamers unloaded!");
         getBot().getCommandHandler().removeCommand("addstreamer");

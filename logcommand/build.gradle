@@ -1,0 +1,13 @@
+dependencies {
+    compile project(':api')
+}
+
+jar {
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.commands.log.LogCommand',
+                'Plugin-Id' : 'logCommand',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1')
+
+    }
+}

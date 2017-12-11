@@ -32,8 +32,7 @@ import okhttp3.Request;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import ro.fortsoft.pf4j.PluginException;
-import ro.fortsoft.pf4j.PluginWrapper;
+import org.pf4j.PluginWrapper;
 
 import java.io.IOException;
 
@@ -107,13 +106,13 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
     }
 
     @Override
-    public void start() throws PluginException {
+    public void start() {
         getBot().getCommandHandler().addCommand("wprank", this, "World of Warcraft");
         log.info("Command !wprank loaded!");
     }
 
     @Override
-    public void stop() throws PluginException {
+    public void stop() {
         getBot().getCommandHandler().removeCommand("wprank");
         log.info("Command !wprank unloaded!");
     }
