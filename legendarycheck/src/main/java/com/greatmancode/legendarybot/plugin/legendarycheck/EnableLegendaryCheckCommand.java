@@ -42,13 +42,14 @@ public class EnableLegendaryCheckCommand extends AdminCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (event.getGuild().getTextChannelsByName(args[0],true).size() == 1) {
-            plugin.getBot().getGuildSettings(event.getGuild()).setSetting(LegendaryCheckPlugin.SETTING_NAME, args[0]);
+        if (event.getMessage().getMentionedChannels().size() != 0) {
+            plugin.getBot().getGuildSettings(event.getGuild()).setSetting(LegendaryCheckPlugin.SETTING_NAME, event.getMessage().getMentionedChannels().get(0).getName());
             plugin.startLegendaryCheck(event.getGuild());
             event.getChannel().sendMessage("Legendary check configurated and started in channel " + args[0]).queue();
         } else {
             event.getAuthor().openPrivateChannel().complete().sendMessage("Channel not found!").queue();
         }
+
     }
 
     @Override
@@ -67,7 +68,7 @@ public class EnableLegendaryCheckCommand extends AdminCommand {
                 "**Format**: ``!enablelc [Channel Name]``\n" +
                 "__Parameters__\n" +
                 "**Channel Name** (Required): The channel name you want the Legendary Check to write in. Be sure that the bot can write in this channel!\n\n" +
-                "**Example**: ``!enablelc LegendaryAlert";
+                "**Example**: ``!enablelc #LegendaryAlert";
     }
 
     @Override
