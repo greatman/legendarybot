@@ -122,7 +122,8 @@ public class ILegendaryBot extends LegendaryBot {
      * Start all the feature of the LegendaryBot
      */
     public ILegendaryBot() throws IOException, LoginException, InterruptedException, RateLimitedException {
-        if (props.containsKey("stats.enable") && (Boolean) props.get("stats.enable")) {
+        log.info("LegendaryBot Starting.");
+        if (props.containsKey("stats.enable") && Boolean.parseBoolean(props.getProperty("stats.enable"))) {
             influxDB = InfluxDBFactory.connect("http://localhost:8086").setDatabase("legendarybot2");
         } else {
             influxDB = new InfluxDBNull();
@@ -220,6 +221,7 @@ public class ILegendaryBot extends LegendaryBot {
             }
             log.info("Legendarybot Shutdown.");
         }));
+        log.info("LegendaryBot now ready!");
     }
 
     /**

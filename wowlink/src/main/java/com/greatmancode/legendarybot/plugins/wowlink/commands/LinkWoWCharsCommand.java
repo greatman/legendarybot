@@ -30,6 +30,8 @@ import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The !linkwowchars command
@@ -40,6 +42,8 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
      * The WowLink plugin instance.
      */
     private WoWLinkPlugin plugin;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public LinkWoWCharsCommand(WoWLinkPlugin plugin) {
         this.plugin = plugin;
@@ -58,7 +62,7 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
                 .state(region + ":" + event.getAuthor().getId())
                 .build(new OAuthBattleNetApi(region));
         event.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("Please follow this link to connect your WoW account to this bot: " + service.getAuthorizationUrl()).queue()));
-
+        log.info("User " + event.getAuthor().getName() + ":" + event.getAuthor().getId() + " requested to link his characters. Link generated: " + service.getAuthorizationUrl());
     }
 
     @Override

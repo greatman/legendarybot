@@ -10,7 +10,12 @@ dependencies {
     compile 'mysql:mysql-connector-java:5.1.45'
     compile 'io.sentry:sentry:1.6.1'
     compile 'commons-io:commons-io:2.6'
-    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+    //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+    compile 'com.papertrailapp:logback-syslog4j:1.0.0'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
+
 }
+startScripts.classpath.add((files('config')))
 mainClassName = 'com.greatmancode.legendarybot.ILegendaryBot'
 

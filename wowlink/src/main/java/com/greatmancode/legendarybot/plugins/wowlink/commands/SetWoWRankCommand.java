@@ -52,7 +52,8 @@ public class SetWoWRankCommand extends AdminCommand {
 
         List<Role> roles = event.getGuild().getRolesByName(rank, true);
         if (roles.isEmpty()) {
-            event.getChannel().sendMessage("Rank not found!").queue();
+            event.getChannel().sendMessage("Rank not found! Does the rank exists on the Discord server?").queue();
+            return;
         }
 
         plugin.getBot().getGuildSettings(event.getGuild()).setSetting(WoWLinkPlugin.SETTING_RANK_PREFIX + args[0], rank);

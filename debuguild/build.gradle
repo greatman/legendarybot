@@ -1,0 +1,13 @@
+dependencies {
+    compile project(':api')
+}
+
+jar {
+    manifest {
+        attributes ('Plugin-Class' : 'com.greatmancode.legendarybot.plugin.debuguild.DebugGuildCommand',
+                'Plugin-Id' : 'debugGuild',
+                'Plugin-Provider' : 'Greatman',
+                'Plugin-Version' : '0.0.1')
+
+    }
+}

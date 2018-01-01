@@ -1,7 +1,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e39be91f74de4ea48d35bc95d9508f5e)](https://www.codacy.com/app/greatman/legendarybot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=greatman/legendarybot&amp;utm_campaign=Badge_Grade)
 
-[![Discord Bots](https://discordbots.org/api/widget/status/267134720700186626.png)](https://discordbots.org/bot/267134720700186626)
-[![Discord Bots](https://discordbots.org/api/widget/servers/267134720700186626.png)](https://discordbots.org/bot/267134720700186626)
+[![Discord Bots](https://discordbots.org/api/widget/status/267134720700186626.svg)](https://discordbots.org/bot/267134720700186626)
+[![Discord Bots](https://discordbots.org/api/widget/servers/267134720700186626.svg)](https://discordbots.org/bot/267134720700186626)
 
 # Legendarybot
 
@@ -42,7 +42,7 @@ The default bot prefix is !. You can change it to whatever you want with the ```
 
 ## How to compile
 
-To compile Legendarybot, simply have JDK 8 & Maven installed and run the following command at the root of the project
+To compile Legendarybot, simply have JDK 9 & Maven installed and run the following command at the root of the project
 ```
 .\gradlew clean assemble installDist copyFiles
 ```
