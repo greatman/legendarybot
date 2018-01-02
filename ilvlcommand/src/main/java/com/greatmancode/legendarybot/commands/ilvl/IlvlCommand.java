@@ -301,8 +301,9 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     EmbedBuilder eb = new EmbedBuilder();
                     eb.setTitle(titleBuilder.toString(), wowLink);
                     //http://render-api-us.worldofwarcraft.com/static-render/us/arthas/169/156057769-avatar.jpg
-                    System.out.println("http://render-api-" + region.toLowerCase() + ".worldofwarcraft.com/static-render/" + region.toLowerCase() + "/" + battleNetObject.get("thumbnail"));
-                    eb.setThumbnail("http://render-api-" + region.toLowerCase() + ".worldofwarcraft.com/static-render/" + region.toLowerCase() + "/" + battleNetObject.get("thumbnail"));
+                    http://render-us.worldofwarcraft.com/character/arthas/169/156057769-avatar.jpg
+                    System.out.println("http://render-" + region.toLowerCase() + ".worldofwarcraft.com/character/" + battleNetObject.get("thumbnail"));
+                    eb.setThumbnail("http://render-" + region.toLowerCase() + ".worldofwarcraft.com/character/" + battleNetObject.get("thumbnail"));
                     String apAmount = getAP(battlenetResult);
                     JSONObject gear = (JSONObject) battleNetObject.get("items");
                     eb.addField("iLVL", gear.get("averageItemLevelEquipped") + "/" + gear.get("averageItemLevel"), true);
