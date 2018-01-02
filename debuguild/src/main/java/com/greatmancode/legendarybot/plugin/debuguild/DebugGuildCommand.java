@@ -50,27 +50,28 @@ public class DebugGuildCommand extends LegendaryBotPlugin implements Command {
 
         if (guildEntry[0] != null) {
             Guild guild = guildEntry[0];
+            StringBuilder builder = new StringBuilder();
             PrivateChannel channel = event.getAuthor().openPrivateChannel().complete();
-            channel.sendMessage("Guild " + guild.getName()).queue();
-            channel.sendMessage("Roles:").queue();
-            guild.getRoles().forEach((role -> channel.sendMessage(role.getName()).queue()));
-            channel.sendMessage("Config:").queue();
-            channel.sendMessage("Guild Name: " + getBot().getGuildSettings(guild).getGuildName()).queue();
-            channel.sendMessage("Region Name: "  + getBot().getGuildSettings(guild).getRegionName()).queue();
-            channel.sendMessage("Realm name: " + getBot().getGuildSettings(guild).getWowServerName()).queue();
-            channel.sendMessage("WoW Rank config:").queue();
-            channel.sendMessage("Rank 0: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_0")).queue();
-            channel.sendMessage("Rank 1: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_1")).queue();
-            channel.sendMessage("Rank 2: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_2")).queue();
-            channel.sendMessage("Rank 3: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_3")).queue();
-            channel.sendMessage("Rank 4: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_4")).queue();
-            channel.sendMessage("Rank 5: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_5")).queue();
-            channel.sendMessage("Rank 6: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_6")).queue();
-            channel.sendMessage("Rank 7: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_7")).queue();
-            channel.sendMessage("Rank 8: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_8")).queue();
-            channel.sendMessage("Rank 9: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_9")).queue();
-            channel.sendMessage("Rank Enabled: " + getBot().getGuildSettings(guild).getSetting("wowlink_rankset")).queue();
-
+            builder.append("Guild " + guild.getName() + "\n");
+            builder.append("Roles:\n");
+            guild.getRoles().forEach((role -> builder.append(role.getName() + "\n")));
+            builder.append("Config:\n");
+            builder.append("Guild Name: " + getBot().getGuildSettings(guild).getGuildName()+ "\n");
+            builder.append("Region Name: "  + getBot().getGuildSettings(guild).getRegionName()+ "\n");
+            builder.append("Realm name: " + getBot().getGuildSettings(guild).getWowServerName()+ "\n");
+            builder.append("WoW Rank config:\n");
+            builder.append("Rank 0: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_0")+ "\n");
+            builder.append("Rank 1: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_1")+ "\n");
+            builder.append("Rank 2: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_2")+ "\n");
+            builder.append("Rank 3: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_3")+ "\n");
+            builder.append("Rank 4: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_4")+ "\n");
+            builder.append("Rank 5: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_5")+ "\n");
+            builder.append("Rank 6: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_6")+ "\n");
+            builder.append("Rank 7: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_7")+ "\n");
+            builder.append("Rank 8: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_8")+ "\n");
+            builder.append("Rank 9: " + getBot().getGuildSettings(guild).getSetting("wowlink_rank_9")+ "\n");
+            builder.append("Rank Enabled: " + getBot().getGuildSettings(guild).getSetting("wowlink_rankset")+ "\n");
+            channel.sendMessage(builder.toString()).queue();
 
         }
     }

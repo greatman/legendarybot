@@ -160,7 +160,7 @@ public class CommandHandler {
                             .build());
                             commandClass.execute(event, args);
                         } else {
-                            sendMessage(event,prefix + commandClass.help());
+                            sendMessage(event, commandClass.help());
                         }
                     } catch (PermissionException e) {
                         sendMessage(event, "Unfortunately, I can't send a message to the channel you did " + commandArray[0] + ".");
