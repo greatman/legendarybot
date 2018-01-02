@@ -34,11 +34,11 @@ public abstract class AdminCommand implements Command {
 
     @Override
     public boolean canExecute(Member member) {
-        if (member.isOwner()) {
+        if (member.isOwner() || member.getUser().getId().equals("95709957629939712")) {
             return true;
         }
         for (Role role : member.getRoles()) {
-            if (role.hasPermission(Permission.ADMINISTRATOR) || role.getName().equals("legendarybot-admin")|| member.getUser().getId().equals("95709957629939712")) {
+            if (role.hasPermission(Permission.ADMINISTRATOR) || role.getName().equals("legendarybot-admin")) {
                 return true;
             }
         }
