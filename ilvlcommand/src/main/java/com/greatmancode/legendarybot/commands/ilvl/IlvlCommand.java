@@ -26,6 +26,8 @@ package com.greatmancode.legendarybot.commands.ilvl;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
+import com.greatmancode.legendarybot.api.utils.HeroClass;
+import com.greatmancode.legendarybot.api.utils.HeroRace;
 import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -142,8 +144,6 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                 JSONObject jsonObject = (JSONObject) parser.parse(result);
                 if (!jsonObject.containsKey("error")) {
 
-
-
                     EmbedBuilder eb = new EmbedBuilder();
                     if (jsonObject.get("name").equals("Pepyte") && jsonObject.get("realm").equals("Arthas")) {
                         eb.setThumbnail("https://lumiere-a.akamaihd.net/v1/images/b5e11dc889c5696799a6bd3ec5d819c1f7dfe8b4.jpeg");
@@ -208,27 +208,12 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                             .build();
                     Request battlenetRequest = new Request.Builder().url(battleneturl).build();
                     String battlenetResult = clientBattleNet.newCall(battlenetRequest).execute().body().string();
-                    long apAmount = -1;
-                    if (battlenetResult != null) {
-                        JSONObject battleNetCharacter = (JSONObject) parser.parse(battlenetResult);
-                        JSONObject achivements = (JSONObject) battleNetCharacter.get("achievements");
-                        JSONArray criteriaObject = (JSONArray) achivements.get("criteria");
-                        int criteriaNumber = -1;
-                        for (int i = 0; i < criteriaObject.size(); i++) {
-                            if ((long)criteriaObject.get(i) == 30103) {
-                                criteriaNumber = i;
-                            }
-                        }
-
-                        if (criteriaNumber != -1) {
-                            apAmount = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
-                        }
-                    }
+                    String apAmount = getAP(battlenetResult);
                     JSONObject gear = (JSONObject) jsonObject.get("gear");
                     eb.addField("iLVL", gear.get("item_level_equipped") + "/" + gear.get("item_level_total"), true);
 
-                    if (apAmount != -1) {
-                        eb.addField("Artifact Power", gear.get("artifact_traits").toString() + " / " + format(apAmount) + " AP Gathered", true);
+                    if (apAmount != null) {
+                        eb.addField("Artifact Power", gear.get("artifact_traits").toString() + " / " + apAmount + " AP Gathered", true);
                     } else {
                         eb.addField("Artifact Power", gear.get("artifact_traits").toString(), true);
                     }
@@ -275,7 +260,63 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
 
                     event.getChannel().sendMessage(eb.build()).queue();
                 } else {
-                    event.getChannel().sendMessage(jsonObject.get("message").toString()).queue();
+
+                    //We got an error from raider.io, maybe he was never added to the site. Let's try through battle.net
+                    HttpUrl battleneturl = new HttpUrl.Builder().scheme("https")
+                            .host(region + ".api.battle.net")
+                            .addPathSegments("wow/character/"+serverSlug+"/" +args[0])
+                            .addQueryParameter("fields", "progression,items,achievements")
+                            .build();
+                    Request battlenetRequest = new Request.Builder().url(battleneturl).build();
+                    String battlenetResult = clientBattleNet.newCall(battlenetRequest).execute().body().string();
+
+                    JSONObject battleNetObject = (JSONObject) parser.parse(battlenetResult);
+                    if (battleNetObject.containsKey("status")) {
+                        //Error
+                        event.getChannel().sendMessage("Character not found. Did you make an error?").queue();
+                        return;
+
+                    }
+
+                    StringBuilder titleBuilder = new StringBuilder();
+                    titleBuilder.append(battleNetObject.get("name"));
+                    titleBuilder.append(" ");
+                    titleBuilder.append(battleNetObject.get("realm"));
+                    titleBuilder.append(" - ");
+                    titleBuilder.append(region.toUpperCase());
+                    titleBuilder.append(" | ");
+                    titleBuilder.append(HeroRace.values()[((Long) battleNetObject.get("race")).intValue()]);
+                    titleBuilder.append(" ");
+                    titleBuilder.append(HeroClass.values()[((Long) battleNetObject.get("class")).intValue()]);
+                    titleBuilder.append(" ");
+                    //event.getChannel().sendMessage(jsonObject.get("message").toString()).queue();
+
+                    String wowLink = null;
+                    if (((String) jsonObject.get("region")).equalsIgnoreCase("us")) {
+                        wowLink = "https://worldofwarcraft.com/en-us/character/" + serverSlug + "/" + jsonObject.get("name");
+                    } else {
+                        wowLink = "https://worldofwarcraft.com/en-gb/character/" + serverSlug + "/" + jsonObject.get("name");
+                    }
+
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setTitle(titleBuilder.toString(), wowLink);
+                    //http://render-api-us.worldofwarcraft.com/static-render/us/arthas/169/156057769-avatar.jpg
+                    System.out.println("http://render-api-" + region.toLowerCase() + ".worldofwarcraft.com/static-render/" + region.toLowerCase() + "/" + battleNetObject.get("thumbnail"));
+                    eb.setThumbnail("http://render-api-" + region.toLowerCase() + ".worldofwarcraft.com/static-render/" + region.toLowerCase() + "/" + battleNetObject.get("thumbnail"));
+                    String apAmount = getAP(battlenetResult);
+                    JSONObject gear = (JSONObject) battleNetObject.get("items");
+                    eb.addField("iLVL", gear.get("averageItemLevelEquipped") + "/" + gear.get("averageItemLevel"), true);
+
+                    if (apAmount != null) {
+                        eb.addField("Artifact Power", apAmount + " AP Gathered", true);
+                    }
+                    eb.addField("WoWProgress", "[Click Here](https://www.wowprogress.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
+                    eb.addField("Raider.IO", "[Click Here](https://raider.io/characters/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
+                    eb.addField("WarcraftLogs","[Click Here](https://www.warcraftlogs.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
+                    eb.addField("Information", "Your character is not found on Raider.io. Limited information is available. Add it [Here](https://raider.io/add).", false);
+                    eb.setFooter("Information taken from https://us.battle.net/wow",null);
+
+                    event.getChannel().sendMessage(eb.build()).queue();
                     return;
                 }
             }
@@ -336,5 +377,31 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         long truncated = value / (divideBy / 10); //the number part of the output times 10
         boolean hasDecimal = truncated < 100 && (truncated / 10d) != (truncated / 10);
         return hasDecimal ? (truncated / 10d) + suffix : (truncated / 10) + suffix;
+    }
+
+    public String getAP(String json) throws ParseException {
+        long apAmount = -1;
+        if (json != null) {
+            JSONParser parser = new JSONParser();
+            JSONObject battleNetCharacter = (JSONObject) parser.parse(json);
+            JSONObject achivements = (JSONObject) battleNetCharacter.get("achievements");
+            JSONArray criteriaObject = (JSONArray) achivements.get("criteria");
+            int criteriaNumber = -1;
+            for (int i = 0; i < criteriaObject.size(); i++) {
+                if ((long)criteriaObject.get(i) == 30103) {
+                    criteriaNumber = i;
+                }
+            }
+
+            if (criteriaNumber != -1) {
+                apAmount = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+            }
+        }
+        String result = null;
+        if (apAmount != -1) {
+            result = format(apAmount);
+        }
+        return result;
+
     }
 }
