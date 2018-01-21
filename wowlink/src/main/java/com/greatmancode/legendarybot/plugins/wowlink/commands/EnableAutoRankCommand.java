@@ -61,11 +61,13 @@ public class EnableAutoRankCommand extends AdminCommand implements ZeroArgsComma
 
     @Override
     public String help() {
-        return "Enable the automatic set of the rank according to the WoW guild rank.";
+        return "This command allows the bot to set the rank of players with the !syncguild and !syncrank commands.\n" +
+                "The bot needs the **Manage Roles** permission to be able to set the permission of users.\n" +
+                "This only enable the system to be used. To have ranks automatically be set at a set interval (30 minutes), use the !enableautorankupdate command.";
     }
 
     @Override
     public String shortDescription() {
-        return help();
+        return "Allows the bot to set ranks according to WoW guild rank.";
     }
 }

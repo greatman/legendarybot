@@ -27,9 +27,7 @@ package com.greatmancode.legendarybot.commands.gif;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import okhttp3.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -69,7 +67,29 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
                 builder.append(" ").append(s);
             }
         }
+
         HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("rightgif.com")
+                .addPathSegments("search/web")
+                .build();
+        FormBody body = new FormBody.Builder()
+                .add("text", builder.toString())
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        try {
+            String result = client.newCall(request).execute().body().string();
+            JSONParser parser = new JSONParser();
+            JSONObject object = (JSONObject) parser.parse(result);
+            event.getChannel().sendMessage(object.get("url").toString()).queue();
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+        /*HttpUrl url = new HttpUrl.Builder()
                 .scheme("http")
                 .host("api.giphy.com")
                 .addPathSegments("v1/gifs/search")
@@ -96,7 +116,7 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
         } catch (ParseException | IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "request:" + builder.toString());
-        }
+        }*/
     }
 
     @Override

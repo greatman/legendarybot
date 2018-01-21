@@ -54,6 +54,7 @@ public class IUnknownCommandHandler implements UnknownCommandHandler {
             if (result.contains(".png") || result.contains(".jpg") || result.contains(".gif")) {
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.setImage(result);
+                eb.setTitle(value);
                 eb.build();
 
                 event.getChannel().sendMessage(eb.build()).queue();

@@ -26,7 +26,9 @@ package com.greatmancode.legendarybot.commands.wprank;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.json.simple.JSONObject;
@@ -60,7 +62,17 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
             return;
         }
 
-        Request request = new Request.Builder().url("https://www.wowprogress.com/guild/"+region+"/"+serverName+"/"+guild+"/json_rank").build();
+        //https://raider.io/api/v1/guilds/profile
+        HttpUrl url = new HttpUrl.Builder()
+                .host("raider.io")
+                .scheme("https")
+                .addPathSegments("api/v1/guilds/profile")
+                .addQueryParameter("region", region)
+                .addQueryParameter("realm", serverName)
+                .addQueryParameter("name", guild)
+                .addQueryParameter("fields", "raid_rankings")
+                .build();
+        Request request = new Request.Builder().url(url).build();
         String result;
         try {
             result = client.newCall(request).execute().body().string();
@@ -72,7 +84,27 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
             try {
                 JSONParser parser = new JSONParser();
                 JSONObject obj = (JSONObject) parser.parse(result);
-                event.getChannel().sendMessage("Guild **" + guild + "** | World: **" + obj.get("world_rank") + "** | Region Rank: **" + obj.get("area_rank") + "** | Realm rank: **" + obj.get("realm_rank") + "**").queue();
+
+                if (obj.containsKey("error")) {
+                    event.getChannel().sendMessage("Guild not found on Raider.IO!").queue();
+                    return;
+                }
+                String realm = (String) obj.get("realm");
+                JSONObject raidRankings = (JSONObject) obj.get("raid_rankings");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setTitle(guild + "-" + realm + " Raid Rankings");
+                JSONObject theNighthold = (JSONObject) raidRankings.get("the-nighthold");
+                JSONObject theEmeraldNightmare = (JSONObject) raidRankings.get("the-emerald-nightmare");
+                JSONObject trialOfValor = (JSONObject) raidRankings.get("trial-of-valor");
+                JSONObject tombOfSargeras = (JSONObject) raidRankings.get("tomb-of-sargeras");
+                JSONObject antorusTheBurningThrone = (JSONObject) raidRankings.get("antorus-the-burning-throne");
+                eb.addField("Antorus The Burning Throne", formatRanking(antorusTheBurningThrone), true);
+                eb.addField("Tomb of Sargeras", formatRanking(tombOfSargeras), true);
+                eb.addField("The Nighthold", formatRanking(theNighthold), true);
+                eb.addField("Trial of Valor", formatRanking(trialOfValor), true);
+                eb.addField("The Emerald Nightmare", formatRanking(theEmeraldNightmare), true);
+
+                event.getChannel().sendMessage(eb.build()).queue();
             } catch (ParseException e) {
                 e.printStackTrace();
                 getBot().getStacktraceHandler().sendStacktrace(e,"guildid:" + event.getGuild().getId(),"channel:" + event.getChannel().getName(),"servername:" + serverName, "region:" + region, "wowguild:" + guild);
@@ -97,7 +129,7 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public String help() {
-        return "Retrieve the guild's rank on WowProgress";
+        return "Retrieve the guild's rank on Raider.IO";
     }
 
     @Override
@@ -107,13 +139,50 @@ public class WPRankCommand extends LegendaryBotPlugin implements PublicCommand {
 
     @Override
     public void start() {
-        getBot().getCommandHandler().addCommand("wprank", this, "World of Warcraft");
-        log.info("Command !wprank loaded!");
+        getBot().getCommandHandler().addCommand("guildrank", this, "World of Warcraft");
+        getBot().getCommandHandler().addAlias("wprank","guildrank");
+        log.info("Command !guildrank loaded!");
     }
 
     @Override
     public void stop() {
-        getBot().getCommandHandler().removeCommand("wprank");
-        log.info("Command !wprank unloaded!");
+        getBot().getCommandHandler().removeAlias("wprank");
+        getBot().getCommandHandler().removeCommand("guildrank");
+        log.info("Command !guildrank unloaded!");
+    }
+
+    private String formatRanking(JSONObject json) {
+        JSONObject normal = (JSONObject) json.get("normal");
+        JSONObject heoric = (JSONObject) json.get("heroic");
+        JSONObject mythic = (JSONObject) json.get("mythic");
+        StringBuilder builder = new StringBuilder();
+        if ((long)normal.get("world") != 0 && (long)heoric.get("world") == 0 && (long) mythic.get("world") == 0) {
+            builder.append("**Normal**\n");
+            subFormatRanking(normal, builder);
+        } else if ((long)heoric.get("world") != 0 && (long) mythic.get("world") == 0) {
+            builder.append("\n**Heroic**\n");
+            subFormatRanking(heoric,builder);
+        } else if ((long)mythic.get("world") != 0){
+            builder.append("\n**Mythic**\n");
+            subFormatRanking(mythic, builder);
+        }
+
+
+
+
+
+
+        return builder.toString();
+    }
+
+    private void subFormatRanking(JSONObject difficulty, StringBuilder builder) {
+        if ((long)difficulty.get("world") != 0) {
+            builder.append("World: **" + difficulty.get("world") + "**\n");
+            builder.append("Region: **" + difficulty.get("region") + "**\n");
+            builder.append("Realm: **" + difficulty.get("realm") + "**\n");
+        } else {
+            builder.append("**Not started**\n");
+        }
+
     }
 }

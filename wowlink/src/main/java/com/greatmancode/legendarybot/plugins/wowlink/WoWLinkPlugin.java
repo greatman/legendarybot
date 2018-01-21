@@ -69,6 +69,7 @@ import static spark.Spark.path;
 public class WoWLinkPlugin extends LegendaryBotPlugin {
 
     public static final String SETTING_RANKSET_ENABLED = "wowlink_rankset";
+    public static final String SETTING_SCHEDULER = "wowlink_scheduler";
     public static final String SETTING_RANK_PREFIX = "wowlink_rank_";
 
     /**
@@ -87,6 +88,8 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * The Logger
      */
     private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private Map<String, SyncRankScheduler> scheduler = new HashMap<>();
 
     public WoWLinkPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -196,10 +199,23 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("setwowrank", new SetWoWRankCommand(this), "WoW Admin Commands");
         getBot().getCommandHandler().addCommand("syncrank", new SyncRankCommand(this), "World of Warcraft Character");
         getBot().getCommandHandler().addCommand("syncguild", new SyncGuildCommand(this), "WoW Admin Commands");
+        getBot().getCommandHandler().addCommand("enableautorankupdate", new EnableAutoRankUpdateCommand(this), "WoW Admin Commands");
+        getBot().getCommandHandler().addCommand("disableautorankupdate", new DisableAutoRankUpdateCommand(this), "WoW Admin Commands");
+
+
+        //We load the scheduler
+        getBot().getJDA().forEach((jda -> {
+            jda.getGuilds().forEach(guild -> {
+                if (getBot().getGuildSettings(guild).getSetting(SETTING_SCHEDULER) != null && getBot().getGuildSettings(guild).getSetting(SETTING_RANKSET_ENABLED) != null) {
+                    scheduler.put(guild.getId(), new SyncRankScheduler(this,guild));
+                }
+            });
+        }));
     }
 
     @Override
     public void stop() {
+
         Spark.stop();
         getBot().getCommandHandler().removeCommand("linkwowchars");
         getBot().getCommandHandler().removeCommand("guildchars");
@@ -209,6 +225,11 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("setwowrank");
         getBot().getCommandHandler().removeCommand("syncrank");
         getBot().getCommandHandler().removeCommand("syncguild");
+        getBot().getCommandHandler().removeCommand("enableautorankupdate");
+        getBot().getCommandHandler().removeCommand("disableautorankupdate");
+
+        scheduler.forEach((k,v) -> v.stop());
+        scheduler.clear();
     }
 
     /**
@@ -387,10 +408,26 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
 
         try {
             guild.getController().modifyMemberRoles(guild.getMember(user), rolesToAdd, rolesToRemove).reason("LegendaryBot - Rank Sync with WoW Guild.").queue();
+            log.info("User " + user.getName());
+            log.info("Adding ranks:");
+            rolesToAdd.forEach(v -> log.info(v.getName()));
+            log.info("Removing ranks:");
+            rolesToRemove.forEach(v -> log.info(v.getName()));
         } catch (PermissionException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
 
+    }
+
+    public void enableAutoRankUpdate(Guild guild) {
+        getBot().getGuildSettings(guild).setSetting(SETTING_SCHEDULER, "true");
+        scheduler.put(guild.getId(), new SyncRankScheduler(this, guild));
+    }
+
+    public void disableAutoRankUpdate(Guild guild) {
+        getBot().getGuildSettings(guild).unsetSetting(SETTING_SCHEDULER);
+        scheduler.get(guild.getId()).stop();
+        scheduler.remove(guild.getId());
     }
 }

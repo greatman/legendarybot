@@ -60,6 +60,8 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     private final OkHttpClient client = new OkHttpClient.Builder()
             .build();
 
+    public static final String SETTING_PRIVATE_LOOKUP = "lookupCommandPrivate";
+
     OkHttpClient clientBattleNet = new OkHttpClient.Builder()
             .addInterceptor(new BattleNetAPIInterceptor(getBot()))
             .connectionPool(new ConnectionPool(300, 1, TimeUnit.SECONDS))
@@ -209,6 +211,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     Request battlenetRequest = new Request.Builder().url(battleneturl).build();
                     String battlenetResult = clientBattleNet.newCall(battlenetRequest).execute().body().string();
                     String apAmount = getAP(battlenetResult);
+
                     JSONObject gear = (JSONObject) jsonObject.get("gear");
                     eb.addField("iLVL", gear.get("item_level_equipped") + "/" + gear.get("item_level_total"), true);
 
@@ -252,7 +255,15 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                         runsBuilder.append(run.get("num_keystone_upgrades").toString());
                         runsBuilder.append(" Chest(s)\n\n");
                     }
-                    eb.addField("Best Mythic+ Runs", runsBuilder.toString(), false);
+                    eb.addField("Best Mythic+ Runs", runsBuilder.toString(),    true);
+                    long m5 = getM5(battlenetResult);
+                    long m10 = getM10(battlenetResult);
+                    long m15 = getM15(battlenetResult);
+                    StringBuilder completedBuilder = new StringBuilder();
+                    completedBuilder.append("**M+5**: " + m5 + "\n");
+                    completedBuilder.append("**M+10**: " + m10 + "\n");
+                    completedBuilder.append("**M+15**: " + m15 + "\n");
+                    eb.addField("Mythic+ completed", completedBuilder.toString(), true);
                     eb.addField("WoWProgress", "[Click Here](https://www.wowprogress.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
                     eb.addField("Raider.IO", "[Click Here](https://raider.io/characters/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
                     eb.addField("WarcraftLogs","[Click Here](https://www.warcraftlogs.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
@@ -292,7 +303,8 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     //event.getChannel().sendMessage(jsonObject.get("message").toString()).queue();
 
                     String wowLink = null;
-                    if (((String) jsonObject.get("region")).equalsIgnoreCase("us")) {
+                    System.out.println(region);
+                    if (region.equalsIgnoreCase("us")) {
                         wowLink = "https://worldofwarcraft.com/en-us/character/" + serverSlug + "/" + jsonObject.get("name");
                     } else {
                         wowLink = "https://worldofwarcraft.com/en-gb/character/" + serverSlug + "/" + jsonObject.get("name");
@@ -311,6 +323,14 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     if (apAmount != null) {
                         eb.addField("Artifact Power", apAmount + " AP Gathered", true);
                     }
+                    long m5 = getM5(battlenetResult);
+                    long m10 = getM10(battlenetResult);
+                    long m15 = getM15(battlenetResult);
+                    StringBuilder completedBuilder = new StringBuilder();
+                    completedBuilder.append("**M+5**: " + m5 + "\n");
+                    completedBuilder.append("**M+10**: " + m10 + "\n");
+                    completedBuilder.append("**M+15**: " + m15 + "\n");
+                    eb.addField("Mythic+ completed", completedBuilder.toString(), false);
                     eb.addField("WoWProgress", "[Click Here](https://www.wowprogress.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
                     eb.addField("Raider.IO", "[Click Here](https://raider.io/characters/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
                     eb.addField("WarcraftLogs","[Click Here](https://www.warcraftlogs.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
@@ -404,5 +424,68 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         }
         return result;
 
+    }
+
+    public long getM5(String json) throws ParseException {
+        long m15 = 0;
+        if (json != null) {
+            JSONParser parser = new JSONParser();
+            JSONObject battleNetCharacter = (JSONObject) parser.parse(json);
+            JSONObject achivements = (JSONObject) battleNetCharacter.get("achievements");
+            JSONArray criteriaObject = (JSONArray) achivements.get("criteria");
+            int criteriaNumber = -1;
+            for (int i = 0; i < criteriaObject.size(); i++) {
+                if ((long)criteriaObject.get(i) == 33097) {
+                    criteriaNumber = i;
+                }
+            }
+
+            if (criteriaNumber != -1) {
+                m15 = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+            }
+        }
+        return m15;
+    }
+
+    public long getM10(String json) throws ParseException {
+        long m15 = 0;
+        if (json != null) {
+            JSONParser parser = new JSONParser();
+            JSONObject battleNetCharacter = (JSONObject) parser.parse(json);
+            JSONObject achivements = (JSONObject) battleNetCharacter.get("achievements");
+            JSONArray criteriaObject = (JSONArray) achivements.get("criteria");
+            int criteriaNumber = -1;
+            for (int i = 0; i < criteriaObject.size(); i++) {
+                if ((long)criteriaObject.get(i) == 33098) {
+                    criteriaNumber = i;
+                }
+            }
+
+            if (criteriaNumber != -1) {
+                m15 = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+            }
+        }
+        return m15;
+    }
+
+    public long getM15(String json) throws ParseException {
+        long m15 = 0;
+        if (json != null) {
+            JSONParser parser = new JSONParser();
+            JSONObject battleNetCharacter = (JSONObject) parser.parse(json);
+            JSONObject achivements = (JSONObject) battleNetCharacter.get("achievements");
+            JSONArray criteriaObject = (JSONArray) achivements.get("criteria");
+            int criteriaNumber = -1;
+            for (int i = 0; i < criteriaObject.size(); i++) {
+                if ((long)criteriaObject.get(i) == 32028    ) {
+                    criteriaNumber = i;
+                }
+            }
+
+            if (criteriaNumber != -1) {
+                m15 = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+            }
+        }
+        return m15;
     }
 }

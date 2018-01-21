@@ -44,10 +44,10 @@ public abstract class LegendaryBotPlugin extends Plugin {
     }
 
     @Override
-    public abstract void start() throws PluginException;
+    public abstract void start();
 
     @Override
-    public abstract void stop() throws PluginException;
+    public abstract void stop();
 
     /**
      * Retrieve the {@link LegendaryBot} instance
