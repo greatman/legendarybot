@@ -77,6 +77,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         getBot().getCommandHandler().addAlias("ilvl", "lookup");
         getBot().getCommandHandler().addAlias("mplusrank", "lookup");
         getBot().getCommandHandler().addAlias("raidrank", "lookup");
+        getBot().getCommandHandler().addCommand("privatelookup", new PrivateLookupCommand(getBot()), "WoW Admin Commands");
         log.info("command !ilvl loaded");
     }
 
@@ -86,6 +87,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         getBot().getCommandHandler().removeAlias("ilvl");
         getBot().getCommandHandler().removeAlias("mplusrank");
         getBot().getCommandHandler().removeAlias("raidrank");
+        getBot().getCommandHandler().removeCommand("privatelookup");
         log.info("command !ilvl unloaded");
     }
 
@@ -269,7 +271,11 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     eb.addField("WarcraftLogs","[Click Here](https://www.warcraftlogs.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
                     eb.setFooter("Information taken from https://raider.io",null);
 
-                    event.getChannel().sendMessage(eb.build()).queue();
+                    if (getBot().getGuildSettings(event.getGuild()).getSetting(SETTING_PRIVATE_LOOKUP) != null) {
+                        event.getAuthor().openPrivateChannel().complete().sendMessage(eb.build()).queue();
+                    } else {
+                        event.getChannel().sendMessage(eb.build()).queue();
+                    }
                 } else {
 
                     //We got an error from raider.io, maybe he was never added to the site. Let's try through battle.net
@@ -303,7 +309,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     //event.getChannel().sendMessage(jsonObject.get("message").toString()).queue();
 
                     String wowLink = null;
-                    System.out.println(region);
+
                     if (region.equalsIgnoreCase("us")) {
                         wowLink = "https://worldofwarcraft.com/en-us/character/" + serverSlug + "/" + jsonObject.get("name");
                     } else {
@@ -312,9 +318,6 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
 
                     EmbedBuilder eb = new EmbedBuilder();
                     eb.setTitle(titleBuilder.toString(), wowLink);
-                    //http://render-api-us.worldofwarcraft.com/static-render/us/arthas/169/156057769-avatar.jpg
-                    http://render-us.worldofwarcraft.com/character/arthas/169/156057769-avatar.jpg
-                    System.out.println("http://render-" + region.toLowerCase() + ".worldofwarcraft.com/character/" + battleNetObject.get("thumbnail"));
                     eb.setThumbnail("http://render-" + region.toLowerCase() + ".worldofwarcraft.com/character/" + battleNetObject.get("thumbnail"));
                     String apAmount = getAP(battlenetResult);
                     JSONObject gear = (JSONObject) battleNetObject.get("items");
@@ -337,7 +340,12 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     eb.addField("Information", "Your character is not found on Raider.io. Limited information is available. Add it [Here](https://raider.io/add).", false);
                     eb.setFooter("Information taken from https://us.battle.net/wow",null);
 
-                    event.getChannel().sendMessage(eb.build()).queue();
+                    if (getBot().getGuildSettings(event.getGuild()).getSetting(SETTING_PRIVATE_LOOKUP) != null) {
+                        event.getAuthor().openPrivateChannel().complete().sendMessage(eb.build()).queue();
+                    } else {
+                        event.getChannel().sendMessage(eb.build()).queue();
+                    }
+
                     return;
                 }
             }
@@ -427,7 +435,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public long getM5(String json) throws ParseException {
-        long m15 = 0;
+        long m5 = 0;
         if (json != null) {
             JSONParser parser = new JSONParser();
             JSONObject battleNetCharacter = (JSONObject) parser.parse(json);
@@ -441,14 +449,17 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
             }
 
             if (criteriaNumber != -1) {
-                m15 = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+                m5 = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+                if (m5 >= 1) {
+                    m5 += 1;
+                }
             }
         }
-        return m15;
+        return m5;
     }
 
     public long getM10(String json) throws ParseException {
-        long m15 = 0;
+        long m10 = 0;
         if (json != null) {
             JSONParser parser = new JSONParser();
             JSONObject battleNetCharacter = (JSONObject) parser.parse(json);
@@ -462,10 +473,13 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
             }
 
             if (criteriaNumber != -1) {
-                m15 = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+                m10 = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+                if (m10 >= 1) {
+                    m10 += 1;
+                }
             }
         }
-        return m15;
+        return m10;
     }
 
     public long getM15(String json) throws ParseException {
@@ -484,6 +498,9 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
 
             if (criteriaNumber != -1) {
                 m15 = (long) ((JSONArray)achivements.get("criteriaQuantity")).get(criteriaNumber);
+                if (m15 >= 1) {
+                    m15 += 1;
+                }
             }
         }
         return m15;
