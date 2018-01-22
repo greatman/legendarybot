@@ -49,11 +49,11 @@ public class BotGeneralPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() {
-        getBot().getCommandHandler().addCommand("invite", new InviteCommand(), "General Commands");
+        getBot().getCommandHandler().addCommand("invite", new InviteCommand(getBot()), "General Commands");
         log.info("Command !invite loaded!");
         getBot().getCommandHandler().addCommand("help", new HelpCommand(getBot()), "General Commands");
         log.info("Command !help loaded!");
-        getBot().getCommandHandler().addCommand("info", new InfoCommand(), "General Commands");
+        getBot().getCommandHandler().addCommand("info", new InfoCommand(getBot()), "General Commands");
 
         //We find our main guild
         Guild guild = null;

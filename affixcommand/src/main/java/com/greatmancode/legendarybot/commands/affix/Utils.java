@@ -106,6 +106,7 @@ public class Utils {
         } else {
             eb.setColor(Color.RED);
         }
+        //TODO link the proper language wowhead site for the language of the guild
         eb.addField("(4) " + bot.getTranslateManager().translate(guild,"affix."+weekAffixes[0].toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+weekAffixes[0].toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix4.getId()+")",false);
         eb.addField("(7) " +bot.getTranslateManager().translate(guild,"affix."+weekAffixes[1].toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+weekAffixes[1].toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix7.getId()+")",false);
         eb.addField("(10) " + bot.getTranslateManager().translate(guild,"affix."+weekAffixes[2].toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+weekAffixes[2].toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix10.getId()+")",false);

@@ -158,6 +158,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
      * @param guild The guild to add
      */
     public void joinGuildEvent(Guild guild) {
+        //TODO load current commands if it's a rejoin
         guildCustomCommands.put(guild.getId(), new HashMap<>());
     }
 

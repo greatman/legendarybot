@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.customcommands.commands;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.CustomCommandsPlugin;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -46,7 +47,7 @@ public class CreateCommand extends AdminCommand {
         String[] messages = new String[args.length - 1];
         System.arraycopy(args, 1, messages,0,args.length - 1);
         plugin.createCommand(event.getGuild(),args[0].toLowerCase(), String.join(" ", messages));
-        event.getChannel().sendMessage("Message "+args[0]+" set!").queue();
+        event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "command.createcommand.message", args[0])).queue();
     }
 
     @Override
@@ -60,15 +61,16 @@ public class CreateCommand extends AdminCommand {
     }
 
     @Override
-    public String help() {
-        return "This command allows you to create custom commands with the bot.\n\n" +
-                "**Example**: ``!createcmd cats I love cats!`` will make the bot answer to the command ``!cats`` with the sentence ``I love cats!``.\n" +
-                "**You cannot override commands like !lookup with this command**\n" +
-                "If you want to change a custom command, simply type ``!createcmd`` again.";
+    public String help(Guild guild) {
+        String prefix = plugin.getBot().getGuildSettings(guild).getSetting("PREFIX");
+        if (prefix == null) {
+            prefix = "!";
+        }
+        return plugin.getBot().getTranslateManager().translate(guild,  "command.createcommand.longhelp", prefix,prefix,prefix,prefix);
     }
 
     @Override
-    public String shortDescription() {
-        return "Create a command that the bot will return what you typed";
+    public String shortDescription(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.createcommand.shorthelp");
     }
 }

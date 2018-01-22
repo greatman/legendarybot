@@ -27,6 +27,7 @@ package com.greatmancode.legendarybot.plugin.blizzazrdcscommand;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.*;
 import org.json.simple.JSONArray;
@@ -154,12 +155,12 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
     }
 
     @Override
-    public String help() {
-        return "Get the last tweet of the blizzardcs twitter account of your region.";
+    public String help(Guild guild) {
+        return getBot().getTranslateManager().translate(guild, "command.blizzardcs.help");
     }
 
     @Override
-    public String shortDescription() {
-        return help();
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 }

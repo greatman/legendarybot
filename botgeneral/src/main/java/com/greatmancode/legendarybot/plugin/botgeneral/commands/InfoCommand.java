@@ -24,9 +24,11 @@
 
 package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -34,22 +36,32 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
  */
 public class InfoCommand implements PublicCommand, ZeroArgsCommand {
 
+    private LegendaryBot bot;
+
+    public InfoCommand(LegendaryBot bot) {
+        this.bot = bot;
+    }
+
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("LegendaryBot");
         eb.setAuthor("Greatman", "https://github.com/greatman/legendarybot", "https://avatars3.githubusercontent.com/u/95754?v=3&s=460");
-        eb.setDescription("Created using JDA. Type !help for all the commands available to you. https://discordbots.org/bot/Legendarybot");
+        String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");
+        if (prefix == null) {
+            prefix = "!";
+        }
+        eb.setDescription(bot.getTranslateManager().translate(event.getGuild(), "command.info.text", prefix) + " https://discordbots.org/bot/Legendarybot");
         event.getChannel().sendMessage(eb.build()).queue();
     }
 
     @Override
-    public String help() {
-        return "Returns information about the Bot.";
+    public String help(Guild guild) {
+        return bot.getTranslateManager().translate(guild, "command.info.help");
     }
 
     @Override
-    public String shortDescription() {
-        return "Returns information about the Bot.";
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 }

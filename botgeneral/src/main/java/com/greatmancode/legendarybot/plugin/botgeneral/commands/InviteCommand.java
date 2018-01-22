@@ -24,8 +24,10 @@
 
 package com.greatmancode.legendarybot.plugin.botgeneral.commands;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -33,18 +35,24 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
  */
 public class InviteCommand implements PublicCommand, ZeroArgsCommand {
 
+    private LegendaryBot bot;
+
+    public InviteCommand(LegendaryBot bot) {
+        this.bot = bot;
+    }
+
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        event.getChannel().sendMessage("To make LegendaryBot join your server, follow this link! https://discordapp.com/oauth2/authorize/?permissions=271600640&scope=bot&client_id=267134720700186626").queue();
+        event.getChannel().sendMessage(bot.getTranslateManager().translate(event.getGuild(),"command.invite.text") + " https://discordapp.com/oauth2/authorize/?permissions=271600640&scope=bot&client_id=267134720700186626").queue();
     }
 
     @Override
-    public String help() {
-        return "Get the bot invite link.";
+    public String help(Guild guild) {
+        return bot.getTranslateManager().translate(guild, "command.invite.help");
     }
 
     @Override
-    public String shortDescription() {
-        return "Get the bot invite link.";
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 }

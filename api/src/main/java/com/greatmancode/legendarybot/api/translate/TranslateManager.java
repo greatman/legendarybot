@@ -40,10 +40,8 @@ public class TranslateManager {
     public String translate(Guild guild, String key, String... values) {
         String language = bot.getGuildSettings(guild).getSetting("LANGUAGE");
         if (language != null) {
-            System.out.println(language + " STRING");
             return String.format(languageMap.get(language).getProperty(key),values);
         } else {
-            System.out.println("DEFAULT EN STRING");
             System.out.println("Key: " + key + " Value of key:" + languageMap.get("en").getProperty(key));
             return String.format(languageMap.get("en").getProperty(key),values);
         }

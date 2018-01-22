@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugin.customcommands.commands;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.CustomCommandsPlugin;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Map;
@@ -49,7 +50,7 @@ public class ListCommand implements PublicCommand, ZeroArgsCommand {
         Map<String,String> commands = plugin.getServerCommands(event.getGuild());
 
         StringBuilder builder = new StringBuilder();
-        builder.append("Customs commands set on this server:\n");
+        builder.append(plugin.getBot().getTranslateManager().translate(event.getGuild(), "command.listcommand.text") + "\n");
         String prefix = plugin.getBot().getGuildSettings(event.getGuild()).getSetting("PREFIX");
         if (prefix == null) {
             prefix = "!";
@@ -64,12 +65,12 @@ public class ListCommand implements PublicCommand, ZeroArgsCommand {
     }
 
     @Override
-    public String help() {
-        return "List all the custom commands of the server.";
+    public String help(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild,"command.listcommand.help");
     }
 
     @Override
-    public String shortDescription() {
-        return help();
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 }

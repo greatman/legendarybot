@@ -28,6 +28,7 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.Command;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -60,8 +61,8 @@ public class HelpCommand implements PublicCommand {
             prefix = "!";
         }
         String finalPrefix = prefix;
-        builder[0].append("Available commands ([] - Required, <> - Optional):\n");
-        builder[0].append("Type ``!help [Command]``to know more about a command.\n");
+        builder[0].append(bot.getTranslateManager().translate(event.getGuild(),"command.help.firstline") + "\n");
+        builder[0].append(bot.getTranslateManager().translate(event.getGuild(), "command.help.secondline", prefix));
         bot.getCommandHandler().getCommandGroup().forEach((k,v) -> {
             if (builder[0].length() >= 1700) {
                 event.getAuthor().openPrivateChannel().complete().sendMessage(builder[0].build()).queue();
@@ -100,12 +101,16 @@ public class HelpCommand implements PublicCommand {
     }
 
     @Override
-    public String help() {
-        return "Return this help. You can get a specific command's help with !help [Command].";
+    public String help(Guild guild) {
+        if (bot.getGuildSettings(guild).getSetting("PREFIX") != null) {
+            return bot.getTranslateManager().translate(guild, "command.help.help", bot.getGuildSettings(guild).getSetting("PREFIX"));
+        } else {
+            return bot.getTranslateManager().translate(guild, "command.help.help", "!");
+        }
     }
 
     @Override
-    public String shortDescription() {
-        return help();
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 }

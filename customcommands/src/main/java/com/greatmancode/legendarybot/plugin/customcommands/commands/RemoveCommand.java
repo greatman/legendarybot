@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.customcommands.commands;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.CustomCommandsPlugin;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -45,9 +46,9 @@ public class RemoveCommand extends AdminCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         if (plugin.getServerCommands(event.getGuild()).containsKey(args[0])) {
             plugin.removeCommand(event.getGuild(), args[0]);
-            event.getChannel().sendMessage("Command " + args[0] + " deleted.").queue();
+            event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "command.removecommand.deleted", args[0])).queue();
         } else {
-            event.getChannel().sendMessage("No command named " + args[0] + " exists. Did you make a typo?.").queue();
+            event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "command.removecommand.notfound", args[0])).queue();
         }
     }
 
@@ -62,14 +63,12 @@ public class RemoveCommand extends AdminCommand {
     }
 
     @Override
-    public String help() {
-        return "Removes a custom command from the server\n\n" +
-                "__Parameters__\n" +
-                "**Command Name** (Required): The name of the custom command to remove.";
+    public String help(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.removecommand.longhelp");
     }
 
     @Override
-    public String shortDescription() {
-        return "Remove a custom command from the server.";
+    public String shortDescription(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.removecommand.shorthelp");
     }
 }
