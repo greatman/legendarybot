@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.api;
 
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.greatmancode.legendarybot.api.translate.TranslateManager;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.zaxxer.hikari.HikariDataSource;
 import net.dv8tion.jda.core.JDA;
@@ -107,5 +108,7 @@ public abstract class LegendaryBot {
      * @return True if the bot is ready, else false.
      */
     public abstract boolean isReady();
+
+    public abstract TranslateManager getTranslateManager();
 
 }

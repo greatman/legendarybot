@@ -34,18 +34,12 @@ public class AffixDescription {
     private final int id;
 
     /**
-     * The Description of the affix
-     */
-    private final String description;
-
-    /**
      * The difficulty of an affix. The value can be 1 = easy, 2 = medium, 3 = hard
      */
     private final int difficulty;
 
-    public AffixDescription(int id, String description, int difficulty) {
+    public AffixDescription(int id, int difficulty) {
         this.id = id;
-        this.description = description;
         this.difficulty = difficulty;
     }
 
@@ -55,14 +49,6 @@ public class AffixDescription {
      */
     public int getId() {
         return id;
-    }
-
-    /**
-     * Get the description of the affix
-     * @return The description of the affix.
-     */
-    public String getDescription() {
-        return description;
     }
 
     /**

@@ -24,6 +24,7 @@
 package com.greatmancode.legendarybot.api.commands;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -62,13 +63,17 @@ public interface Command {
      * Returns the help for the command
      * @return A String containing the help information about the command.
      */
-    String help();
+    default String help(Guild guild) {
+        return help();
+    }
 
     /**
      * Returns a short description of the command
      * @return A String containing the short description.
      */
-    String shortDescription();
+    default String shortDescription(Guild guild) {
+        return shortDescription();
+    }
 
     /**
      * Execute code before the actual command being run
@@ -79,6 +84,14 @@ public interface Command {
      */
     default String[] preFlight(MessageReceivedEvent event, LegendaryBot bot, String[] args) {
         return args;
+    }
+
+    default String help() {
+        return "";
+    }
+
+    default String shortDescription() {
+        return "";
     }
 }
 

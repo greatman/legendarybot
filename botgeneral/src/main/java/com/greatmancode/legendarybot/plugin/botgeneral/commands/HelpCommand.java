@@ -51,7 +51,7 @@ public class HelpCommand implements PublicCommand {
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         if (args.length == 1 && bot.getCommandHandler().getCommandList().containsKey(args[0])) {
-            event.getAuthor().openPrivateChannel().complete().sendMessage(bot.getCommandHandler().getCommandList().get(args[0]).help()).queue();
+            event.getAuthor().openPrivateChannel().complete().sendMessage(bot.getCommandHandler().getCommandList().get(args[0]).help(event.getGuild())).queue();
             return;
         }
         final MessageBuilder[] builder = {new MessageBuilder()};
@@ -81,7 +81,7 @@ public class HelpCommand implements PublicCommand {
                     builder[0].append(finalPrefix);
                     builder[0].append(commandName);
                     builder[0].append("**: ");
-                    builder[0].append(command.shortDescription());
+                    builder[0].append(command.shortDescription(event.getGuild()));
                     builder[0].append("\n");
                 }
             });

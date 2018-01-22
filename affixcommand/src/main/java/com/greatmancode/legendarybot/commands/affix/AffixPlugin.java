@@ -39,8 +39,8 @@ public class AffixPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() {
-        getBot().getCommandHandler().addCommand("affix", new AffixCommand(), "World of Warcraft");
-        getBot().getCommandHandler().addCommand("nextaffix", new NextAffixCommand(), "World of Warcraft");
+        getBot().getCommandHandler().addCommand("affix", new AffixCommand(getBot()), "World of Warcraft");
+        getBot().getCommandHandler().addCommand("nextaffix", new NextAffixCommand(getBot()), "World of Warcraft");
         log.info("Command !affix & !nextaffix loaded");
     }
 

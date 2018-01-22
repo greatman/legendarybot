@@ -28,6 +28,7 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.greatmancode.legendarybot.api.translate.TranslateManager;
 import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.greatmancode.legendarybot.commands.LoadCommand;
@@ -117,6 +118,8 @@ public class ILegendaryBot extends LegendaryBot {
      * The state of the bot. True = Ready to accept commands, False = not ready to accept commands.
      */
     private boolean ready;
+
+    private TranslateManager translateManager;
 
     /**
      * Start all the feature of the LegendaryBot
@@ -221,7 +224,11 @@ public class ILegendaryBot extends LegendaryBot {
             }
             log.info("Legendarybot Shutdown.");
         }));
+
+        translateManager = new TranslateManager(this);
+
         log.info("LegendaryBot now ready!");
+
     }
 
     /**
@@ -286,6 +293,11 @@ public class ILegendaryBot extends LegendaryBot {
     @Override
     public boolean isReady() {
         return ready;
+    }
+
+    @Override
+    public TranslateManager getTranslateManager() {
+        return translateManager;
     }
 
     @Override

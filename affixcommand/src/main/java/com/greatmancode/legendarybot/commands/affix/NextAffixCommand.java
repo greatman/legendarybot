@@ -24,8 +24,10 @@
 
 package com.greatmancode.legendarybot.commands.affix;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -36,6 +38,13 @@ import org.joda.time.Weeks;
  * Provides next week's affix.
  */
 public class NextAffixCommand implements PublicCommand, ZeroArgsCommand {
+
+    private LegendaryBot bot;
+
+    public NextAffixCommand(LegendaryBot bot) {
+        this.bot = bot;
+    }
+
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         DateTime current = new DateTime(DateTimeZone.forID("America/Montreal"));
@@ -47,16 +56,16 @@ public class NextAffixCommand implements PublicCommand, ZeroArgsCommand {
         }
         int weeks = Weeks.weeksBetween(Utils.startDateMythicPlus, current).getWeeks();
         String[] weekAffixes = Utils.mythicPlusAffixes[weeks % 12];
-        event.getChannel().sendMessage(Utils.createMythicEmbed(weekAffixes).build()).queue();
+        event.getChannel().sendMessage(Utils.createMythicEmbed(bot, event.getGuild(), weekAffixes).build()).queue();
     }
 
     @Override
-    public String help() {
-        return "Shows next week Mythic+ affixes.";
+    public String help(Guild guild) {
+        return bot.getTranslateManager().translate(guild, "command.nextaffix.help");
     }
 
     @Override
-    public String shortDescription() {
-        return "Shows next week Mythic+ affixes.";
+    public String shortDescription(Guild guild) {
+        return bot.getTranslateManager().translate(guild, "command.nextaffix.help");
     }
 }
