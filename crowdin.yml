@@ -1,0 +1,3 @@
+files:
+  - source: /languages/en.properties
+    translation: /languages/%language%.properties
