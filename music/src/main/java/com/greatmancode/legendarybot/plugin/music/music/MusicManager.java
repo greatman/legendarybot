@@ -23,6 +23,7 @@
  */
 package com.greatmancode.legendarybot.plugin.music.music;
 
+import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -53,7 +54,9 @@ public class MusicManager {
      */
     private final Map<Long, GuildMusicManager> musicManagers = new HashMap<>();
 
-    public MusicManager() {
+    private LegendaryBot bot;
+    public MusicManager(LegendaryBot bot) {
+        this.bot = bot;
         AudioSourceManagers.registerLocalSource(playerManager);
         AudioSourceManagers.registerRemoteSources(playerManager);
     }
@@ -143,6 +146,9 @@ public class MusicManager {
      */
     private void play(Guild guild, GuildMusicManager musicManager, AudioTrack track, VoiceChannel voiceChannel) {
         connectToVoiceChannel(guild.getAudioManager(), voiceChannel);
+        if (bot.getGuildSettings(guild).getSetting("MUSIC_VOLUME") != null) {
+            musicManager.player.setVolume(Integer.parseInt(bot.getGuildSettings(guild).getSetting("MUSIC_VOLUME")));
+        }
 
         musicManager.scheduler.queue(track);
     }
@@ -167,6 +173,7 @@ public class MusicManager {
         audioManager.setSelfMuted(false);
         if (!audioManager.isConnected() && !audioManager.isAttemptingToConnect()) {
             audioManager.openAudioConnection(voiceChannel);
+
         }
     }
 

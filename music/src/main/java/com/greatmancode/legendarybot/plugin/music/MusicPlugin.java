@@ -47,7 +47,7 @@ public class MusicPlugin extends LegendaryBotPlugin {
     /**
      * The Music Manager
      */
-    private MusicManager musicManager = new MusicManager();
+    private MusicManager musicManager = new MusicManager(getBot());
 
     public MusicPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -64,6 +64,7 @@ public class MusicPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("allowmembermusic", new AllowMemberMusicCommand(this), "Music Admin Commands");
         getBot().getCommandHandler().addCommand("setmusicchannel", new SetMusicChannelCommand(this), "Music Admin Commands");
         getBot().getCommandHandler().addCommand("unsetmusicchannel", new UnsetMusicChannelCommand(this), "Music Admin Commands");
+        getBot().getCommandHandler().addCommand("setvolume", new SetVolumeCommand(this), "Music");
         log.info("Music plugin loaded! Added commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 
@@ -78,6 +79,7 @@ public class MusicPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("allowmembermusic");
         getBot().getCommandHandler().removeCommand("setmusicchannel");
         getBot().getCommandHandler().removeCommand("unsetmusicchannel");
+        getBot().getCommandHandler().removeCommand("setvolume");
         log.info("Music plugin unloaded! Removed commands !addsong, !playmusic, !skipsong, !stopmusic");
     }
 
