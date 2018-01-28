@@ -81,18 +81,18 @@ public class SetupMessageListener extends ListenerAdapter {
             return;
         }
 
-        if (event.getMessage().getContent().contains("setup")) {
+        if (event.getMessage().getContentDisplay().contains("setup")) {
             return;
         }
 
-        if (event.getMessage().getContent().equalsIgnoreCase("cancel")) {
+        if (event.getMessage().getContentDisplay().equalsIgnoreCase("cancel")) {
             plugin.setupDone(event.getGuild());
             event.getChannel().sendMessage("Setup canceled. The bot may behave weirdly if you left right in the middle of the setup wizard.").queue();
             return;
         }
 
         if (setupHandler.getState() == SetupState.STEP_PREFIX) {
-            String prefix = event.getMessage().getContent();
+            String prefix = event.getMessage().getContentDisplay();
             plugin.getBot().getGuildSettings(event.getGuild()).setSetting("PREFIX", prefix);
             setupHandler.setState(SetupState.STEP_REGION);
 
@@ -114,7 +114,7 @@ public class SetupMessageListener extends ListenerAdapter {
         }
 
         if (setupHandler.getState() == SetupState.STEP_REGION) {
-            String region = event.getMessage().getContent();
+            String region = event.getMessage().getContentDisplay();
             if (!region.equalsIgnoreCase("us") && !region.equalsIgnoreCase("eu")) {
                 event.getChannel().sendMessage("I only support ``US`` or ``EU``. Please type one or the other.").queue();
                 return;
@@ -141,7 +141,7 @@ public class SetupMessageListener extends ListenerAdapter {
         }
 
         if (setupHandler.getState() == SetupState.STEP_REALM) {
-            String realm = event.getMessage().getContent();
+            String realm = event.getMessage().getContentDisplay();
 
             try {
                 String realmData = WoWUtils.getRealmInformation(plugin.getBot(),plugin.getBot().getGuildSettings(event.getGuild()).getRegionName(), realm);
@@ -171,7 +171,7 @@ public class SetupMessageListener extends ListenerAdapter {
         }
 
         if (setupHandler.getState() == SetupState.STEP_REALM_CONFIRM) {
-            String confirmation = event.getMessage().getContent();
+            String confirmation = event.getMessage().getContentDisplay();
             if (confirmation.equalsIgnoreCase("no")) {
 
                 event.getChannel().sendMessage("Please type the realm name you want to configure.").queue();
@@ -199,7 +199,7 @@ public class SetupMessageListener extends ListenerAdapter {
             return;
         }
         if (setupHandler.getState() == SetupState.STEP_GUILD) {
-            String guild = event.getMessage().getContent();
+            String guild = event.getMessage().getContentDisplay();
             GuildSettings settings = plugin.getBot().getGuildSettings(event.getGuild());
             try {
                 if (guildExist(settings.getRegionName(),settings.getWowServerName(),guild)) {

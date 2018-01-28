@@ -112,13 +112,13 @@ public class CommandHandler {
         if (!bot.isReady()) {
             return;
         }
-        String text = event.getMessage().getContent();
+        String text = event.getMessage().getContentDisplay();
         String prefix = bot.getGuildSettings(event.getGuild()).getSetting("PREFIX");
         if (prefix == null) {
             prefix = "!";
         }
         if (text.startsWith(prefix) || event.getMessage().isMentioned(event.getJDA().getSelfUser())) {
-            log.info("[" + event.getGuild().getName() + "]" + event.getAuthor().getName() + ": " + event.getMessage().getContent());
+            log.info("[" + event.getGuild().getName() + "]" + event.getAuthor().getName() + ": " + event.getMessage().getContentDisplay());
             String command = null;
             String[] commandArray = text.split(" ");
             if (text.startsWith(prefix)) {

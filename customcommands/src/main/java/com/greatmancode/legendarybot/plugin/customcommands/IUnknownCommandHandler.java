@@ -43,7 +43,7 @@ public class IUnknownCommandHandler implements UnknownCommandHandler {
 
     @Override
     public void handle(MessageReceivedEvent event) {
-        String[] split = event.getMessage().getContent().split(" ");
+        String[] split = event.getMessage().getContentDisplay().split(" ");
         String prefix = plugin.getBot().getGuildSettings(event.getGuild()).getSetting("PREFIX");
         if (prefix == null ) {
             prefix = "!";

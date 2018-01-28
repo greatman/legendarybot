@@ -185,8 +185,7 @@ public class ILegendaryBot extends LegendaryBot {
         for (int i = 0; i < maxShard; i++) {
             log.info("Starting shard " + i);
             jdaList.add(builder.useSharding(i,maxShard)
-                    .buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION));
-            Thread.sleep(5000);
+                    .buildBlocking(JDA.Status.CONNECTED));
         }
         //Load the settings for each guild
         jdaList.forEach((jda) -> jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings(guild, this))));
