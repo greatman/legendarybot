@@ -31,6 +31,7 @@ import com.greatmancode.legendarybot.api.utils.HeroRace;
 import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.ConnectionPool;
 import okhttp3.HttpUrl;
@@ -199,9 +200,9 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     progressionBuilder.append("**ToS**: ");
                     progressionBuilder.append(tombOfSargeras.get("summary"));
                     progressionBuilder.append("\n");
-                    progressionBuilder.append("**Antorus**: ");
+                    progressionBuilder.append("**ABT**: ");
                     progressionBuilder.append(antorus.get("summary"));
-                    eb.addField("Progression", progressionBuilder.toString(), false);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"progression"), progressionBuilder.toString(), false);
 
 
                     //We fetch the Battle.net achivement record
@@ -212,24 +213,24 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                             .build();
                     Request battlenetRequest = new Request.Builder().url(battleneturl).build();
                     String battlenetResult = clientBattleNet.newCall(battlenetRequest).execute().body().string();
-                    String apAmount = getAP(battlenetResult);
+                    String apAmount = getAP(event.getGuild(), battlenetResult);
 
                     JSONObject gear = (JSONObject) jsonObject.get("gear");
-                    eb.addField("iLVL", gear.get("item_level_equipped") + "/" + gear.get("item_level_total"), true);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"ilvl"), gear.get("item_level_equipped") + "/" + gear.get("item_level_total"), true);
 
                     if (apAmount != null) {
-                        eb.addField("Artifact Power", gear.get("artifact_traits").toString() + " / " + apAmount + " AP Gathered", true);
+                        eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"artifact.power"), gear.get("artifact_traits").toString() + " / " + apAmount + " " + getBot().getTranslateManager().translate(event.getGuild(),"ap.gathered"), true);
                     } else {
-                        eb.addField("Artifact Power", gear.get("artifact_traits").toString(), true);
+                        eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"artifact.power"), gear.get("artifact_traits").toString(), true);
                     }
 
 
 
 
                     JSONObject mplusRank = (JSONObject) jsonObject.get("mythic_plus_scores");
-                    eb.addField("Mythic+ Score", mplusRank.get("all").toString(), true);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"mythicplus.score"), mplusRank.get("all").toString(), true);
                     JSONObject lastMplusRank = (JSONObject) jsonObject.get("previous_mythic_plus_scores");
-                    eb.addField("Last Season Mythic+ Score", lastMplusRank.get("all").toString(), true);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"last.season.mythicplus.score"), lastMplusRank.get("all").toString(), true);
 
 
                     StringBuilder runsBuilder = new StringBuilder();
@@ -249,15 +250,16 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                         long seconds = TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time));
                         runsBuilder.append("    ");
                         if (hours >= 1) {
-                            runsBuilder.append(String.format("%d Hour(s) %d Minute(s), %d seconds", hours, minutes, seconds));
+                            runsBuilder.append(getBot().getTranslateManager().translate(event.getGuild(), "hour.minutes.seconds", hours + "", minutes + "", seconds + ""));
                         } else {
-                            runsBuilder.append(String.format("%d Minute(s), %d seconds", minutes, seconds));
+                            runsBuilder.append(getBot().getTranslateManager().translate(event.getGuild(), "minutes.seconds", minutes + "", seconds + ""));
                         }
                         runsBuilder.append(" | ");
-                        runsBuilder.append(run.get("num_keystone_upgrades").toString());
-                        runsBuilder.append(" Chest(s)\n\n");
+                        runsBuilder.append(run.get("num_keystone_upgrades").toString() + " ");
+                        runsBuilder.append(getBot().getTranslateManager().translate(event.getGuild(), "mythicplus.chests"));
+                        runsBuilder.append("\n\n");
                     }
-                    eb.addField("Best Mythic+ Runs", runsBuilder.toString(),    true);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"best.mythicplus.runs"), runsBuilder.toString(),    true);
                     long m5 = getM5(battlenetResult);
                     long m10 = getM10(battlenetResult);
                     long m15 = getM15(battlenetResult);
@@ -265,11 +267,11 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     completedBuilder.append("**M+5**: " + m5 + "\n");
                     completedBuilder.append("**M+10**: " + m10 + "\n");
                     completedBuilder.append("**M+15**: " + m15 + "\n");
-                    eb.addField("Mythic+ completed", completedBuilder.toString(), true);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(), "mythicplus.completed"), completedBuilder.toString(), true);
                     eb.addField("WoWProgress", "[Click Here](https://www.wowprogress.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
                     eb.addField("Raider.IO", "[Click Here](https://raider.io/characters/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
                     eb.addField("WarcraftLogs","[Click Here](https://www.warcraftlogs.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+jsonObject.get("name") + ")", true);
-                    eb.setFooter("Information taken from https://raider.io",null);
+                    eb.setFooter(getBot().getTranslateManager().translate(event.getGuild(),"information.taken.raider.io"),null);
 
                     if (getBot().getGuildSettings(event.getGuild()).getSetting(SETTING_PRIVATE_LOOKUP) != null) {
                         event.getAuthor().openPrivateChannel().complete().sendMessage(eb.build()).queue();
@@ -319,12 +321,12 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     EmbedBuilder eb = new EmbedBuilder();
                     eb.setTitle(titleBuilder.toString(), wowLink);
                     eb.setThumbnail("http://render-" + region.toLowerCase() + ".worldofwarcraft.com/character/" + battleNetObject.get("thumbnail"));
-                    String apAmount = getAP(battlenetResult);
+                    String apAmount = getAP(event.getGuild(), battlenetResult);
                     JSONObject gear = (JSONObject) battleNetObject.get("items");
-                    eb.addField("iLVL", gear.get("averageItemLevelEquipped") + "/" + gear.get("averageItemLevel"), true);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"ilvl"), gear.get("averageItemLevelEquipped") + "/" + gear.get("averageItemLevel"), true);
 
                     if (apAmount != null) {
-                        eb.addField("Artifact Power", apAmount + " AP Gathered", true);
+                        eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"artifact.power"), apAmount + " " + getBot().getTranslateManager().translate(event.getGuild(),"ap.gathered"), true);
                     }
                     long m5 = getM5(battlenetResult);
                     long m10 = getM10(battlenetResult);
@@ -333,12 +335,12 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     completedBuilder.append("**M+5**: " + m5 + "\n");
                     completedBuilder.append("**M+10**: " + m10 + "\n");
                     completedBuilder.append("**M+15**: " + m15 + "\n");
-                    eb.addField("Mythic+ completed", completedBuilder.toString(), false);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(), "mythicplus.completed"), completedBuilder.toString(), false);
                     eb.addField("WoWProgress", "[Click Here](https://www.wowprogress.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
                     eb.addField("Raider.IO", "[Click Here](https://raider.io/characters/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
                     eb.addField("WarcraftLogs","[Click Here](https://www.warcraftlogs.com/character/"+region.toLowerCase()+"/"+serverSlug+"/"+battleNetObject.get("name") + ")", true);
-                    eb.addField("Information", "Your character is not found on Raider.io. Limited information is available. Add it [Here](https://raider.io/add).", false);
-                    eb.setFooter("Information taken from https://us.battle.net/wow",null);
+                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"information"), getBot().getTranslateManager().translate(event.getGuild(),"command.lookup.charnotfound"), false);
+                    eb.setFooter(getBot().getTranslateManager().translate(event.getGuild(),"information.taken.battle.net"),null);
 
                     if (getBot().getGuildSettings(event.getGuild()).getSetting(SETTING_PRIVATE_LOOKUP) != null) {
                         event.getAuthor().openPrivateChannel().complete().sendMessage(eb.build()).queue();
@@ -351,11 +353,11 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
             }
         } catch (IOException e) {
             getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + serverName);
-            event.getChannel().sendMessage("An error occured. Try again later!").queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
         } catch (ParseException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "serverName:" + serverName);
-            event.getChannel().sendMessage("An error occured. Try again later!").queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
         }
 
     }
@@ -368,47 +370,41 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         return 99;
     }
 
-    public String help() {
-        return "Lookup a World of Warcraft character statistics.\n" +
-                "**Format**: ``!lookup <Character Name> <Server Name> <Region>``\n\n" +
-                "__Parameters__\n" +
-                "**Character Name** (Required/Optional): A World of Warcraft character Name. This parameter is required if you don't have a main character set in this Discord server. Optional if you have one.\n" +
-                "**Server Name** (Optional): The World of Warcraft realm you want to search on. If omitted, will take this Discord's default server.\n" +
-                "**Region** (Optional): The Region you want to do the search in. If omitted, will take this Discord's default server.\n\n" +
-                "**Example**: ``!lookup Kugruon Arthas US``";
+    public String help(Guild guild) {
+        return getBot().getTranslateManager().translate(guild,"command.lookup.longhelp");
     }
 
     @Override
-    public String shortDescription() {
-        return "Lookup a character information (iLVL/Raid Progression/Mythic+)";
+    public String shortDescription(Guild guild) {
+        return getBot().getTranslateManager().translate(guild, "command.lookup.shorthelp");
     }
 
     private static final NavigableMap<Long, String> suffixes = new TreeMap<>();
     static {
         suffixes.put(1_000L, "k");
-        suffixes.put(1_000_000L, " Million(s)");
-        suffixes.put(1_000_000_000L, " Billion(s)");
-        suffixes.put(1_000_000_000_000L, " Trillion(s)");
-        suffixes.put(1_000_000_000_000_000L, " Quadrillion(s)");
-        suffixes.put(1_000_000_000_000_000_000L, " Quintillion(s)");
+        suffixes.put(1_000_000L, "millions");
+        suffixes.put(1_000_000_000L, "billions");
+        suffixes.put(1_000_000_000_000L, "trillions");
+        suffixes.put(1_000_000_000_000_000L, "quadrillions");
+        suffixes.put(1_000_000_000_000_000_000L, "quintillions");
     }
 
-    public static String format(long value) {
+    public String format(Guild guild, long value) {
         //Long.MIN_VALUE == -Long.MIN_VALUE so we need an adjustment here
-        if (value == Long.MIN_VALUE) return format(Long.MIN_VALUE + 1);
-        if (value < 0) return "-" + format(-value);
+        if (value == Long.MIN_VALUE) return format(guild,Long.MIN_VALUE + 1);
+        if (value < 0) return "-" + format(guild, -value);
         if (value < 1000) return Long.toString(value); //deal with easy case
 
         Map.Entry<Long, String> e = suffixes.floorEntry(value);
         Long divideBy = e.getKey();
-        String suffix = e.getValue();
+        String suffix = getBot().getTranslateManager().translate(guild,e.getValue().toLowerCase());
 
         long truncated = value / (divideBy / 10); //the number part of the output times 10
         boolean hasDecimal = truncated < 100 && (truncated / 10d) != (truncated / 10);
-        return hasDecimal ? (truncated / 10d) + suffix : (truncated / 10) + suffix;
+        return hasDecimal ? (truncated / 10d) + " " +  suffix : (truncated / 10) + " " + suffix;
     }
 
-    public String getAP(String json) throws ParseException {
+    public String getAP(Guild guild, String json) throws ParseException {
         long apAmount = -1;
         if (json != null) {
             JSONParser parser = new JSONParser();
@@ -428,7 +424,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         }
         String result = null;
         if (apAmount != -1) {
-            result = format(apAmount);
+            result = format(guild, apAmount);
         }
         return result;
 

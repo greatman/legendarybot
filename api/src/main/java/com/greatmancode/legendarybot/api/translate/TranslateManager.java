@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class TranslateManager {
 
@@ -46,6 +43,10 @@ public class TranslateManager {
             return String.format(languageMap.get("en").getProperty(key),values);
         }
 
+    }
+
+    public Set<String> getLanguages() {
+        return languageMap.keySet();
     }
 
     public void reload() throws IOException {

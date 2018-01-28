@@ -31,9 +31,7 @@ import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.translate.TranslateManager;
 import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import com.greatmancode.legendarybot.commands.LoadCommand;
-import com.greatmancode.legendarybot.commands.ReloadPluginsCommand;
-import com.greatmancode.legendarybot.commands.UnloadCommand;
+import com.greatmancode.legendarybot.commands.*;
 import com.greatmancode.legendarybot.server.IGuildSettings;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -160,6 +158,8 @@ public class ILegendaryBot extends LegendaryBot {
         commandHandler.addCommand("reloadplugins", new ReloadPluginsCommand(this), "Admin Commands");
         commandHandler.addCommand("load", new LoadCommand(this), "Admin Commands");
         commandHandler.addCommand("unload", new UnloadCommand(this), "Admin Commands");
+        commandHandler.addCommand("setlanguage", new SetLanguageCommand(this), "Admin Commands");
+        commandHandler.addCommand("reloadlanguage", new ReloadLanguagesCommand(this), "Admin Commands");
 
 
         //We create the Config table
