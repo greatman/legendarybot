@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -44,16 +45,16 @@ public class DisableLegendaryCheckCommand extends AdminCommand implements ZeroAr
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         plugin.destroyLegendaryCheck(event.getGuild());
-        event.getChannel().sendMessage("Legendary check disabled!").queue();
+        event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(),"command.disablelegendarycheck.message")).queue();
     }
 
     @Override
-    public String help() {
-        return "Disable the Legendary Check system. It will no longer alert of new Legendaries.";
+    public String help(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild,"command.disablelegendarycheck.help");
     }
 
     @Override
-    public String shortDescription() {
-        return help();
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 }

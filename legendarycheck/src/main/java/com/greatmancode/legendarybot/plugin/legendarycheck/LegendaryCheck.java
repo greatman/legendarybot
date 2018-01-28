@@ -175,7 +175,7 @@ public class LegendaryCheck {
                                         plugin.destroyLegendaryCheck(guild);
                                         log.warn("Guild " + guild + "("+guild.getId()+") have a invalid channel name " + channelName + ". Removing legendary check.");
                                     } else {
-                                        channelList.get(0).sendMessage(name + " just looted the legendary " + getItemName(regionName, itemID) + "! :tada:  http://www.wowhead.com/item=" + itemID).queue();
+                                        channelList.get(0).sendMessage(bot.getTranslateManager().translate(guild,"legendarycheck.looted",name,getItemName(regionName, itemID)) + " http://www.wowhead.com/item=" + itemID).queue();
                                     }
 
                                 }

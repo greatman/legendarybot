@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -44,16 +45,16 @@ public class MuteLegendaryCheckCommand extends AdminCommand implements ZeroArgsC
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         plugin.stopLegendaryCheck(event.getGuild());
-        event.getChannel().sendMessage("Legendary check muted!").queue();
+        event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "command.mutelegendarycheck.message")).queue();
     }
 
     @Override
-    public String help() {
-        return "Mute the Legendary check without destroying the settings. This will be only effective until the next bot restart.";
+    public String help(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.mutelegendarycheck.longhelp");
     }
 
     @Override
-    public String shortDescription() {
-        return "Mute the Legendary check. Effective until the next bot restart.";
+    public String shortDescription(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.mutelegendarycheck.shorthelp");
     }
 }

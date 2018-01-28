@@ -26,9 +26,9 @@ package com.greatmancode.legendarybot.commands.gif;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.*;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -89,34 +89,6 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-        /*HttpUrl url = new HttpUrl.Builder()
-                .scheme("http")
-                .host("api.giphy.com")
-                .addPathSegments("v1/gifs/search")
-                .addQueryParameter("q", builder.toString())
-                .addQueryParameter("api_key", props.getProperty("giphy.key"))
-                .addQueryParameter("limit", "1")
-                .addQueryParameter("rating", "pg")
-                .build();
-        Request request = new Request.Builder().url(url).build();
-        try {
-            String result = client.newCall(request).execute().body().string();
-            try {
-                JSONParser parser = new JSONParser();
-                JSONObject json = (JSONObject) parser.parse(result);
-                JSONArray array = (JSONArray) json.get("data");
-                JSONObject obj = (JSONObject) array.get(0);
-                String gif = (String) ((JSONObject)((JSONObject)obj.get("images")).get("fixed_height")).get("url");
-                event.getChannel().sendMessage(gif).queue();
-            } catch (IndexOutOfBoundsException | NullPointerException e) {
-                e.printStackTrace();
-                event.getChannel().sendMessage("No gif found for " + builder.toString() + "!").queue();
-            }
-
-        } catch (ParseException | IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "request:" + builder.toString());
-        }*/
     }
 
     @Override
@@ -130,14 +102,13 @@ public class GifCommand extends LegendaryBotPlugin implements PublicCommand {
     }
 
     @Override
-    public String help() {
-        return "Allows you to search for a specific gif.\n" +
-                "**Example**: ``!gif cat`` will return the first ``cat`` gif found on Giphy";
+    public String help(Guild guild) {
+        return getBot().getTranslateManager().translate(guild,"command.gif.longhelp");
     }
 
     @Override
-    public String shortDescription() {
-        return "Search for a gif";
+    public String shortDescription(Guild guild) {
+        return getBot().getTranslateManager().translate(guild,"command.gif.shorthelp");
     }
 
     @Override

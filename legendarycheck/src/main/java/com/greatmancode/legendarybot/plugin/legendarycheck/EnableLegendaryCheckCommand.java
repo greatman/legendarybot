@@ -24,6 +24,7 @@
 package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -45,9 +46,9 @@ public class EnableLegendaryCheckCommand extends AdminCommand {
         if (event.getMessage().getMentionedChannels().size() != 0) {
             plugin.getBot().getGuildSettings(event.getGuild()).setSetting(LegendaryCheckPlugin.SETTING_NAME, event.getMessage().getMentionedChannels().get(0).getName());
             plugin.startLegendaryCheck(event.getGuild());
-            event.getChannel().sendMessage("Legendary check configurated and started in channel " + args[0]).queue();
+            event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(),"command.enablelegendarycheck.message",args[0])).queue();
         } else {
-            event.getAuthor().openPrivateChannel().complete().sendMessage("Channel not found!").queue();
+            event.getAuthor().openPrivateChannel().complete().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "channel.not.found")).queue();
         }
 
     }
@@ -63,16 +64,12 @@ public class EnableLegendaryCheckCommand extends AdminCommand {
     }
 
     @Override
-    public String help() {
-        return "enablelc [Channel Name] - Enable the Legendary checker for the channel provided. **WARNING: This will spam a lot on the first run!**\n" +
-                "**Format**: ``!enablelc [Channel Name]``\n" +
-                "__Parameters__\n" +
-                "**Channel Name** (Required): The channel name you want the Legendary Check to write in. Be sure that the bot can write in this channel!\n\n" +
-                "**Example**: ``!enablelc #LegendaryAlert";
+    public String help(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.enablelegendarycheck.longhelp");
     }
 
     @Override
-    public String shortDescription() {
-        return "Enable the Legendary checker for the channel provided.";
+    public String shortDescription(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.enablelegendarycheck.shorthelp");
     }
 }

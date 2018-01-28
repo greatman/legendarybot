@@ -28,6 +28,7 @@ import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -87,7 +88,7 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
         try {
             JSONObject jsonObject = (JSONObject) parser.parse(client.newCall(request).execute().body().string());
             if (jsonObject.containsKey("code")) {
-                event.getChannel().sendMessage("Can't retrieve realm's information. Try again later.").queue();
+                event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"command.invation.errorrealm")).queue();
                 return;
             }
             JSONArray realmArray = (JSONArray) jsonObject.get("realms");
@@ -101,25 +102,25 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
             int[] timeleft = timeLeftBeforeNextInvasion(startDate,current);
             MessageBuilder builder = new MessageBuilder();
             if (isInvasionTime(startDate,current)) {
-                builder.append("There is currently an invasion active on the Broken Isles! End of the invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
+                builder.append(getBot().getTranslateManager().translate(event.getGuild(), "command.invasion.current") + " " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
             } else {
-                builder.append("There is no invasions currently active on the Broken Isle. Next invasion in " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
+                builder.append(getBot().getTranslateManager().translate(event.getGuild(),"command.invasion.soon") + " " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
             }
             event.getChannel().sendMessage(builder.build()).queue();
         } catch (IOException | ParseException e) {
             getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "region:" + region, "realm:" + realm);
-            event.getChannel().sendMessage("An error occured. Try again later!").queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "command.invasion.erroroccured")).queue();
         }
     }
 
     @Override
-    public String help() {
-        return "Say if there's currently an invasion running on WoW!";
+    public String help(Guild guild) {
+        return getBot().getTranslateManager().translate(guild, "command.invasion.help");
     }
 
     @Override
-    public String shortDescription() {
-        return "Say if there's currently an invasion running on WoW!";
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 
     public boolean isInvasionTime(DateTime startDate, DateTime current) {

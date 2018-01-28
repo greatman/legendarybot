@@ -147,7 +147,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
         if (region != null) {
             if (region.equalsIgnoreCase("us")) {
                 event.getChannel().sendMessage(getLastTweet("blizzardcs")).queue();
-            } else if (region.equalsIgnoreCase("eu")) {
+            } else if (region.equalsIgnoreCase("eu")) { //todo blizzardcsEU_RU exists
                 event.getChannel().sendMessage(getLastTweet("blizzardcseu_en")).queue();
             }
         }
