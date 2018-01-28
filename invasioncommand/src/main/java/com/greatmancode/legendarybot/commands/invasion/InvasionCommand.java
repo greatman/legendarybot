@@ -109,7 +109,7 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
             event.getChannel().sendMessage(builder.build()).queue();
         } catch (IOException | ParseException e) {
             getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "region:" + region, "realm:" + realm);
-            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "command.invasion.erroroccured")).queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
         }
     }
 

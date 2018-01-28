@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugins.legionbuilding;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -47,7 +48,7 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         if (getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
-            event.getChannel().sendMessage("A server region must be set first. Please let a admin use the setup command.").queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "server.region.must.be.set")).queue();
             return;
         }
         List<String> buildingStatus = new ArrayList<>();
@@ -58,25 +59,31 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
             document.getElementsByClass("imitation-heading heading-size-5").stream().skip(skip).forEach(element -> buildingStatusString.add(element.ownText()));
             document.getElementsByClass("tiw-bs-status-progress").stream().skip(skip).forEach(element ->
                     element.getElementsByTag("span").forEach( value -> buildingStatus.add(value.ownText())));
-            event.getChannel().sendMessage("Broken Shore building status: Mage Tower : **"+buildingStatusString.get(0)+"** **" + buildingStatus.get(0) + "** | Command Center: **"+buildingStatusString.get(1)+"** **" + buildingStatus.get(1) + "** | Nether Disruptor : **"+buildingStatusString.get(2)+"** **" + buildingStatus.get(2) + "**").queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"command.legionbuilding.message",
+                    getBot().getTranslateManager().translate(event.getGuild(),buildingStatusString.get(0).replaceAll(" ",".").toLowerCase()),
+                    buildingStatus.get(0),
+                    getBot().getTranslateManager().translate(event.getGuild(),buildingStatusString.get(1).replaceAll(" ",".").toLowerCase()),
+                    buildingStatus.get(1),
+                    getBot().getTranslateManager().translate(event.getGuild(),buildingStatusString.get(2).replaceAll(" ",".").toLowerCase()),
+                    buildingStatus.get(2))).queue();
         } catch (IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "region:" + getBot().getGuildSettings(event.getGuild()).getRegionName(), "guildId:" + event.getGuild().getId());
-            event.getChannel().sendMessage("An error occurred. Try again later").queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
         } catch (NullPointerException e) {
-            event.getChannel().sendMessage("An error occurred. Try again later").queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"error.occurred.try.again.later")).queue();
         }
 
     }
 
     @Override
-    public String help() {
-        return "Give the current status of the Broken Shore buildings!";
+    public String help(Guild guild) {
+        return getBot().getTranslateManager().translate(guild, "command.legionbuilding.help");
     }
 
     @Override
-    public String shortDescription() {
-        return "Give the current status of the Broken Shore buildings";
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 
     @Override

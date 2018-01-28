@@ -25,6 +25,7 @@ package com.greatmancode.legendarybot.plugin.lookupcommands.commands;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.plugin.lookupcommands.LookupCommandsPlugin;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -68,12 +69,12 @@ public class LookupItemCommand implements PublicCommand {
                 event.getChannel().sendMessage("http://www.wowhead.com/item=" + firstItem.get("_id")).queue();
             } catch (ParseException e) {
                 e.printStackTrace();
-                event.getChannel().sendMessage("No item found!").queue();
+                event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "command.lookupitem.notfound")).queue();
             }
         } catch (IOException e) {
             e.printStackTrace();
             plugin.getBot().getStacktraceHandler().sendStacktrace(e,"query:" + query);
-            event.getChannel().sendMessage("An error occurred. Please try again later.").queue();
+            event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
         }
     }
 
@@ -88,15 +89,12 @@ public class LookupItemCommand implements PublicCommand {
     }
 
     @Override
-    public String help() {
-        return "Lookup an item in the WoW database. Supports partial queries.\n\n" +
-                "__Parameters__\n" +
-                "**Item** (Required): An item name\n\n" +
-                "**Example**: ``!lookupitem Astral Warden``";
+    public String help(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.lookupitem.longhelp");
     }
 
     @Override
-    public String shortDescription() {
-        return "Lookup an item in the WoW database. Supports partial queries.";
+    public String shortDescription(Guild guild) {
+        return plugin.getBot().getTranslateManager().translate(guild, "command.lookupitem.shorthelp");
     }
 }

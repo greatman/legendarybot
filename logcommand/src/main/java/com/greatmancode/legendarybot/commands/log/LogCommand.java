@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.commands.log;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -73,7 +74,7 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
         try {
             String request = client.newCall(webRequest).execute().body().string();
             if (request == null) {
-                event.getChannel().sendMessage("Guild not found on Warcraftlogs!").queue();
+                event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "command.log.guild.not.found")).queue();
                 return;
             }
 
@@ -82,16 +83,21 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(request);
                     if (jsonArray.size() == 0) {
-                        event.getChannel().sendMessage("No logs found for the Guild on Warcraftlogs!").queue();
+                        event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"command.log.no.log.found")).queue();
                         return;
                     }
                     JSONObject jsonObject = (JSONObject) jsonArray.toArray()[jsonArray.size() - 1];
                     Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeZone(TimeZone.getTimeZone("America/Montreal"));
+                    calendar.setTimeZone(TimeZone.getTimeZone("America/Montreal")); //Todo, proper timezone
                     calendar.setTimeInMillis((Long) jsonObject.get("start"));
-                    event.getChannel().sendMessage("Last Log: " + jsonObject.get("title") + " by " + jsonObject.get("owner") + " at " + calendar.get(Calendar.DAY_OF_MONTH)+"/"+ (calendar.get(Calendar.MONTH) + 1)+ "/"+ calendar.get(Calendar.YEAR)+". https://www.warcraftlogs.com/reports/" + jsonObject.get("id")).queue();
+                    event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "command.log.message",
+                            jsonObject.get("title").toString(),
+                            jsonObject.get("owner").toString(),
+                            calendar.get(Calendar.DAY_OF_MONTH) + "",
+                            (calendar.get(Calendar.MONTH) + 1) + "",
+                            calendar.get(Calendar.YEAR) + "") + " https://www.warcraftlogs.com/reports/" + jsonObject.get("id")).queue();
                 } catch (ClassCastException e) {
-                    event.getChannel().sendMessage("Guild not found on WarcraftLogs. Are your settings set correctly?").queue();
+                    event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "command.log.guild.not.found")).queue();
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -100,18 +106,18 @@ public class LogCommand extends LegendaryBotPlugin implements ZeroArgsCommand, P
         } catch (IOException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "guildName:" + getBot().getGuildSettings(event.getGuild()).getGuildName(), "serverName:" + getBot().getGuildSettings(event.getGuild()).getWowServerName(),"region:" + getBot().getGuildSettings(event.getGuild()).getRegionName());
-            event.getChannel().sendMessage("An error occured. Try again later!").queue();
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"error.occurred.try.again.later")).queue();
         }
     }
 
     @Override
-    public String help() {
-        return "Retrieve the last log of the guild on Warcraft Logs.";
+    public String help(Guild guild) {
+        return getBot().getTranslateManager().translate(guild, "command.log.help");
     }
 
     @Override
-    public String shortDescription() {
-        return "Retrieve the last log of the guild on Warcraft Logs.";
+    public String shortDescription(Guild guild) {
+        return help(guild);
     }
 
     @Override
