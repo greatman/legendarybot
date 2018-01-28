@@ -81,3 +81,9 @@ Of course! You can add the bot to your server. Simply [click here](https://disco
 ## I need support, how can I reach you?
 
 Simply [open a ticket](https://github.com/greatman/legendarybot/issues) and I will gladly answer! You can also join the [Discord](https://discord.gg/Cr7G28H) server!
+
+## I wish LegendaryBot spoke my language!
+
+LegendaryBot support multiple languages. To see if the bot supports it, check the ```!setlanguage``` command.
+
+The language you want is missing or you saw a mistake? You are in luck! You can contribute to the [Crowdin Project](https://crowdin.com/project/legendarybot) and your language will be available to use by everybody once it get's added to bot files.
