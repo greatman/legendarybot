@@ -39,7 +39,6 @@ public class TranslateManager {
         if (language != null) {
             return String.format(languageMap.get(language).getProperty(key),values);
         } else {
-            System.out.println("Key: " + key + " Value of key:" + languageMap.get("en").getProperty(key));
             return String.format(languageMap.get("en").getProperty(key),values);
         }
 

@@ -17,7 +17,7 @@ public class SetLanguageCommand extends AdminCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         if (!bot.getTranslateManager().getLanguages().contains(args[0])) {
             StringBuilder builder = new StringBuilder();
-            bot.getTranslateManager().getLanguages().forEach(k -> builder.append(k).append(","));
+            bot.getTranslateManager().getLanguages().forEach(k -> builder.append(k).append(", "));
             event.getChannel().sendMessage(bot.getTranslateManager().translate(event.getGuild(),"command.setlanguage.langnotfound",builder.toString().substring(0,builder.toString().length() - 1))).queue();
             return;
         }
