@@ -34,6 +34,9 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Weeks;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Provides next week's affix.
  */
@@ -56,7 +59,11 @@ public class NextAffixCommand implements PublicCommand, ZeroArgsCommand {
         }
         int weeks = Weeks.weeksBetween(Utils.startDateMythicPlus, current).getWeeks();
         String[] weekAffixes = Utils.mythicPlusAffixes[weeks % 12];
-        event.getChannel().sendMessage(Utils.createMythicEmbed(bot, event.getGuild(), weekAffixes).build()).queue();
+        Map<Long, String> map = new HashMap<>();
+        map.put((long) 4, weekAffixes[0]);
+        map.put((long) 7, weekAffixes[1]);
+        map.put((long) 10, weekAffixes[2]);
+        event.getChannel().sendMessage(Utils.createMythicEmbed(bot, event.getGuild(), map).build()).queue();
     }
 
     @Override

@@ -10,4 +10,5 @@ dependencies {
     compile group: 'org.influxdb', name: 'influxdb-java', version: '2.7'
     compile group: 'org.elasticsearch.client', name: 'rest', version: '5.5.1'
     compile group: 'com.zaxxer', name:'HikariCP', version: '2.7.3'
+    compile 'com.github.scribejava:scribejava-core:5.0.0'
 }

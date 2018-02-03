@@ -78,7 +78,7 @@ public class Utils {
             {"Teeming","Quaking","Fortified"},
             {"Raging", "Necrotic","Tyrannical"},
             {"Bolstering", "Skittish", "Fortified"},
-            {"Teeming", "Necrotic", "Tyrannical"},
+            {"Teeming", "Volcanic", "Tyrannical"},
             {"Sanguine","Grievous", "Fortified"},
             {"Bolstering", "Explosive", "Tyrannical"},
             {"Bursting", "Quaking", "Fortified"}
@@ -89,14 +89,17 @@ public class Utils {
      * @param weekAffixes The affixes to add to the embed.
      * @return A {@link EmbedBuilder} to send to the user.
      */
-    public static EmbedBuilder createMythicEmbed(LegendaryBot bot, Guild guild, String[] weekAffixes) {
+    public static EmbedBuilder createMythicEmbed(LegendaryBot bot, Guild guild, Map<Long,String> weekAffixes) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setThumbnail("http://wow.zamimg.com/images/wow/icons/large/inv_relics_hourglass.jpg");
 
         eb.setFooter(bot.getTranslateManager().translate(guild,"mythicplus.affixes"), "http://wow.zamimg.com/images/wow/icons/large/inv_relics_hourglass.jpg");
-        AffixDescription affix4 = Utils.affixDescription.get(weekAffixes[0]);
-        AffixDescription affix7 = Utils.affixDescription.get(weekAffixes[1]);
-        AffixDescription affix10 = Utils.affixDescription.get(weekAffixes[2]);
+        String affix4Name = weekAffixes.get((long)4);
+        String affix7Name = weekAffixes.get((long)7);
+        String affix10Name = weekAffixes.get((long)10);
+        AffixDescription affix4 = Utils.affixDescription.get(affix4Name);
+        AffixDescription affix7 = Utils.affixDescription.get(affix7Name);
+        AffixDescription affix10 = Utils.affixDescription.get(affix10Name);
         int difficulty = affix4.getDifficulty() + affix7.getDifficulty() + affix10.getDifficulty();
 
         if (difficulty <= 3) {
@@ -107,9 +110,9 @@ public class Utils {
             eb.setColor(Color.RED);
         }
         //TODO link the proper language wowhead site for the language of the guild
-        eb.addField("(4) " + bot.getTranslateManager().translate(guild,"affix."+weekAffixes[0].toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+weekAffixes[0].toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix4.getId()+")",false);
-        eb.addField("(7) " +bot.getTranslateManager().translate(guild,"affix."+weekAffixes[1].toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+weekAffixes[1].toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix7.getId()+")",false);
-        eb.addField("(10) " + bot.getTranslateManager().translate(guild,"affix."+weekAffixes[2].toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+weekAffixes[2].toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix10.getId()+")",false);
+        eb.addField("(4) " + bot.getTranslateManager().translate(guild,"affix."+affix4Name.toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+affix4Name.toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix4.getId()+")",false);
+        eb.addField("(7) " +bot.getTranslateManager().translate(guild,"affix."+affix7Name.toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+affix7Name.toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix7.getId()+")",false);
+        eb.addField("(10) " + bot.getTranslateManager().translate(guild,"affix."+affix10Name.toLowerCase()+".name"),bot.getTranslateManager().translate(guild, "affix."+affix10Name.toLowerCase() + ".description") + "\n[" + bot.getTranslateManager().translate(guild, "more.info")+"](http://www.wowhead.com/affix="+affix10.getId()+")",false);
         return eb;
     }
 }

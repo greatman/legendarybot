@@ -25,7 +25,21 @@
 package com.greatmancode.legendarybot.commands.affix;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
+import okhttp3.ConnectionPool;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.pf4j.PluginWrapper;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Plugin that provides the current and next's week affix.
@@ -39,7 +53,7 @@ public class AffixPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() {
-        getBot().getCommandHandler().addCommand("affix", new AffixCommand(getBot()), "World of Warcraft");
+        getBot().getCommandHandler().addCommand("affix", new AffixCommand(this), "World of Warcraft");
         getBot().getCommandHandler().addCommand("nextaffix", new NextAffixCommand(getBot()), "World of Warcraft");
         log.info("Command !affix & !nextaffix loaded");
     }
@@ -49,5 +63,31 @@ public class AffixPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("affix");
         getBot().getCommandHandler().removeCommand("nextaffix");
         log.info("Command !affix & !nextaffix unloaded");
+    }
+
+    public Map<Long,String> getWeekAffixes(String region) throws IOException, ParseException {
+        Map<Long, String> affixes = new HashMap<>();
+        OkHttpClient clientBattleNet = new OkHttpClient.Builder()
+                .addInterceptor(new BattleNetAPIInterceptor(getBot()))
+                .build();
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host(region + ".api.battle.net")
+                .addPathSegments("/data/wow/mythic-challenge-mode/")
+                .addQueryParameter("namespace", "dynamic-us")
+                .build();
+        Request request = new Request.Builder().url(url).build();
+        String result = clientBattleNet.newCall(request).execute().body().string();
+        JSONParser parser = new JSONParser();
+        JSONObject mythicPlusDocument = (JSONObject) parser.parse(result);
+        if (mythicPlusDocument.containsKey("current_keystone_affixes")) {
+            JSONArray array = (JSONArray) mythicPlusDocument.get("current_keystone_affixes");
+            for (Object keystoneAffixObject : array) {
+                JSONObject keystoneAffixJson = (JSONObject) keystoneAffixObject;
+                JSONObject keystoneAffixNameObject = (JSONObject) keystoneAffixJson.get("keystone_affix");
+                affixes.put((long)keystoneAffixJson.get("starting_level"), (String) keystoneAffixNameObject.get("name"));
+            }
+        }
+        return affixes;
     }
 }

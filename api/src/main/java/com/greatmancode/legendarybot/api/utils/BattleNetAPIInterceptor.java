@@ -24,6 +24,10 @@
 
 package com.greatmancode.legendarybot.api.utils;
 
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -36,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 /**
  * OKHttp interceptor to do Battle.Net queries
@@ -45,7 +50,16 @@ public class BattleNetAPIInterceptor implements Interceptor {
     /**
      * List containing all available battle.net API keys
      */
-    private final List<String> battleNetKey = new ArrayList<>();
+    private String usKey;
+    private String usSecret;
+    private String euKey;
+    private String euSecret;
+    private static OAuth2AccessToken usToken;
+    private static OAuth20Service usService;
+    private static long usTokenExpire;
+    private static OAuth20Service euService;
+    private static OAuth2AccessToken euToken;
+    private static long euTokenExpire;
 
     /**
      * An instance of the bot.
@@ -61,42 +75,100 @@ public class BattleNetAPIInterceptor implements Interceptor {
         Properties props = new Properties();
         try {
             props.load(new FileInputStream("app.properties"));
-            battleNetKey.add(props.getProperty("battlenet.key"));
-            for (int i = 2; i<= 10; i++) {
-                if (props.containsKey("battlenet"+i+".key")) {
-                    battleNetKey.add(props.getProperty("battlenet"+i+".key"));
-                }
+            usKey = props.getProperty("battlenet.us.key");
+            usSecret = props.getProperty("battlenet.us.secret");
+            euKey = props.getProperty("battlenet.eu.key");
+            euSecret = props.getProperty("battlenet.eu.secret");
+            if (usService == null) {
+                usService = new ServiceBuilder(usKey)
+                        .apiSecret(usSecret)
+                        .build(new OAuthBattleNetApi("us"));
+                usToken = usService.getAccessTokenClientCredentialsGrant();
+                usTokenExpire = System.currentTimeMillis() + (usToken.getExpiresIn() * 1000);
+            }
+
+            if (euService == null) {
+                euService = new ServiceBuilder(euKey)
+                        .apiSecret(euSecret)
+                        .build(new OAuthBattleNetApi("eu"));
+                euToken = euService.getAccessTokenClientCredentialsGrant();
+                euTokenExpire = System.currentTimeMillis() + (euToken.getExpiresIn() * 1000);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
             bot.getStacktraceHandler().sendStacktrace(e);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
+        //TODO support multiple locale
         bot.getStatsClient().write(Point.measurement("legendarybot")
         .addField("battlenet",1)
         .build());
-        int keyid = 0;
-        HttpUrl url = chain.request().url().newBuilder()
-                .addQueryParameter("apikey", battleNetKey.get(0))
-                .addQueryParameter("locale", "en_US")
-                .build();
-        Request request = chain.request().newBuilder().url(url).build();
-        Response  response = chain.proceed(request);
-        while (response.code() == 403) {
-            keyid++;
-            if (keyid >= battleNetKey.size()) {
-                return response;
+        HttpUrl url = null;
+        if (chain.request().url().host().equals("us.api.battle.net") && chain.request().url().encodedPath().contains("/data/")) {
+            //Data mode US
+            try {
+                refreshToken();
+
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
             url = chain.request().url().newBuilder()
-                    .addQueryParameter("apikey", battleNetKey.get(keyid))
+                    .addQueryParameter("locale", "en_US")
+                    .addQueryParameter("access_token", usToken.getAccessToken())
                     .build();
-            request = chain.request().newBuilder().url(url).build();
-            response = chain.proceed(request);
+
+        } else if (chain.request().url().host().equals("eu.api.battle.net") && chain.request().url().encodedPath().contains("/data/")) {
+            //Data mode EU
+            try {
+                refreshToken();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            url = chain.request().url().newBuilder()
+                    .addQueryParameter("locale", "en_US")
+                    .addQueryParameter("access_token", euToken.getAccessToken())
+                    .build();
+        } else if (chain.request().url().host().equals("us.api.battle.net")) {
+            url = chain.request().url().newBuilder()
+                    .addQueryParameter("apikey", usKey)
+                    .addQueryParameter("locale", "en_US")
+                    .build();
+        } else if (chain.request().url().host().equals("eu.api.battle.net")) {
+            url = chain.request().url().newBuilder()
+                    .addQueryParameter("apikey", euKey)
+                    .addQueryParameter("locale", "en_US")
+                    .build();
         }
+
+        Request request = chain.request().newBuilder().url(url).build();
+        Response response = chain.proceed(request);
         return response;
+    }
+
+    private void refreshToken() throws InterruptedException, ExecutionException, IOException {
+        if (usToken == null) {
+            usToken = usService.getAccessTokenClientCredentialsGrant();
+        } else {
+            //We do a time check.
+            if (System.currentTimeMillis() > usTokenExpire) {
+                usToken = usService.getAccessTokenClientCredentialsGrant();
+            }
+        }
+        if (euToken == null) {
+            euToken = euService.getAccessTokenClientCredentialsGrant();
+        } else {
+            //We do a time check.
+            if (System.currentTimeMillis() > euTokenExpire) {
+                euToken = euService.getAccessTokenClientCredentialsGrant();
+            }
+        }
     }
 }

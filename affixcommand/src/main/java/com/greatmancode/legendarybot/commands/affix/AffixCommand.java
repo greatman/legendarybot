@@ -24,46 +24,45 @@
 
 package com.greatmancode.legendarybot.commands.affix;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Weeks;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
 
 /**
  * Command that provides this week's Mythic+ Affixes
  */
 public class AffixCommand implements PublicCommand, ZeroArgsCommand {
 
-    private LegendaryBot bot;
+    private AffixPlugin plugin;
 
-    public AffixCommand(LegendaryBot bot) {
-        this.bot = bot;
+    public AffixCommand(AffixPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        DateTime current = new DateTime(DateTimeZone.forID("America/Montreal"));
-        while (current.getDayOfWeek() != DateTimeConstants.TUESDAY) {
-            current = current.minusDays(1);
+        if (plugin.getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
+            event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(),"server.region.must.be.set")).queue();
         }
-        int weeks = Weeks.weeksBetween(Utils.startDateMythicPlus, current).getWeeks();
-        String[] weekAffixes = Utils.mythicPlusAffixes[weeks % 12];
-
-        event.getChannel().sendMessage(Utils.createMythicEmbed(bot, event.getGuild(), weekAffixes).build()).queue();
+        try {
+            event.getChannel().sendMessage(Utils.createMythicEmbed(plugin.getBot(), event.getGuild(), plugin.getWeekAffixes(plugin.getBot().getGuildSettings(event.getGuild()).getRegionName())).build()).queue();
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+            event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
+        }
     }
 
     @Override
     public String help(Guild guild) {
-        return bot.getTranslateManager().translate(guild, "command.affix.help");
+        return plugin.getBot().getTranslateManager().translate(guild, "command.affix.help");
     }
 
     @Override
     public String shortDescription(Guild guild) {
-        return bot.getTranslateManager().translate(guild, "command.affix.help");
+        return plugin.getBot().getTranslateManager().translate(guild, "command.affix.help");
     }
 }
