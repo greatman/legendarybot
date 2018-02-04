@@ -74,7 +74,7 @@ public class AffixPlugin extends LegendaryBotPlugin {
                 .scheme("https")
                 .host(region + ".api.battle.net")
                 .addPathSegments("/data/wow/mythic-challenge-mode/")
-                .addQueryParameter("namespace", "dynamic-us")
+                .addQueryParameter("namespace", "dynamic-"+region)
                 .build();
         Request request = new Request.Builder().url(url).build();
         String result = clientBattleNet.newCall(request).execute().body().string();
