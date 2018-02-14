@@ -49,7 +49,17 @@ public class WoWUtils {
      * @return A Json string containing information about the realm. Returns null if no realm is found.
      */
     public static String getRealmInformation(LegendaryBot bot, String region, String realm) {
-        HttpEntity entity = new NStringEntity("{ \"query\": { \"match\" : { \"name\" : \""+realm+"\" } } }", ContentType.APPLICATION_JSON);
+        JSONObject search = new JSONObject();
+        JSONObject query = new JSONObject();
+        JSONArray fields = new JSONArray();
+        fields.add("name");
+        fields.add("slug");
+        JSONObject multi_match = new JSONObject();
+        multi_match.put("query", realm);
+        multi_match.put("fields", fields);
+        query.put("multi_match", multi_match);
+        search.put("query", query);
+        HttpEntity entity = new NStringEntity(search.toJSONString(), ContentType.APPLICATION_JSON);
         try {
             Response response = bot.getElasticSearch().performRequest("POST", "/wow/realm_"+region.toLowerCase()+"/_search", Collections.emptyMap(), entity);
             String jsonResponse = EntityUtils.toString(response.getEntity());

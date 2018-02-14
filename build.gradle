@@ -1,3 +1,6 @@
+plugins {
+    id 'com.sedmelluq.jdaction' version '1.0.2'
+}
 subprojects {
     apply plugin: 'java'
     repositories {
@@ -8,7 +11,7 @@ subprojects {
     dependencies {
         compile 'net.dv8tion:JDA:3.5.0_327'
         compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.8.1'
-        compile group: 'org.pf4j', name: 'pf4j', version: '2.0.0'
+        compile group: 'org.pf4j', name: 'pf4j', version: '2.1.0'
 
     }
 
@@ -19,6 +22,7 @@ subprojects {
     jar {
         dependsOn configurations.runtime
     }
+
 }
 
 task copyJars(type: Copy, dependsOn: subprojects.jar) {
