@@ -95,6 +95,7 @@ bin\server
 ```
 
 ##Loading the ElasticSearch database with data
+
 Several features of the bot use the ElasticSearch server to query for data like realm name, items, etc. By default it is empty. For now, you can download the backup of the live database [here](https://github.com/greatman/legendarybot/files/1734877/backup.zip).
 To import it in ElasticSearch, download [elasticdump](https://www.npmjs.com/package/elasticdump) and use the following command: 
 ```
