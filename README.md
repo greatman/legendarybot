@@ -65,7 +65,7 @@ To run the bot, it requires some basic configuration
 
 Create a app.properties file at the root of the bot folder, the following needs to be added:
 ```
-mongodb.address=localhost #Your MongoDB server address
+mongodb.server=localhost #Your MongoDB server address
 mongodb.port=27017 #Your MongoDB server port
 mongodb.database=legendarybot #Your MongoDB server port.
 mongodb.username= #Optional: Your MongoDB username
