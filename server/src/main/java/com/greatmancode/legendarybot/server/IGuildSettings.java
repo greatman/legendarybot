@@ -70,7 +70,12 @@ public class IGuildSettings implements GuildSettings {
         this.bot = bot;
         this.guildId = guild.getId();
         MongoCollection<Document> collection = bot.getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
-        collection.find(eq("guild_id",guildId)).forEach((Block<Document>) document -> ((Document)document.get("settings")).forEach((k, v) -> settings.put(k, (String) v)));
+        collection.find(eq("guild_id",guildId)).forEach((Block<Document>) document -> {
+            if (((Document)document.get("settings")) != null) {
+                ((Document)document.get("settings")).forEach((k, v) -> settings.put(k, (String) v));
+            }
+
+        });
     }
 
 

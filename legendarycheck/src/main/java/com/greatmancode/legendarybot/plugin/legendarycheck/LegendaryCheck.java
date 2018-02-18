@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -137,7 +138,16 @@ public class LegendaryCheck {
                                 .addQueryParameter("fields", "feed")
                                 .build();
                         webRequest = new Request.Builder().url(url).build();
-                        response = client.newCall(webRequest).execute();
+                        boolean notOk = true;
+                        while (notOk) {
+                            try {
+                                response = client.newCall(webRequest).execute();
+                                notOk = false;
+                            } catch (SocketTimeoutException e) {
+                                log.warn("Timeout when trying to call" + url.toString() + " for guild " + guild.getName() + " : " + guild.getId());
+                            }
+                        }
+
                         String memberFeedRequest = response.body().string();
                         response.close();
                         if (memberFeedRequest == null) {
