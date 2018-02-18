@@ -79,7 +79,7 @@ public class BattleNetAPIInterceptor implements Interceptor {
             usSecret = props.getProperty("battlenet.us.secret");
             euKey = props.getProperty("battlenet.eu.key");
             euSecret = props.getProperty("battlenet.eu.secret");
-            if (usService == null) {
+            if (usKey != null && usSecret != null && usService == null) {
                 usService = new ServiceBuilder(usKey)
                         .apiSecret(usSecret)
                         .build(new OAuthBattleNetApi("us"));
@@ -87,7 +87,7 @@ public class BattleNetAPIInterceptor implements Interceptor {
                 usTokenExpire = System.currentTimeMillis() + (usToken.getExpiresIn() * 1000);
             }
 
-            if (euService == null) {
+            if (euKey != null && euSecret != null && euService == null) {
                 euService = new ServiceBuilder(euKey)
                         .apiSecret(euSecret)
                         .build(new OAuthBattleNetApi("eu"));
