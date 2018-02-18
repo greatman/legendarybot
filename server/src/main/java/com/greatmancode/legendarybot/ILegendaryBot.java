@@ -33,8 +33,7 @@ import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.greatmancode.legendarybot.commands.*;
 import com.greatmancode.legendarybot.server.IGuildSettings;
-import com.mongodb.Block;
-import com.mongodb.MongoClient;
+import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
@@ -146,7 +145,18 @@ public class ILegendaryBot extends LegendaryBot {
 
         //Load the database
         databaseName = props.getProperty("mongodb.database");
-        mongoClient = new MongoClient(props.getProperty("mongodb.server"), Integer.parseInt(props.getProperty("mongodb.port")));
+        MongoClientOptions.Builder mongoClientOptionsBuilder = MongoClientOptions.builder();
+        if (props.containsKey("mongodb.ssl")) {
+            mongoClientOptionsBuilder.sslEnabled(Boolean.parseBoolean(props.getProperty("mongodb.ssl")));
+        }
+
+        if (props.containsKey("mongodb.username") && props.containsKey("mongodb.password")) {
+            MongoCredential credential = MongoCredential.createCredential(props.getProperty("mongodb.username"),"admin", props.getProperty("mongodb.password").toCharArray());
+            mongoClient = new MongoClient(new ServerAddress(props.getProperty("mongodb.server"), Integer.parseInt(props.getProperty("mongodb.port"))),credential,mongoClientOptionsBuilder.build());
+        } else {
+            mongoClient = new MongoClient(new ServerAddress(props.getProperty("mongodb.server"), Integer.parseInt(props.getProperty("mongodb.port"))), mongoClientOptionsBuilder.build());
+        }
+
         final boolean[] databaseExist = {false};
         mongoClient.listDatabaseNames().forEach((Block<String>) s -> {
             if (s.equals(databaseName)) {

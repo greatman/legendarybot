@@ -148,9 +148,19 @@ public class BattleNetAPIInterceptor implements Interceptor {
                     .build();
         }
 
-        Request request = chain.request().newBuilder().url(url).build();
-        Response response = chain.proceed(request);
-        return response;
+
+        if (url == null) {
+            //Should not happen. Find why
+            try {
+                throw new InvalidURLException();
+            } catch ( InvalidURLException e) {
+                bot.getStacktraceHandler().sendStacktrace(e, "originalUrl:" + chain.request().url().toString());
+            }
+
+       }
+       Request request = chain.request().newBuilder().url(url).build();
+       Response response = chain.proceed(request);
+       return response;
     }
 
     private void refreshToken() throws InterruptedException, ExecutionException, IOException {

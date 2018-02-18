@@ -68,6 +68,9 @@ Create a app.properties file at the root of the bot folder, the following needs 
 mongodb.address=localhost #Your MongoDB server address
 mongodb.port=27017 #Your MongoDB server port
 mongodb.database=legendarybot #Your MongoDB server port.
+mongodb.username= #Optional: Your MongoDB username
+mongodb.password= #Optional: Your MongoDB password
+mongodb.ssl=False #Optional: True if you want to connect with SSL, False if not
 bot.token=Your Discord bot token
 battlenet.us.key=KEY #Your battle.net API Key
 battlenet.us.secret= #Your battle.net API Secret
