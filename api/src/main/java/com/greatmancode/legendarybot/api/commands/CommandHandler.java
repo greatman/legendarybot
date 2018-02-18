@@ -124,6 +124,10 @@ public class CommandHandler {
             if (text.startsWith(prefix)) {
                 command = commandArray[0].substring(prefix.length()).toLowerCase();
             } else {
+                //It's just a @everyone or @LegendaryBot. Ignore it.
+                if (commandArray.length == 1) {
+                    return;
+                }
                 command = commandArray[1].toLowerCase();
             }
 
