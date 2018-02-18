@@ -39,17 +39,11 @@ public interface WowCommand extends Command {
     default String[] preFlight(MessageReceivedEvent event, LegendaryBot bot, String[] args) {
         String[] newArgs = args;
         if (args.length == 0) {
-            try {
-                WoWLinkPlugin plugin = ((WoWLinkPlugin)bot.getPluginManager().getPlugin("wowLink").getPlugin());
-                String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(),event.getGuild());
-                if (character != null) {
-                    newArgs = new String[1];
-                    newArgs[0] = character;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                bot.getStacktraceHandler().sendStacktrace(e,"preflight:true");
-                newArgs = args;
+            WoWLinkPlugin plugin = ((WoWLinkPlugin)bot.getPluginManager().getPlugin("wowLink").getPlugin());
+            String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(),event.getGuild());
+            if (character != null) {
+                newArgs = new String[1];
+                newArgs[0] = character;
             }
         }
         return newArgs;

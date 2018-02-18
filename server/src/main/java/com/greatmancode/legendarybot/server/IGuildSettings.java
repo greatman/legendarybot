@@ -26,14 +26,18 @@ package com.greatmancode.legendarybot.server;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.*;
+import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
+import org.bson.Document;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.set;
+import static com.mongodb.client.model.Updates.unset;
 
 /**
  * A representation of Discord Guild settings. Use a MySQL database to save the parameters
@@ -55,6 +59,8 @@ public class IGuildSettings implements GuildSettings {
      */
     private Map<String, String> settings = new HashMap<>();
 
+    private static final String MONGO_COLLECTION_NAME = "guild";
+
     /**
      * Create a {@link GuildSettings} instance
      * @param guild The Guild those settings are being linked to.
@@ -63,21 +69,8 @@ public class IGuildSettings implements GuildSettings {
     public IGuildSettings(Guild guild, LegendaryBot bot) {
         this.bot = bot;
         this.guildId = guild.getId();
-        try {
-            Connection conn = bot.getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement("SELECT configName,configValue FROM guild_config WHERE guildId=?");
-            statement.setString(1, guildId);
-            ResultSet set = statement.executeQuery();
-            while (set.next()) {
-                settings.put(set.getString("configName"),set.getString("configValue"));
-            }
-            set.close();
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guildId);
-        }
+        MongoCollection<Document> collection = bot.getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
+        collection.find(eq("guild_id",guildId)).forEach((Block<Document>) document -> ((Document)document.get("settings")).forEach((k, v) -> settings.put(k, (String) v)));
     }
 
 
@@ -103,36 +96,15 @@ public class IGuildSettings implements GuildSettings {
 
     @Override
     public void setSetting(String setting, String value) {
-        try {
-            Connection conn = bot.getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement("INSERT INTO guild_config(guildId, configName, configValue) VALUES(?,?,?) ON DUPLICATE KEY UPDATE configValue=VALUES(configValue)");
-            statement.setString(1, guildId);
-            statement.setString(2, setting);
-            statement.setString(3, value);
-            statement.executeUpdate();
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guildId, "setting:" + setting, "value:" + value);
-        }
+        MongoCollection<Document> collection = bot.getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
+        collection.updateOne(eq("guild_id", guildId),set("settings." + setting, value), new UpdateOptions().upsert(true));
         settings.put(setting,value);
     }
 
     @Override
     public void unsetSetting(String setting) {
-        try {
-            Connection conn = bot.getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement("DELETE FROM guild_config WHERE guildId=? AND configName=?");
-            statement.setString(1, guildId);
-            statement.setString(2, setting);
-            statement.executeUpdate();
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            bot.getStacktraceHandler().sendStacktrace(e, "guildId:" + guildId, "setting:" + setting);
-        }
+        MongoCollection<Document> collection = bot.getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
+        collection.updateOne(eq("guild_id", guildId),unset("settings." + setting));
         settings.remove(setting);
     }
 }

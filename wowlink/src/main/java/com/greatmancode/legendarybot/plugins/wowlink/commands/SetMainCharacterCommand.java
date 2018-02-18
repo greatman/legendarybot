@@ -56,16 +56,11 @@ public class SetMainCharacterCommand implements PublicCommand {
             event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("This character is not in the Guild " + plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() + " or is not found.").queue());
         }
 
-        try {
-            plugin.setMainCharacterForGuild(event.getAuthor(), event.getGuild(), args[0]);
-            if (plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED) != null) {
-                plugin.setDiscordRank(event.getAuthor(), event.getGuild(), plugin.getWoWRank(event.getGuild(), args[0]));
-            }
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Your main character has been set.").queue());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            plugin.getBot().getStacktraceHandler().sendStacktrace(e, "character:" + args[0], "userid:" + event.getAuthor().getId(), "guildid:" + event.getGuild().getId());
+        plugin.setMainCharacterForGuild(event.getAuthor(), event.getGuild(), args[0]);
+        if (plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED) != null) {
+            plugin.setDiscordRank(event.getAuthor(), event.getGuild(), plugin.getWoWRank(event.getGuild(), args[0]));
         }
+        event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Your main character has been set.").queue());
     }
 
     @Override

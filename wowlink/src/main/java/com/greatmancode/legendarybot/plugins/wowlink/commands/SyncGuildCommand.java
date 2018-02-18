@@ -62,11 +62,7 @@ public class SyncGuildCommand extends AdminCommand implements ZeroArgsCommand {
 
         Map<User,String> userCharacterMap = new HashMap<>();
         event.getGuild().getMembers().forEach((m) -> {
-            try {
-                userCharacterMap.put(m.getUser(),plugin.getMainCharacterForUserInGuild(m.getUser(),event.getGuild()));
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            userCharacterMap.put(m.getUser(),plugin.getMainCharacterForUserInGuild(m.getUser(),event.getGuild()));
         });
 
         userCharacterMap.forEach((u,l) -> {

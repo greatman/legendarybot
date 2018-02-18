@@ -24,15 +24,18 @@
 package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
+import org.bson.Document;
 import org.pf4j.PluginWrapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.set;
 
 /**
  * The Legendary Check plugin
@@ -49,28 +52,14 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
      */
     private Map<String, LegendaryCheck> legendaryCheckMap = new HashMap<>();
 
+    private final static String MONGO_WOW_CHARACTERS_COLLECTION = "wowCharacters";
+
     public LegendaryCheckPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
     public void start() {
-        String LEGENDARY_TABLE = "CREATE TABLE IF NOT EXISTS `legendarycheck` (\n" +
-                "  `region` VARCHAR(25) NOT NULL,\n" +
-                "  `serverName` VARCHAR(25) NOT NULL,\n" +
-                "  `playerName` VARCHAR(25) NOT NULL,\n" +
-                "  `lastModified` BIGINT NOT NULL,\n" +
-                "  PRIMARY KEY (`region`,`serverName`,`playerName`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;\n";
-        try {
-            Connection conn = getBot().getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement(LEGENDARY_TABLE);
-            statement.executeUpdate();
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
         log.info("Starting LegendaryCheck plugin.");
         final int[] i = {0};
         getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(guild -> startLegendaryCheck(guild, i[0]++)));
@@ -148,22 +137,10 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
      */
     public long getPlayerInventoryDate(String region, String serverName, String playerName) {
         long time = -1;
-        try {
-            Connection conn = getBot().getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement("SELECT lastmodified FROM legendarycheck WHERE region=? AND serverName=? AND playerName=?");
-            statement.setString(1, region);
-            statement.setString(2, serverName);
-            statement.setString(3, playerName);
-            ResultSet set = statement.executeQuery();
-            if (set.next()) {
-                time = set.getLong("lastModified");
-            }
-            set.close();
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName, "playerName:" + playerName);
+        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
+        Document document = collection.find(and(eq("region", region), eq("realm", serverName), eq("name", playerName))).first();
+        if (document != null && document.containsKey("lastUpdate")) {
+            time = document.getLong("lastUpdate");
         }
         return time;
     }
@@ -176,20 +153,8 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
      * @param time The time of the last modified in UNIX timestamp format.
      */
     public void setPlayerInventoryDate(String region, String serverName, String playerName, long time) {
-        try {
-            Connection conn = getBot().getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement("INSERT INTO legendarycheck(region,serverName,playerName,lastModified) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE lastModified=VALUES(lastModified)");
-            statement.setString(1, region);
-            statement.setString(2, serverName);
-            statement.setString(3, playerName);
-            statement.setLong(4, time);
-            statement.executeUpdate();
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + region, "serverName:" + serverName, "playerName:" + playerName, "time:" + time);
-        }
+        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
+        collection.updateOne(and(eq("region", region), eq("realm", serverName), eq("name", playerName)),set("lastUpdate", time), new UpdateOptions().upsert(true));
     }
 
     /**

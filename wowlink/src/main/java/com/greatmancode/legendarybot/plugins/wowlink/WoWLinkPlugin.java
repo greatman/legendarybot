@@ -36,6 +36,9 @@ import com.greatmancode.legendarybot.api.utils.HeroClass;
 import com.greatmancode.legendarybot.plugins.wowlink.commands.*;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WoWCharacter;
+import com.mongodb.Block;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
@@ -43,6 +46,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.bson.Document;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -54,14 +58,16 @@ import spark.Spark;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 import static spark.Spark.get;
 import static spark.Spark.path;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
+import static com.mongodb.client.model.Updates.set;
+import static com.mongodb.client.model.Updates.unset;
 
 /**
  * The WowLink plugin main class.
@@ -72,6 +78,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
     public static final String SETTING_SCHEDULER = "wowlink_scheduler";
     public static final String SETTING_RANK_PREFIX = "wowlink_rank_";
 
+    private final static String MONGO_WOW_CHARACTERS_COLLECTION = "wowCharacters";
     /**
      * The HttpClient to do web requests.
      */
@@ -115,28 +122,6 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
 
-        try {
-            Connection conn = getBot().getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `user_characters`(" +
-                    "  `user_id` VARCHAR(64) NOT NULL," +
-                    "  `characterName` VARCHAR(45) NOT NULL," +
-                    "  `realmName` VARCHAR(45) NOT NULL," +
-                    "  `region` VARCHAR(45) NOT NULL," +
-                    "  `guildName` VARCHAR(45) NOT NULL," +
-                    "  PRIMARY KEY (`user_id`, `characterName`, `realmName`, `region`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
-            statement.executeUpdate();
-            statement.close();
-            statement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS `user_characters_guild` (" +
-                    "  `user_id` VARCHAR(64) NOT NULL," +
-                    "  `guild_id` VARCHAR(64) NOT NULL," +
-                    "  `characterName` VARCHAR(45) NULL," +
-                    "  PRIMARY KEY (`user_id`, `guild_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;");
-            statement.executeUpdate();
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         path("/auth", () -> get("/battlenetcallback", (req, res) -> {
             String state = req.queryParams("state");
             String region = state.split(":")[0];
@@ -162,30 +147,8 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                 }
             });
             if (characterList.size() > 0) {
-                try {
-                    Connection conn = getBot().getDatabase().getConnection();
-                    final String[] statement = {"INSERT INTO user_characters(user_id,characterName,realmName,region,guildName) VALUES"};
-                    characterList.forEach((c) -> statement[0] += "(?,?,?,?,?),");
-                    statement[0] = statement[0].substring(0,statement[0].length() - 1);
-                    statement[0] += " ON DUPLICATE KEY UPDATE guildName=VALUES(guildName)";
-                    PreparedStatement preparedStatement = conn.prepareStatement(statement[0]);
-                    final int[] i = {1};
-                    characterList.forEach((c) -> {
-                        try {
-                            preparedStatement.setString(i[0]++,state.split(":")[1]);
-                            preparedStatement.setString(i[0]++,c.getCharacterName());
-                            preparedStatement.setString(i[0]++,c.getRealm());
-                            preparedStatement.setString(i[0]++,c.getRegion());
-                            preparedStatement.setString(i[0]++,c.getGuild());
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                    preparedStatement.executeUpdate();
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
+                characterList.forEach((c) -> collection.updateOne(and(eq("region",c.getRegion()), eq("realm", c.getRealm()), eq("name",c.getCharacterName())),and(set("guild",c.getGuild()),set("owner", state.split(":")[1])),new UpdateOptions().upsert(true)));
             }
             return "Your WoW characters are now synced to LegendaryBot!";
         }));
@@ -239,24 +202,14 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * @return A List containing all characters of a player that belong to a specific guild.
      */
     public List<String> getUserCharactersInGuild(User user, Guild guild) {
+        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
         List<String> charactersList = new ArrayList<>();
-        try {
-            Connection conn = getBot().getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement("SELECT * FROM user_characters WHERE user_id=? AND guildName=? AND region=?");
-            statement.setString(1,user.getId());
-            statement.setString(2, getBot().getGuildSettings(guild).getGuildName());
-            statement.setString(3,getBot().getGuildSettings(guild).getRegionName());
-            ResultSet set = statement.executeQuery();
-            while(set.next()) {
-                charactersList.add(set.getString("characterName"));
+        collection.find(and(eq("owner",user.getId()), eq("guild",getBot().getGuildSettings(guild).getGuildName()), eq("region", getBot().getGuildSettings(guild).getRegionName()))).forEach(new Block<Document>() {
+            @Override
+            public void apply(Document document) {
+                charactersList.add(document.getString("name"));
             }
-            set.close();
-            statement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
+        });
         return charactersList;
     }
 
@@ -265,17 +218,15 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * @param user The user to set the main character to
      * @param guild The guild to set the main character of the user in.
      * @param character The character name that is the main character of the player.
-     * @throws SQLException SQLException
      */
-    public void setMainCharacterForGuild(User user, Guild guild, String character) throws SQLException {
-        Connection conn = getBot().getDatabase().getConnection();
-        PreparedStatement statement = conn.prepareStatement("INSERT INTO user_characters_guild VALUES(?,?,?) ON DUPLICATE KEY UPDATE characterName=VALUES(characteRName)");
-        statement.setString(1,user.getId());
-        statement.setString(2,guild.getId());
-        statement.setString(3, character);
-        statement.executeUpdate();
-        statement.close();
-        conn.close();
+    public void setMainCharacterForGuild(User user, Guild guild, String character) {
+        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
+        //We first search for an existing main character and unset it.
+        Document document = collection.find(and(eq("owner", user.getId()), eq("guild_id", guild.getId()))).first();
+        if (document != null) {
+            collection.updateOne(eq("_id", document.getObjectId("_id")), unset("guild_id"));
+        }
+        collection.updateOne(and(eq("owner",user.getId()), eq("guild",getBot().getGuildSettings(guild).getGuildName()), eq("region", getBot().getGuildSettings(guild).getRegionName()), eq("name", character)), set("guild_id", guild.getId()));
     }
 
     /**
@@ -283,22 +234,13 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * @param user The user to retrieve the main character from.
      * @param guild The guild to retrieve the main character from.
      * @return The name of the main character of a user. Returns null if not found.
-     * @throws SQLException SQLException
      */
-    public String getMainCharacterForUserInGuild(User user, Guild guild) throws SQLException {
-        String character = null;
-        Connection connection = getBot().getDatabase().getConnection();
-        PreparedStatement statement = connection.prepareStatement("SELECT characterName FROM user_characters_guild WHERE user_id=? AND guild_id=?");
-        statement.setString(1, user.getId());
-        statement.setString(2, guild.getId());
-        ResultSet set = statement.executeQuery();
-        if (set.next()) {
-            character = set.getString("characterName");
-        }
-        set.close();
-        statement.close();
-        connection.close();
-        return character;
+    public String getMainCharacterForUserInGuild(User user, Guild guild) {
+        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
+        //We first search for an existing main character and unset it.
+        Document document = collection.find(and(eq("owner", user.getId()), eq("guild_id", guild.getId()))).first();
+
+        return document != null ? document.getString("name") : null;
     }
 
     /**

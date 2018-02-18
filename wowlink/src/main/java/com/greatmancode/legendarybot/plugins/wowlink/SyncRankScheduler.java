@@ -25,16 +25,12 @@ public class SyncRankScheduler {
 
         final Runnable runnable = () -> guild.getMembers().forEach((member -> {
             log.info("Starting update of rank for guild " + guild.getName() + " ID: " + guild.getId());
-            try {
-                String character = plugin.getMainCharacterForUserInGuild(member.getUser(), guild);
-                if (character != null) {
-                    String rank = plugin.getWoWRank(guild,character);
-                    if (rank != null) {
-                        plugin.setDiscordRank(member.getUser(), guild, rank);
-                    }
+            String character = plugin.getMainCharacterForUserInGuild(member.getUser(), guild);
+            if (character != null) {
+                String rank = plugin.getWoWRank(guild,character);
+                if (rank != null) {
+                    plugin.setDiscordRank(member.getUser(), guild, rank);
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
             log.info("Update done of rank for guild " + guild.getName() + " ID: " + guild.getId());
         }));

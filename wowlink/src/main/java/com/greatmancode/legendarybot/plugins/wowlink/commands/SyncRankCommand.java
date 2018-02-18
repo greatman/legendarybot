@@ -56,19 +56,13 @@ public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
             return;
         }
 
-        try {
-            String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(), event.getGuild());
-            if (character == null) {
-                event.getAuthor().openPrivateChannel().queue((c)-> c.sendMessage("You didn't set a main character yet. Please use !setguildcharacter first.").queue());
-                return;
-            }
-            plugin.setDiscordRank(event.getAuthor(),event.getGuild(),plugin.getWoWRank(event.getGuild(), character));
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Rank synced!").queue());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("An error ocurred. Try again later!").queue());
-            plugin.getBot().getStacktraceHandler().sendStacktrace(e, "userid:" + event.getAuthor().getId(), "guildid:" + event.getGuild().getId());
+        String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(), event.getGuild());
+        if (character == null) {
+            event.getAuthor().openPrivateChannel().queue((c)-> c.sendMessage("You didn't set a main character yet. Please use !setguildcharacter first.").queue());
+            return;
         }
+        plugin.setDiscordRank(event.getAuthor(),event.getGuild(),plugin.getWoWRank(event.getGuild(), character));
+        event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Rank synced!").queue());
 
     }
 

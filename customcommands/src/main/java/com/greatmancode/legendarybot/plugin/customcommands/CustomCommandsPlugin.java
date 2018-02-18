@@ -27,21 +27,30 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.customcommands.commands.CreateCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.commands.ListCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.commands.RemoveCommand;
+import com.mongodb.Block;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
+import org.bson.Document;
 import org.pf4j.PluginWrapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
+import static com.mongodb.client.model.Updates.set;
+import static com.mongodb.client.model.Updates.unset;
 
 public class CustomCommandsPlugin extends LegendaryBotPlugin {
 
     private Map<String, Map<String, String>> guildCustomCommands = new HashMap<>();
     private GuildJoinListener listener = new GuildJoinListener(this);
+
+    private static final String MONGO_COLLECTION_NAME = "guild";
+    private static final String MONGO_DOCUMENT_NAME = "customCommands";
 
     public CustomCommandsPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -49,41 +58,18 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() {
-        try {
-            Connection connection = getBot().getDatabase().getConnection();
-            //We create the commands table
-            String SERVER_COMMANDS_TABLE = "CREATE TABLE IF NOT EXISTS `guild_commands` (\n" +
-                    "  `guild_id` varchar(64) NOT NULL,\n" +
-                    "  `command_name` VARCHAR(45) NOT NULL,\n" +
-                    "  `text` LONGTEXT NOT NULL,\n" +
-                    "  PRIMARY KEY (`guild_id`, `command_name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;\n";
-            PreparedStatement statement = connection.prepareStatement(SERVER_COMMANDS_TABLE);
-            statement.executeUpdate();
-            statement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
         log.info("Loading custom commands");
         getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> {
+            MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
             Map<String, String> result = new HashMap<>();
-            try {
-                Connection connection = getBot().getDatabase().getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM guild_commands WHERE guild_id=?");
-                statement.setString(1, g.getId());
-                ResultSet set = statement.executeQuery();
-                while (set.next()) {
-                    result.put(set.getString("command_name"), set.getString("text"));
+            collection.find(eq("guild_id",g.getId())).forEach((Block<Document>) document -> {
+                if (document.containsKey(MONGO_DOCUMENT_NAME)) {
+                    ((Document)document.get(MONGO_DOCUMENT_NAME)).forEach((k, v) -> result.put(k, (String) v));
                 }
-                statement.close();
-                connection.close();
-                guildCustomCommands.put(g.getId(), result);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + g.getId());
-            }
+            });
+            guildCustomCommands.put(g.getId(), result);
         }));
+
         getBot().getJDA().forEach(jda -> jda.addEventListener(listener));
         log.info("Custom commands loaded");
         getBot().getCommandHandler().setUnknownCommandHandler(new IUnknownCommandHandler(this));
@@ -112,20 +98,9 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
      * @param value The value of the custom command (What the bot will say).
      */
     public void createCommand(Guild guild, String commandName, String value) {
-        try {
-            Connection conn = getBot().getDatabase().getConnection();
-            PreparedStatement statement = conn.prepareStatement("INSERT INTO guild_commands(guild_id, command_name, text) VALUES(?,?,?) ON DUPLICATE KEY UPDATE text=VALUES(text)");
-            statement.setString(1, guild.getId());
-            statement.setString(2, commandName);
-            statement.setString(3, value);
-            statement.executeUpdate();
-            statement.close();
-            conn.close();
-            guildCustomCommands.get(guild.getId()).put(commandName, value);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "guildID:" + guild.getId(), "commandName:" + commandName, "commandValue:" + value);
-        }
+        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
+        collection.updateOne(eq("guild_id", guild.getId()),set(MONGO_DOCUMENT_NAME+ "." + commandName, value),new UpdateOptions().upsert(true));
+        guildCustomCommands.get(guild.getId()).put(commandName, value);
     }
 
     /**
@@ -135,21 +110,9 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
      */
     public void removeCommand(Guild guild, String commandName) {
         if (guildCustomCommands.get(guild.getId()).containsKey(commandName)) {
-            try {
-                Connection conn = getBot().getDatabase().getConnection();
-                PreparedStatement statement = conn.prepareStatement("DELETE FROM guild_commands WHERE guild_id=? AND command_name=?");
-                statement.setString(1,guild.getId());
-                statement.setString(2, commandName);
-                int result = statement.executeUpdate();
-                if (result == 1) {
-                    guildCustomCommands.get(guild.getId()).remove(commandName);
-                }
-                statement.close();
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
+            MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
+            collection.updateOne(and(eq("guild_id",guild.getId()), exists(MONGO_DOCUMENT_NAME + "." + commandName)), unset(MONGO_DOCUMENT_NAME + "." + commandName));
+            guildCustomCommands.get(guild.getId()).remove(commandName);
         }
     }
 
