@@ -65,28 +65,28 @@ To run the bot, it requires some basic configuration
 
 Create a app.properties file at the root of the bot folder, the following needs to be added:
 ```
-mongodb.server=localhost #Your MongoDB server address
-mongodb.port=27017 #Your MongoDB server port
-mongodb.database=legendarybot #Your MongoDB server port.
-mongodb.username= #Optional: Your MongoDB username
-mongodb.password= #Optional: Your MongoDB password
+mongodb.server=localhost #MongoDB server address
+mongodb.port=27017 #MongoDB server port
+mongodb.database=legendarybot #MongoDB server port.
+mongodb.username= #Optional: MongoDB username
+mongodb.password= #Optional: MongoDB password
 mongodb.ssl=False #Optional: True if you want to connect with SSL, False if not
-bot.token=Your Discord bot token
-battlenet.us.key=KEY #Your battle.net API Key
-battlenet.us.secret= #Your battle.net API Secret
-battlenet.eu.key= #Your battle.net API key. You can set the same as the US one.
-battlenet.eu.key= #Your battle.net API secret. You can set the same as the US one.
-elasticsearch.address=localhost #Your ElasticSearch server address
-elasticsearch.port=9200 #Your ElasticSearch server port
-elasticsearch.scheme=http #Your ElasticSearch scheme. By default http.
-battlenetoauth.key= #Your battle.net API key that will be used for the !linkwowchars command. Can be the same as your other battle.net key.
-battlenetoauth.secret= #Your battle.net API Secret that will be used for the !linkwowchars command. Can be the same as your other battle.net key.
-warcraftlogs.key= #Your WarcraftLogs API Key for the !logs command to work.
-twitter.key= #Your Twitter API key to have the !blizzardcs command work.
-twritter.secret= #Your Twitter API Secret to have the !blizzardcs command work.
+bot.token= #Discord bot token
+battlenet.us.key= #Battle.net API Key
+battlenet.us.secret= #Battle.net API Secret
+battlenet.eu.key= #Optional: Battle.net EU API key.
+battlenet.eu.key= #Optional: Battle.net EU API secret.
+elasticsearch.address=localhost #ElasticSearch server address
+elasticsearch.port=9200 #ElasticSearch server port
+elasticsearch.scheme=http #ElasticSearch scheme. By default http.
+battlenetoauth.key= #Battle.net API key that will be used for the !linkwowchars command. Can be the same as your other battle.net key.
+battlenetoauth.secret= #Battle.net API Secret that will be used for the !linkwowchars command. Can be the same as your other battle.net key.
+warcraftlogs.key= #WarcraftLogs API Key for the !logs command to work.
+twitter.key= #Twitter API key to have the !blizzardcs command work.
+twritter.secret= #Twitter API Secret to have the !blizzardcs command work.
 sentry.key = #Optional: The bot have Sentry.io integration. If you wish to upload the stacktraces to the Sentry.io platform enter your key here
 bot.shard= #Optional: The number of shards the bot will have on Discord. Only recommended to put it if over 800 discord servers use the bot.
-twitch.key = #Your Twitch API key to query if a stream is online or not for the !streamers command.
+twitch.key = #Twitch API key to query if a stream is online or not for the !streamers command.
 ```
 
 You are now ready to start the bot, start it with the following command while being in the LegendaryBot folder:
@@ -94,7 +94,7 @@ You are now ready to start the bot, start it with the following command while be
 bin\server
 ```
 
-##Loading the ElasticSearch database with data
+## Loading the ElasticSearch database with data
 
 Several features of the bot use the ElasticSearch server to query for data like realm name, items, etc. By default it is empty. For now, you can download the backup of the live database [here](https://github.com/greatman/legendarybot/files/1734877/backup.zip).
 To import it in ElasticSearch, download [elasticdump](https://www.npmjs.com/package/elasticdump) and use the following command: 

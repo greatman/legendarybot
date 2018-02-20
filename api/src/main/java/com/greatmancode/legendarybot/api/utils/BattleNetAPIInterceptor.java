@@ -79,6 +79,25 @@ public class BattleNetAPIInterceptor implements Interceptor {
             usSecret = props.getProperty("battlenet.us.secret");
             euKey = props.getProperty("battlenet.eu.key");
             euSecret = props.getProperty("battlenet.eu.secret");
+
+            if (usKey == null && euKey == null) {
+                throw new IllegalArgumentException("Blizzard API requires at least one API key.");
+            }
+
+            //Copy over the secret/key to the other region
+            if (usKey == null) {
+                usKey = euKey;
+                usSecret = euSecret;
+            } else if (euKey == null) {
+                euKey = usKey;
+                euSecret = usSecret;
+            }
+
+            //Ensure both secrets are provided
+            if (usSecret == null || euSecret == null) {
+                throw new IllegalArgumentException("Blizzard API requires at least one API secret.");
+            }
+
             if (usService == null) {
                 usService = new ServiceBuilder(usKey)
                         .apiSecret(usSecret)

@@ -96,6 +96,10 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         String serverName = null;
         String region = null;
         try {
+            //If we only received one name, split by dash to look for realm
+            if (args.length == 1) {
+                args = args[0].split("-");
+            }
             if (args.length == 1) {
                 serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
                 region = getBot().getGuildSettings(event.getGuild()).getRegionName();
