@@ -26,12 +26,17 @@ package com.greatmancode.legendarybot.plugin.streamers;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
+import com.mongodb.client.MongoCollection;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.bson.Document;
 
 import java.awt.*;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Map;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
 
 /**
  * The !streamers command. Lists all the streamers and their status.
@@ -49,30 +54,37 @@ public class StreamersCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        String streamersConfig = plugin.getBot().getGuildSettings(event.getGuild()).getSetting(StreamersPlugin.CONFIG_KEY);
-        if (streamersConfig != null) {
+        MongoCollection<Document> collection = plugin.getBot().getMongoDatabase().getCollection("guild");
+        Document document = collection.find(and(eq("guild_id", event.getGuild().getId()))).first();
+        if (document != null) {
             EmbedBuilder eb = new EmbedBuilder();
             eb.setTitle("Server Streamers");
             eb.setColor(new Color(100,65,164));
             eb.setThumbnail("https://www-cdn.jtvnw.net/images/twitch_logo3.jpg");
-            Arrays.stream(streamersConfig.split(";")).forEach(s -> {
-                String[] streamer = s.split(",");
-                StreamPlatform platform = StreamPlatform.valueOf(streamer[1]);
-                Map<String, String> result = plugin.isStreaming(streamer[0], platform);
-                String output = "";
-                if (result.size() != 0) {
-                    String url = "";
-                    if (platform == StreamPlatform.TWITCH) {
-                        url = "https://twitch.tv/" + streamer[0];
-                    } else if (platform == StreamPlatform.MIXER) {
-                        url = "https://mixer.com/" + streamer[0];
-                    }
-                    output = "[" + result.get(StreamersPlugin.STATUS_KEY) + " in " + result.get(StreamersPlugin.GAME_KEY) + "!](" + url + ")";
-                } else {
-                    output = streamer[0] + " is not streaming!";
-                }
-                eb.addField(streamer[0],output, false);
-            });
+            Document streamers = ((Document)document.get("streamers"));
+            if (streamers != null) {
+                streamers.forEach((k,v) -> {
+                    StreamPlatform platform = StreamPlatform.valueOf(k);
+                    ArrayList<String> vNew = (ArrayList<String>) v;
+                    vNew.forEach(streamer -> {
+                        Map<String, String> result = plugin.isStreaming(streamer, platform);
+                        String output = "";
+                        if (result.size() != 0) {
+                            String url = "";
+                            if (platform == StreamPlatform.TWITCH) {
+                                url = "https://twitch.tv/" + streamer;
+                            } else if (platform == StreamPlatform.MIXER) {
+                                url = "https://mixer.com/" + streamer;
+                            }
+                            output = "[" + result.get(StreamersPlugin.STATUS_KEY) + " in " + result.get(StreamersPlugin.GAME_KEY) + "!](" + url + ")";
+                        } else {
+                            output = streamer + " is not streaming!";
+                        }
+                        eb.addField(streamer,output, false);
+                    });
+                });
+            }
+
             event.getChannel().sendMessage(eb.build()).queue();
         } else {
             event.getChannel().sendMessage("No streamers on this server!").queue();

@@ -171,7 +171,7 @@ public class BattleNetAPIInterceptor implements Interceptor {
         if (url == null) {
             //Should not happen. Find why
             try {
-                throw new InvalidURLException();
+                throw new InvalidURLException(chain.request().url().toString());
             } catch ( InvalidURLException e) {
                 bot.getStacktraceHandler().sendStacktrace(e, "originalUrl:" + chain.request().url().toString());
             }

@@ -25,9 +25,12 @@
 package com.greatmancode.legendarybot.plugin.streamers;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.bson.Document;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -35,9 +38,14 @@ import org.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.*;
 
 /**
  * Streamer plugin - Currently allows a guild to have a list of streamers registered.
@@ -89,6 +97,27 @@ public class StreamersPlugin extends LegendaryBotPlugin {
         log.info("Command !addstreamer loaded!");
         getBot().getCommandHandler().addCommand("removestreamer", new RemoveStreamerCommand(this), "Streamers Admin Commands");
         log.info("Command !removestreamer unloaded!");
+
+        log.info("Converting old streamers config");
+        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(guild -> {
+            String setting = getBot().getGuildSettings(guild).getSetting(CONFIG_KEY);
+            if (setting != null) {
+                log.info("Converting " + guild.getId() + ":" + guild.getName() + " streamers config.");
+                for (String streamer : setting.split(";")) {
+                    String[] streamerValues = streamer.split(",");
+                    if (streamerValues.length == 2) {
+                        try {
+                            StreamPlatform platform = StreamPlatform.valueOf(streamerValues[1]);
+                            addStreamer(guild,streamerValues[0],platform);
+                        } catch(IllegalArgumentException ignored) {
+                            log.warn("Invalid config for streamer " + Arrays.toString(streamerValues));
+                        }
+                    }
+                }
+                getBot().getGuildSettings(guild).unsetSetting(CONFIG_KEY);
+                log.info("Done converting " + guild.getId() + ":" + guild.getName() + " streamers config.");
+            }
+        }));
     }
 
     @Override
@@ -137,7 +166,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                 try {
                     String result = client.newCall(request).execute().body().string();
                     JSONObject json = (JSONObject) parser.parse(result);
-                    if ((boolean)json.get("online")) {
+                    if (json.containsKey("online") && (boolean)json.get("online")) {
                         JSONObject stream = (JSONObject) json.get("type");
                         map.put(STATUS_KEY, (String) json.get("name"));
                         map.put(GAME_KEY, (String) stream.get("name"));
@@ -199,15 +228,8 @@ public class StreamersPlugin extends LegendaryBotPlugin {
      * @param platform The platform the user is streaming on.
      */
     public void addStreamer(Guild guild, String username, StreamPlatform platform) {
-        String settings = getBot().getGuildSettings(guild).getSetting(CONFIG_KEY);
-        if (settings != null) {
-            if (!settings.contains(username + "," + platform)) {
-                settings += ";" + username + "," + platform;
-            }
-        } else {
-            settings = username + "," + platform;
-        }
-        getBot().getGuildSettings(guild).setSetting(CONFIG_KEY,settings);
+        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection("guild");
+        collection.updateOne(eq("guild_id", guild.getId()),addToSet("streamers." + platform.toString(), username), new UpdateOptions().upsert(true));
     }
 
     /**
@@ -217,10 +239,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
      * @param platform The platform the user is streaming from.
      */
     public void removeStreamer(Guild guild, String username, StreamPlatform platform) {
-        String settings = getBot().getGuildSettings(guild).getSetting(CONFIG_KEY);
-        if (settings != null && settings.contains(username + "," + platform)) {
-            settings = settings.replaceAll(username + "," + platform, "").replaceAll(";;", ";");
-            getBot().getGuildSettings(guild).setSetting(CONFIG_KEY, settings);
-        }
+        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection("guild");
+        collection.updateOne(eq("guild_id", guild.getId()),pull("streamers." +platform.toString(), username));
     }
 }

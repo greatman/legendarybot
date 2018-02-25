@@ -74,7 +74,6 @@ public class IGuildSettings implements GuildSettings {
             if (((Document)document.get("settings")) != null) {
                 ((Document)document.get("settings")).forEach((k, v) -> settings.put(k, (String) v));
             }
-
         });
     }
 
