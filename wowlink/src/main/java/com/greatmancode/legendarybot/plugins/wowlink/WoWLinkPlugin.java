@@ -142,7 +142,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
             charactersArray.forEach((c) -> {
                 JSONObject jsonObject = (JSONObject) c;
                 if (jsonObject.containsKey("guild")) {
-                    characterList.add(new WoWCharacter((String)jsonObject.get("name"),(String)jsonObject.get("realm"), (String)jsonObject.get("guild"), region, HeroClass.values()[((Long) jsonObject.get("class")).intValue()]));
+                    characterList.add(new WoWCharacter((String)jsonObject.get("name"),((String)jsonObject.get("realm")).toLowerCase(), (String)jsonObject.get("guild"), region, HeroClass.values()[((Long) jsonObject.get("class")).intValue()]));
                     log.info("User " + state.split(":")[1] + " user have the character " + jsonObject.get("name") + " in guild " + jsonObject.get("guild"));
                 }
             });
