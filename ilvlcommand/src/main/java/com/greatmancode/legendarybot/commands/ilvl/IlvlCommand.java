@@ -44,6 +44,7 @@ import org.json.simple.parser.ParseException;
 import org.pf4j.PluginWrapper;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -164,7 +165,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
 
                     String className = jsonObject.get("class").toString().toLowerCase();
                     eb.setColor(WoWUtils.getClassColor(className));
-                    
+
                     StringBuilder titleBuilder = new StringBuilder();
                     titleBuilder.append(jsonObject.get("name"));
                     titleBuilder.append(" ");
@@ -183,7 +184,8 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     } else {
                         wowLink = "https://worldofwarcraft.com/en-gb/character/" + serverSlug + "/" + jsonObject.get("name");
                     }
-                    eb.setTitle(titleBuilder.toString(), wowLink);
+                    eb.setAuthor(titleBuilder.toString(), wowLink, WoWUtils.getClassIcon(className));
+
 
                     StringBuilder progressionBuilder = new StringBuilder();
                     JSONObject raidProgression = (JSONObject) jsonObject.get("raid_progression");
@@ -203,7 +205,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     progressionBuilder.append(" - ");
                     progressionBuilder.append("**ToS**: ");
                     progressionBuilder.append(tombOfSargeras.get("summary"));
-                    progressionBuilder.append("\n");
+                    progressionBuilder.append(" - ");
                     progressionBuilder.append("**ABT**: ");
                     progressionBuilder.append(antorus.get("summary"));
                     eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"progression"), progressionBuilder.toString(), false);
@@ -213,7 +215,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     HttpUrl battleneturl = new HttpUrl.Builder().scheme("https")
                             .host(region + ".api.battle.net")
                             .addPathSegments("wow/character/"+serverSlug+"/" +args[0])
-                            .addQueryParameter("fields", "achievements")
+                            .addQueryParameter("fields", "achievements,stats")
                             .build();
                     Request battlenetRequest = new Request.Builder().url(battleneturl).build();
                     String battlenetResult = clientBattleNet.newCall(battlenetRequest).execute().body().string();
@@ -234,7 +236,50 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     JSONObject mplusRank = (JSONObject) jsonObject.get("mythic_plus_scores");
                     eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"mythicplus.score"), mplusRank.get("all").toString(), true);
                     JSONObject lastMplusRank = (JSONObject) jsonObject.get("previous_mythic_plus_scores");
-                    eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"last.season.mythicplus.score"), lastMplusRank.get("all").toString(), true);
+                    int lastSeasonScore = Integer.parseInt(lastMplusRank.get("all").toString());
+                    int currentSeasonScore = Integer.parseInt(mplusRank.get("all").toString());
+                    if (lastSeasonScore > currentSeasonScore || lastSeasonScore == 0) {
+                        eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"last.season.mythicplus.score"), lastMplusRank.get("all").toString(), true);
+                    } else {
+                        //Field Unused. Let's put something else.
+                        JSONObject battleNetJSON = (JSONObject) parser.parse(battlenetResult);
+                        JSONObject statsJSON = (JSONObject) battleNetJSON.get("stats");
+                        //TODO Translate this
+                        StringBuilder statsBuilder = new StringBuilder();
+                        long str = (long) statsJSON.get("str");
+                        long agi = (long) statsJSON.get("agi");
+                        long intel = (long) statsJSON.get("int");
+                        if (str > agi && str > intel) {
+                            statsBuilder.append("**STR**: ");
+                            statsBuilder.append(str);
+                        } else if (agi > str && agi > intel) {
+                            statsBuilder.append("**AGI**: ");
+                            statsBuilder.append(agi);
+                        } else {
+                            statsBuilder.append("**INT**: ");
+                            statsBuilder.append(intel);
+                        }
+                        DecimalFormat decimalFormat = new DecimalFormat("00.##");
+                        statsBuilder.append(" - ");
+                        statsBuilder.append("**Crit**: ");
+                        statsBuilder.append(decimalFormat.format(statsJSON.get("crit")));
+                        statsBuilder.append("%");
+                        statsBuilder.append(" - ");
+                        statsBuilder.append("**Haste**: ");
+                        statsBuilder.append(decimalFormat.format(statsJSON.get("haste")));
+                        statsBuilder.append("%");
+                        statsBuilder.append("\n");
+                        statsBuilder.append("**Mastery**: ");
+                        statsBuilder.append(decimalFormat.format(statsJSON.get("mastery")));
+                        statsBuilder.append("%");
+                        statsBuilder.append(" - ");
+                        statsBuilder.append("**Vers**: ");
+                        statsBuilder.append(decimalFormat.format(statsJSON.get("versatilityDamageDoneBonus")));
+                        statsBuilder.append("%");
+
+                        eb.addField("Stats", statsBuilder.toString(), true);
+                    }
+
 
 
                     StringBuilder runsBuilder = new StringBuilder();
@@ -261,7 +306,7 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                         runsBuilder.append(" | ");
                         runsBuilder.append(run.get("num_keystone_upgrades").toString() + " ");
                         runsBuilder.append(getBot().getTranslateManager().translate(event.getGuild(), "mythicplus.chests"));
-                        runsBuilder.append("\n\n");
+                        runsBuilder.append("\n");
                     }
                     eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"best.mythicplus.runs"), runsBuilder.toString(),    true);
                     long m5 = getM5(battlenetResult);

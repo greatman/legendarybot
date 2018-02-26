@@ -128,4 +128,50 @@ public class WoWUtils {
         }
         return color;
     }
+
+    public static String getClassIcon(String className) {
+        String url;
+        String classNameLower = className.toLowerCase();
+        switch (classNameLower) {
+            case "death knight":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/e/e5/Ui-charactercreate-classes_deathknight.png";
+                break;
+            case "demon hunter":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/c/c9/Ui-charactercreate-classes_demonhunter.png";
+                break;
+            case "druid":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/6/6f/Ui-charactercreate-classes_druid.png";
+                break;
+            case "hunter":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/4/4e/Ui-charactercreate-classes_hunter.png";
+                break;
+            case "mage":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/5/56/Ui-charactercreate-classes_mage.png";
+                break;
+            case "monk":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/2/24/Ui-charactercreate-classes_monk.png";
+                break;
+            case "paladin":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/8/80/Ui-charactercreate-classes_paladin.png";
+                break;
+            case "priest":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/0/0f/Ui-charactercreate-classes_priest.png";
+                break;
+            case "rogue":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/b/b1/Ui-charactercreate-classes_rogue.png";
+                break;
+            case "shaman":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/3/3e/Ui-charactercreate-classes_shaman.png";
+                break;
+            case "warlock":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/c/cf/Ui-charactercreate-classes_warlock.png";
+                break;
+            case "warrior":
+                url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/3/37/Ui-charactercreate-classes_warrior.png";
+                break;
+            default:
+                url = null;
+        }
+        return url;
+    }
 }
