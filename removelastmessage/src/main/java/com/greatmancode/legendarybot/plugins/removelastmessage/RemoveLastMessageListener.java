@@ -14,7 +14,6 @@ public class RemoveLastMessageListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().equals(event.getJDA().getSelfUser())) {
-            System.out.println("MESSAGE MADE BY ME");
             plugin.addLastMessage(event.getGuild(), event.getMessage());
         }
     }

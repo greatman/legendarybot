@@ -38,6 +38,9 @@ public class RemoveLastMessagePlugin extends LegendaryBotPlugin {
             lastMessageMap.put(guild.getId(), new ArrayList<>());
             lastMessageMap.get(guild.getId()).add(message);
         }
+        if (lastMessageMap.get(guild.getId()).size() >= 10) {
+            lastMessageMap.get(guild.getId()).remove(0);
+        }
     }
 
     public void removeLastMessage(Guild guild) {
