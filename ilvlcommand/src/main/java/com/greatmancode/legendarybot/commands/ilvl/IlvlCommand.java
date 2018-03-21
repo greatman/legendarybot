@@ -236,8 +236,8 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
                     JSONObject mplusRank = (JSONObject) jsonObject.get("mythic_plus_scores");
                     eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"mythicplus.score"), mplusRank.get("all").toString(), true);
                     JSONObject lastMplusRank = (JSONObject) jsonObject.get("previous_mythic_plus_scores");
-                    int lastSeasonScore = Integer.parseInt(lastMplusRank.get("all").toString());
-                    int currentSeasonScore = Integer.parseInt(mplusRank.get("all").toString());
+                    float lastSeasonScore = Float.parseFloat(lastMplusRank.get("all").toString());
+                    float currentSeasonScore = Float.parseFloat(mplusRank.get("all").toString());
                     if (lastSeasonScore > currentSeasonScore || lastSeasonScore == 0) {
                         eb.addField(getBot().getTranslateManager().translate(event.getGuild(),"last.season.mythicplus.score"), lastMplusRank.get("all").toString(), true);
                     } else {
