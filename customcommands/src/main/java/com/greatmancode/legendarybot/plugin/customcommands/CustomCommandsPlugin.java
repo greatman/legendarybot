@@ -64,7 +64,10 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
             Map<String, String> result = new HashMap<>();
             collection.find(eq("guild_id",g.getId())).forEach((Block<Document>) document -> {
                 if (document.containsKey(MONGO_DOCUMENT_NAME)) {
-                    ((Document)document.get(MONGO_DOCUMENT_NAME)).forEach((k, v) -> result.put(k, (String) v));
+                    ((Document)document.get(MONGO_DOCUMENT_NAME)).forEach((k, v) -> {
+                        System.out.println("GUILD:" + g.getId() + " key: " + k + " value: " + v);
+                        result.put(k, (String) v);
+                    });
                 }
             });
             guildCustomCommands.put(g.getId(), result);

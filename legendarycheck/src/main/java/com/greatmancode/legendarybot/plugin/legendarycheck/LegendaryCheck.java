@@ -1,6 +1,7 @@
 package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
+import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.mongodb.client.MongoCollection;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -91,6 +92,7 @@ public class LegendaryCheck {
                     JSONObject guildJSON = (JSONObject) parser.parse(result);
                     if (guildJSON.containsKey("status")) {
                         plugin.stopLegendaryCheck(guild);
+                        log.info("Failed status for guild " + guildName + ":" + guild.getId());
                         return;
                     }
 
@@ -103,9 +105,14 @@ public class LegendaryCheck {
                         if (level != 110) {
                             continue;
                         }
-                        characterRealmMap.put((String)character.get("name"), (String)character.get("realm"));
-                    }
+                        String realmInfo = WoWUtils.getRealmInformation(plugin.getBot(),regionName,(String)character.get("realm"));
+                        if (realmInfo != null) {
+                            JSONObject realmInfoObject = (JSONObject) parser.parse(realmInfo);
+                            characterRealmMap.put((String)character.get("name"), (String) realmInfoObject.get("slug"));
+                        }
 
+                    }
+                    
                     //We do the check to see if a character is active so we query it's last actions.
                     JSONArray news = (JSONArray) guildJSON.get("news");
                     List<String> doneCharacter = new ArrayList<>();
@@ -130,6 +137,10 @@ public class LegendaryCheck {
                     LocalDateTime date = LocalDateTime.now().minusDays(7);
                     long timeMinus7Days = date.toInstant(ZoneOffset.UTC).toEpochMilli();
                     characterRealmMap.forEach((character,realm) -> {
+                        if (guild.getId().equals("1518684006000")) {
+                            log.info("Checking for user " + character + ": "+realm);
+
+                        }
                         realm = realm.toLowerCase();
                         Document document = collection.find(and(eq("region", regionName),eq("realm",realm), eq("name", character),gt("newsDate", timeMinus7Days))).first();
                         if (document != null) {

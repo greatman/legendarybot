@@ -32,6 +32,10 @@ import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.pf4j.PluginWrapper;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 public class DebugGuildCommand extends LegendaryBotPlugin implements Command {
 
     public DebugGuildCommand(PluginWrapper wrapper) {
@@ -40,6 +44,21 @@ public class DebugGuildCommand extends LegendaryBotPlugin implements Command {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
+        if (args.length == 2) {
+            List<Guild> userGuilds = new ArrayList<>();
+            getBot().getJDA().forEach((jda) -> userGuilds.addAll(jda.getUserById(args[1]).getMutualGuilds()));
+            StringBuilder builder = new StringBuilder();
+            userGuilds.forEach(guild -> {
+                builder.append(guild.getName() + ":" + guild.getId());
+            });
+            event.getAuthor().openPrivateChannel().queue(new Consumer<PrivateChannel>() {
+                @Override
+                public void accept(PrivateChannel privateChannel) {
+                    privateChannel.sendMessage(builder.toString()).queue();
+                }
+            });
+            return;
+        }
         final Guild[] guildEntry = {null};
         getBot().getJDA().forEach((jda -> {
             if (guildEntry[0] == null) {
@@ -88,7 +107,7 @@ public class DebugGuildCommand extends LegendaryBotPlugin implements Command {
 
     @Override
     public int maxArgs() {
-        return 1;
+        return 2;
     }
 
     @Override
