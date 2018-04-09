@@ -30,6 +30,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.pf4j.PluginWrapper;
 
 import java.io.IOException;
@@ -55,10 +56,18 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
         List<String> buildingStatusString = new ArrayList<>();
         try {
             Document document = Jsoup.connect("http://www.wowhead.com/").get();
-            int skip = (!getBot().getGuildSettings(event.getGuild()).getRegionName().equalsIgnoreCase("US")) ? 3 : 0;
-            document.getElementsByClass("imitation-heading heading-size-5").stream().skip(skip).forEach(element -> buildingStatusString.add(element.ownText()));
-            document.getElementsByClass("tiw-bs-status-progress").stream().skip(skip).forEach(element ->
-                    element.getElementsByTag("span").forEach( value -> buildingStatus.add(value.ownText())));
+            String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
+            Element element;
+            if (region.equals("eu")) {
+                element = document.getElementsByClass("tiw-region tiw-region-EU").first();
+            } else {
+                element = document.getElementsByClass("tiw-region tiw-region-US tiw-show").first();
+            }
+
+            element.getElementsByClass("tiw-group tiw-bs-building").stream().forEach(building -> {
+                buildingStatusString.add(building.getElementsByClass("imitation-heading heading-size-5").first().ownText());
+                buildingStatus.add(building.getElementsByClass("tiw-bs-status-progress").first().getElementsByTag("span").first().ownText());
+            });
             event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"command.legionbuilding.message",
                     getBot().getTranslateManager().translate(event.getGuild(),buildingStatusString.get(0).replaceAll(" ",".").toLowerCase()),
                     buildingStatus.get(0),
@@ -71,6 +80,7 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
             getBot().getStacktraceHandler().sendStacktrace(e, "region:" + getBot().getGuildSettings(event.getGuild()).getRegionName(), "guildId:" + event.getGuild().getId());
             event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
         } catch (NullPointerException e) {
+            e.printStackTrace();
             event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"error.occurred.try.again.later")).queue();
         }
 

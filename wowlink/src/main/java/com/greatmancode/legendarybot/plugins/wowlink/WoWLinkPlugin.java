@@ -170,7 +170,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getJDA().forEach((jda -> {
             jda.getGuilds().forEach(guild -> {
                 if (getBot().getGuildSettings(guild).getSetting(SETTING_SCHEDULER) != null && getBot().getGuildSettings(guild).getSetting(SETTING_RANKSET_ENABLED) != null) {
-                    scheduler.put(guild.getId(), new SyncRankScheduler(this,guild));
+                    //scheduler.put(guild.getId(), new SyncRankScheduler(this,guild));
                 }
             });
         }));
