@@ -88,9 +88,11 @@ public class WoWUtils {
         String classNameLower = className.toLowerCase();
         switch (classNameLower) {
             case "death knight":
+            case "death_knight":
                 color = new Color(196,30,59);
                 break;
             case "demon hunter":
+            case "demon_hunter":
                 color = new Color(163,48,201);
                 break;
             case "druid":
@@ -134,9 +136,11 @@ public class WoWUtils {
         String classNameLower = className.toLowerCase();
         switch (classNameLower) {
             case "death knight":
+            case "death_knight":
                 url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/e/e5/Ui-charactercreate-classes_deathknight.png";
                 break;
             case "demon hunter":
+            case "demon_hunter":
                 url = "https://d1u5p3l4wpay3k.cloudfront.net/wowpedia/c/c9/Ui-charactercreate-classes_demonhunter.png";
                 break;
             case "druid":

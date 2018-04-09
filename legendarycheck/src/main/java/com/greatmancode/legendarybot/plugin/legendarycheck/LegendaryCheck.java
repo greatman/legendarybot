@@ -1,6 +1,7 @@
 package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
+import com.greatmancode.legendarybot.api.utils.HeroClass;
 import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.mongodb.client.MongoCollection;
 import net.dv8tion.jda.core.entities.Guild;
@@ -112,7 +113,7 @@ public class LegendaryCheck {
                         }
 
                     }
-                    
+
                     //We do the check to see if a character is active so we query it's last actions.
                     JSONArray news = (JSONArray) guildJSON.get("news");
                     List<String> doneCharacter = new ArrayList<>();
@@ -188,7 +189,8 @@ public class LegendaryCheck {
                                                     if (LongStream.of(itemIDIgnore).anyMatch(x -> x == itemID)) {
                                                         continue;
                                                     }
-                                                    if (plugin.isItemLegendary(regionName, itemID)) {
+                                                    String itemJson = plugin.getItem(regionName, itemID);
+                                                    if (plugin.isItemLegendary(itemJson)) {
                                                         log.info(character + " just looted a legendary");
                                                         //We got a legendary!
                                                         List<TextChannel> channelList = guild.getTextChannelsByName(channelName, true);
@@ -196,7 +198,7 @@ public class LegendaryCheck {
                                                             plugin.destroyLegendaryCheck(guild);
                                                             log.warn("Guild " + guild + "("+guild.getId()+") have a invalid channel name " + channelName + ". Removing legendary check.");
                                                         } else {
-                                                            channelList.get(0).sendMessage(plugin.getBot().getTranslateManager().translate(guild,"legendarycheck.looted",character,plugin.getItemName(regionName, itemID)) + " http://www.wowhead.com/item=" + itemID).queue();
+                                                            channelList.get(0).sendMessage(plugin.buildEmbed(character, HeroClass.values()[((Long) characterJSON.get("class")).intValue()] ,itemJson)).queue();
                                                         }
 
                                                     }

@@ -33,11 +33,11 @@ public enum HeroClass {
     HUNTER,
     ROGUE,
     PRIEST,
-    DEATHKNIGHT,
+    DEATH_KNIGHT,
     SHAMAN,
     MAGE,
     WARLOCK,
     MONK,
     DRUID,
-    DEMONHUNTER
+    DEMON_HUNTER
 }

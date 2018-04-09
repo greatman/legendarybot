@@ -24,29 +24,25 @@
 package com.greatmancode.legendarybot.plugin.legendarycheck;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
+import com.greatmancode.legendarybot.api.utils.HeroClass;
+import com.greatmancode.legendarybot.api.utils.WoWSlotType;
+import com.greatmancode.legendarybot.api.utils.WoWUtils;
+import com.greatmancode.legendarybot.api.utils.WowArmorType;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.util.EntityUtils;
 import org.bson.Document;
-import org.elasticsearch.client.Response;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONObject;
 import org.pf4j.PluginWrapper;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -68,6 +64,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
     private Map<String, LegendaryCheck> legendaryCheckMap = new HashMap<>();
 
     public final static String MONGO_WOW_CHARACTERS_COLLECTION = "wowCharacters";
+    private Properties props;
 
     public LegendaryCheckPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -76,6 +73,14 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
     @Override
     public void start() {
         log.info("Starting OldLegendaryCheck plugin.");
+        //Load the configuration
+        props = new Properties();
+        try {
+            props.load(new FileInputStream("app.properties"));
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
+        }
         final int[] i = {0};
         getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(guild -> {
             if (startLegendaryCheck(guild, i[0])) {
@@ -201,121 +206,147 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         return legendaryCheckMap.size();
     }
 
+    public String getItem(String region, long id) {
+        String result = null;
+        OkHttpClient client = new OkHttpClient.Builder().build();
+        HttpUrl url = new HttpUrl.Builder().scheme("https")
+                .host(props.getProperty("api.host"))
+                .addPathSegments("api/item/"+region+"/"+id)
+                .build();
+        Request request = new Request.Builder().url(url).build();
+        try {
+            okhttp3.Response response = client.newCall(request).execute();
+            if (response.code() == 200) {
+                result = response.body().string();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
     /**
      * Check if an item is a legendary. Checks in the ES cache if we have the item. If not, we retrieve the information from Battle.Net API and cache it.
-     * @param regionName The region to check the item in.
-     * @param itemID The Item ID to check.
      * @return True if the item is a legendary. Else false.
      */
-    public boolean isItemLegendary(String regionName, long itemID) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new BattleNetAPIInterceptor(getBot()))
-                .build();
-        try {
-            Map<String, String> paramMap = new HashMap<>();
-            paramMap.put("q", "id:" + itemID);
-            Response response = getBot().getElasticSearch().performRequest("GET", "/wow/item/_search", paramMap);
-
-            JSONParser jsonParser = new JSONParser();
-            try {
-                JSONObject obj = (JSONObject) jsonParser.parse(EntityUtils.toString(response.getEntity()));
-                JSONObject hits = (JSONObject) obj.get("hits");
-                if ((long)hits.get("total") == 0) {
-                    HttpUrl url = new HttpUrl.Builder().scheme("https")
-                            .host(regionName + ".api.battle.net")
-                            .addPathSegments("/wow/item/" + itemID)
-                            .build();
-                    Request webRequest = new Request.Builder().url(url).build();
-                    okhttp3.Response responseBattleNet = client.newCall(webRequest).execute();
-                    String itemRequest = responseBattleNet.body().string();
-                    responseBattleNet.close();
-                    if (itemRequest == null) {
-                        return false;
-                    }
-                    JSONObject itemObject;
-                    try {
-                        itemObject = (JSONObject) new JSONParser().parse(itemRequest);
-                    } catch (ParseException e) {
-                        getBot().getStacktraceHandler().sendStacktrace(e, "itemID:" + itemID, "regionName:" + regionName, "itemRequest:" + itemRequest);
-                        return false;
-                    }
-                    if (itemObject.containsKey("reason")) {
-                        return false;
-                    }
-
-                    HttpEntity entity = new NStringEntity(itemObject.toJSONString(), ContentType.APPLICATION_JSON);
-                    Response indexResponse = getBot().getElasticSearch().performRequest("POST", "/wow/item/", Collections.emptyMap(), entity);
-                    long quality = (Long) itemObject.get("quality");
-                    return quality == 5;
-                }
-
-                JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
-                JSONObject firstItem = (JSONObject) hit.get(0);
-                JSONObject source = (JSONObject) firstItem.get("_source");
-                return (long) source.get("quality") == 5;
-            } catch (ParseException e) {
-                e.printStackTrace();
-                return false;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-            return false;
-        }
+    public boolean isItemLegendary(String json) {
+        return (json != null) && new JSONObject(json).getInt("quality") == 5;
     }
 
-    /**
-     * Retrieve the item name. Checks in the ES cache if we have the item. If not, we retrieve the information from Battle.Net API and cache it.
-     * @param regionName The region to check in.
-     * @param itemID The item ID.
-     * @return The name of the item. Else null if not found.
-     */
-    public String getItemName(String regionName, long itemID) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new BattleNetAPIInterceptor(getBot()))
-                .build();
-        try {
-            Map<String, String> paramMap = new HashMap<>();
-            paramMap.put("q", "id:" + itemID);
-            Response response = getBot().getElasticSearch().performRequest("GET", "/wow/item/_search", paramMap);
-
-            JSONParser jsonParser = new JSONParser();
-            try {
-                JSONObject obj = (JSONObject) jsonParser.parse(EntityUtils.toString(response.getEntity()));
-                JSONObject hits = (JSONObject) obj.get("hits");
-                if ((long)hits.get("total") == 0) {
-                    HttpUrl url = new HttpUrl.Builder().scheme("https")
-                            .host(regionName + ".api.battle.net")
-                            .addPathSegments("/wow/item/" + itemID)
-                            .build();
-                    Request webRequest = new Request.Builder().url(url).build();
-                    okhttp3.Response responseBattleNet = client.newCall(webRequest).execute();
-                    String itemRequest = responseBattleNet.body().string();
-                    responseBattleNet.close();
-                    if (itemRequest == null) {
-                        return null;
-                    }
-                    JSONObject itemObject;
-                    try {
-                        itemObject = (JSONObject) new JSONParser().parse(itemRequest);
-                    } catch (ParseException e) {
-                        getBot().getStacktraceHandler().sendStacktrace(e, "itemID:" + itemID, "regionName:" + regionName, "itemRequest:" + itemRequest);
-                        return null;
-                    }
-                    return (String) itemObject.get("name");
-                }
-                JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
-                JSONObject firstItem = (JSONObject) hit.get(0);
-                JSONObject source = (JSONObject) firstItem.get("_source");
-                return (String) source.get("name");
-            } catch (ParseException e) {
-                e.printStackTrace();
-                return null;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-            return null;
+    public MessageEmbed buildEmbed(String character, HeroClass heroClass, String json) {
+        JSONObject jsonObject = new JSONObject(json);
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle(jsonObject.getString("name"),"http://www.wowhead.com/item=" + jsonObject.getInt("id"));
+        System.out.println("https://wow.zamimg.com/images/wow/icons/large/"+jsonObject.getString("icon") + ".jpg");
+        builder.setThumbnail("https://wow.zamimg.com/images/wow/icons/large/"+jsonObject.getString("icon") + ".jpg");
+        builder.setColor(WoWUtils.getClassColor(heroClass.name()));
+        builder.setAuthor(character + " just looted the following legendary!", "http://www.wowhead.com/item=" + jsonObject.getInt("id"), WoWUtils.getClassIcon(heroClass.name()));
+        StringBuilder stringBuilder = new StringBuilder();
+        String slot = WoWSlotType.values()[jsonObject.getInt("inventoryType")].name().toLowerCase();
+        slot = slot.substring(0,1).toUpperCase() + slot.substring(1);
+        stringBuilder.append("**");
+        stringBuilder.append(slot);
+        if (jsonObject.getInt("itemSubClass") != 0) {
+            String armorType = WowArmorType.values()[jsonObject.getInt("itemSubClass")].name().toLowerCase();
+            armorType = armorType.substring(0,1).toUpperCase() + armorType.substring(1);
+            stringBuilder.append(" ");
+            stringBuilder.append(armorType);
         }
+        stringBuilder.append("**\n\n");
+
+        if (jsonObject.getJSONArray("itemSpells").length() > 0 && jsonObject.getJSONArray("itemSpells").getJSONObject(0).has("spell") && !jsonObject.getJSONArray("itemSpells").getJSONObject(0).getJSONObject("spell").getString("description").equals("") ) {
+            stringBuilder.append("**Equip:** ");
+            stringBuilder.append(jsonObject.getJSONArray("itemSpells").getJSONObject(0).getJSONObject("spell").getString("description"));
+            stringBuilder.append("\n\n");
+        }
+
+        //Hardcoded stuff because blizz does crap in his API
+        switch (jsonObject.getInt("id")) {
+            case 151801:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Finishing moves extend the duration of Tiger's Fury by 0.5 sec per combo point spent.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151823:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Ravager increases your movement speed by 10% and your damage done by 2% for 6 sec, increasing periodically and stacking up to 6 times\n" +
+                        "\n" +
+                        "Bladestorm increases your movement speed by 10% and your damage done by 2% for 6 sec, increasing periodically and stacking up to 6 times.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151787:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Prayer of Mending has a 15% chance to grant you Apotheosis for 8 sec.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151809:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Casting 30 Fireballs or Pyroblasts calls down a Meteor at your target.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151782:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Light of Dawn has a 10% chance to grant you Avenging Wrath for 8 sec.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151813:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Every 2 sec, gain 6% increased damage to your next Divine Storm, stacking up to 30 times.");
+                stringBuilder.append("\n\n");
+                break;
+            case 137227:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Dire Beast reduces the remaining cooldown on Kill Command by 3 sec.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151644:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Gain one of the following talents based on your specialization:\n" +
+                        "\n" +
+                        "Holy: Divine Purpose\n" +
+                        "Protection: Holy Shield\n" +
+                        "Retribution: Divine Purpose");
+                stringBuilder.append("\n\n");
+                break;
+            case 150936:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Gain the Vigor talent.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151819:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("You have a \n" +
+                        "\n" +
+                        "Enhancement\n" +
+                        "0.12%\n" +
+                        "\n" +
+                        "Elemental\n" +
+                        "0.10%\n" +
+                        "\n" +
+                        "chance per Maelstrom spent to gain Ascendance for 10 sec.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151812:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Eye of Tyr deals 300% increased damage and has 25% reduced cooldown.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151822:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Shield Block and Spell Reflection gain 1 additional charge.");
+                stringBuilder.append("\n\n");
+                break;
+            case 151807:
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append("Gain 10% increased critical strike chance against enemies burning from your Explosive Trap.");
+                stringBuilder.append("\n\n");
+                break;
+        }
+        stringBuilder.append(jsonObject.getString("description"));
+        builder.setDescription(stringBuilder);
+        return builder.build();
+    }
+    public String getItemName(String json) {
+        JSONObject object = new JSONObject(json);
+        return object.getString("name");
     }
 }

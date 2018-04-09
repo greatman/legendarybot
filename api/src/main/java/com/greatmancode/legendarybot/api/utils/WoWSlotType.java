@@ -1,0 +1,33 @@
+package com.greatmancode.legendarybot.api.utils;
+
+public enum WoWSlotType {
+    NONE,
+    HEAD,
+    NECK,
+    SHOULDER,
+    SHIRT,
+    CHEST,
+    WAIST,
+    LEGS,
+    FEET,
+    WRIST,
+    HANDS,
+    FINGER,
+    TRINKET,
+    ONE_HAND,
+    SHIELD,
+    RANGED,
+    CLOAK,
+    TWO_HAND,
+    BAG,
+    TABARD,
+    ROBE,
+    MAIN_HAND,
+    OFF_HAND,
+    HELD_IN_OFF_HAND,
+    AMMO,
+    THROWN,
+    RANGED_RIGHT,
+    UNKNOWN,
+    RELIC
+}

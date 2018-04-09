@@ -27,6 +27,7 @@ package com.greatmancode.legendarybot.plugin.blizzazrdcscommand;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.utils.DiscordEmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.*;
@@ -81,74 +82,24 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
         log.info("Command !blizzardcs unloaded!");
     }
 
-    /**
-     * Retrieve the latest tweet of a username that is not a mention
-     * @param username The twitter username to look
-     * @return The latest tweet of the user.
-     */
-    public String getLastTweet(String username) {
-        String result = "";
-        byte[] key = Base64.getEncoder().encode((props.getProperty("twitter.key") + ":" + props.getProperty("twitter.secret")).getBytes());
-        Request request = new Request.Builder()
-                .url("https://api.twitter.com/oauth2/token")
-                .post(RequestBody.create(MediaType.parse( "application/x-www-form-urlencoded;charset=UTF-8"), "grant_type=client_credentials"))
-                .addHeader("Authorization","Basic " + new String(key))
-                .build();
-
-        try {
-            String auth = client.newCall(request).execute().body().string();
-            JSONParser parser = new JSONParser();
-            JSONObject authObject = (JSONObject) parser.parse(auth);
-            if (authObject.containsKey("token_type")) {
-                String bearer = (String) authObject.get("access_token");
-                HttpUrl url = new HttpUrl.Builder().scheme("https")
-                        .host("api.twitter.com")
-                        .addPathSegments("1.1/statuses/user_timeline.json")
-                        .addQueryParameter("screen_name", username)
-                        .addQueryParameter("exclude_replies", "1")
-                        .addQueryParameter("count", "100")
-                        .build();
-                request = new Request.Builder().url(url).addHeader("Authorization","Bearer " + bearer).build();
-                String twitterTimeline = client.newCall(request).execute().body().string();
-                JSONArray twitterObject = (JSONArray) parser.parse(twitterTimeline);
-                JSONObject messageObject = (JSONObject) twitterObject.get(0);
-
-                Date date = getTwitterDate((String)messageObject.get("created_at"));
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(date);
-                cal.setTimeZone(TimeZone.getTimeZone("America/Montreal"));
-                result = cal.get(Calendar.DAY_OF_MONTH) +"/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR) + " " + String.format("%02d",cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d",cal.get(Calendar.MINUTE)) + " : " + messageObject.get("text");
-            }
-        } catch (ParseException | java.text.ParseException | IOException e) {
-            getBot().getStacktraceHandler().sendStacktrace(e, "twitterusername:" + username);
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    /**
-     * Convert a Twitter formatted date to a Java format
-     * @param date The twitter date
-     * @return a {@link Date} instance of the twitter date
-     * @throws java.text.ParseException If we can't parse the date
-     */
-    public Date getTwitterDate(String date) throws java.text.ParseException {
-
-        final String TWITTER="EEE MMM dd HH:mm:ss ZZZZZ yyyy";
-        SimpleDateFormat sf = new SimpleDateFormat(TWITTER,Locale.ENGLISH);
-        sf.setLenient(true);
-        return sf.parse(date);
-    }
-
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
         String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
         if (region != null) {
-            if (region.equalsIgnoreCase("us")) {
-                event.getChannel().sendMessage(getLastTweet("blizzardcs")).queue();
-            } else if (region.equalsIgnoreCase("eu")) { //todo blizzardcsEU_RU exists
-                event.getChannel().sendMessage(getLastTweet("blizzardcseu_en")).queue();
+            OkHttpClient client = new OkHttpClient.Builder().build();
+            HttpUrl url = new HttpUrl.Builder().scheme("https")
+                    .host(props.getProperty("api.host"))
+                    .addPathSegments("api/twitter/"+region)
+                    .build();
+            Request request = new Request.Builder().url(url).build();
+            try {
+                okhttp3.Response response = client.newCall(request).execute();
+                if (response.code() == 200) {
+                    event.getChannel().sendMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(response.body().string())).queue();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
