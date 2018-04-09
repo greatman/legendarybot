@@ -26,21 +26,24 @@ package com.greatmancode.legendarybot.plugins.legionbuilding;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
+import com.greatmancode.legendarybot.api.utils.DiscordEmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.pf4j.PluginWrapper;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Properties;
 
 /**
  * The !legionbuilding command
  */
 public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicCommand, ZeroArgsCommand {
+
+    private Properties props;
 
     public LegionBuildingCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -48,42 +51,23 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
-            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "server.region.must.be.set")).queue();
-            return;
-        }
-        List<String> buildingStatus = new ArrayList<>();
-        List<String> buildingStatusString = new ArrayList<>();
-        try {
-            Document document = Jsoup.connect("http://www.wowhead.com/").get();
-            String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
-            Element element;
-            if (region.equals("eu")) {
-                element = document.getElementsByClass("tiw-region tiw-region-EU").first();
-            } else {
-                element = document.getElementsByClass("tiw-region tiw-region-US tiw-show").first();
+        String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
+        if (region != null) {
+            OkHttpClient client = new OkHttpClient.Builder().build();
+            HttpUrl url = new HttpUrl.Builder().scheme("https")
+                    .host(props.getProperty("api.host"))
+                    .addPathSegments("api/legionbuilding/"+region)
+                    .build();
+            Request request = new Request.Builder().url(url).build();
+            try {
+                okhttp3.Response response = client.newCall(request).execute();
+                if (response.code() == 200) {
+                    event.getChannel().sendMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(response.body().string())).queue();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            element.getElementsByClass("tiw-group tiw-bs-building").stream().forEach(building -> {
-                buildingStatusString.add(building.getElementsByClass("imitation-heading heading-size-5").first().ownText());
-                buildingStatus.add(building.getElementsByClass("tiw-bs-status-progress").first().getElementsByTag("span").first().ownText());
-            });
-            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"command.legionbuilding.message",
-                    getBot().getTranslateManager().translate(event.getGuild(),buildingStatusString.get(0).replaceAll(" ",".").toLowerCase()),
-                    buildingStatus.get(0),
-                    getBot().getTranslateManager().translate(event.getGuild(),buildingStatusString.get(1).replaceAll(" ",".").toLowerCase()),
-                    buildingStatus.get(1),
-                    getBot().getTranslateManager().translate(event.getGuild(),buildingStatusString.get(2).replaceAll(" ",".").toLowerCase()),
-                    buildingStatus.get(2))).queue();
-        } catch (IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e, "region:" + getBot().getGuildSettings(event.getGuild()).getRegionName(), "guildId:" + event.getGuild().getId());
-            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"error.occurred.try.again.later")).queue();
         }
-
     }
 
     @Override
@@ -98,6 +82,14 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
 
     @Override
     public void start() {
+        //Load the configuration
+        props = new Properties();
+        try {
+            props.load(new FileInputStream("app.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            getBot().getStacktraceHandler().sendStacktrace(e);
+        }
         getBot().getCommandHandler().addCommand("legionbuilding", this, "World of Warcraft");
     }
 
