@@ -23,27 +23,15 @@
  */
 package com.greatmancode.legendarybot.plugins.legionbuilding;
 
-import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
-import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.DiscordEmbedBuilder;
+import com.greatmancode.legendarybot.api.commands.PublicAPIBackendZeroArgsEmbedCommandWithPlugin;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.pf4j.PluginWrapper;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
 
 /**
  * The !legionbuilding command
  */
-public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicCommand, ZeroArgsCommand {
-
-    private Properties props;
+public class LegionBuildingCommand extends PublicAPIBackendZeroArgsEmbedCommandWithPlugin {
 
     public LegionBuildingCommand(PluginWrapper wrapper) {
         super(wrapper);
@@ -53,20 +41,7 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
     public void execute(MessageReceivedEvent event, String[] args) {
         String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
         if (region != null) {
-            OkHttpClient client = new OkHttpClient.Builder().build();
-            HttpUrl url = new HttpUrl.Builder().scheme("https")
-                    .host(props.getProperty("api.host"))
-                    .addPathSegments("api/legionbuilding/"+region)
-                    .build();
-            Request request = new Request.Builder().url(url).build();
-            try {
-                okhttp3.Response response = client.newCall(request).execute();
-                if (response.code() == 200) {
-                    event.getChannel().sendMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(response.body().string())).queue();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            executeAPICall(event.getChannel(), "api/legionbuilding/"+region);
         }
     }
 
@@ -82,14 +57,7 @@ public class LegionBuildingCommand extends LegendaryBotPlugin implements PublicC
 
     @Override
     public void start() {
-        //Load the configuration
-        props = new Properties();
-        try {
-            props.load(new FileInputStream("app.properties"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
+        super.start();
         getBot().getCommandHandler().addCommand("legionbuilding", this, "World of Warcraft");
     }
 

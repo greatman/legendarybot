@@ -64,10 +64,6 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
 
     public static final String SETTING_PRIVATE_LOOKUP = "lookupCommandPrivate";
 
-    OkHttpClient clientBattleNet = new OkHttpClient.Builder()
-            .addInterceptor(new BattleNetAPIInterceptor(getBot()))
-            .connectionPool(new ConnectionPool(300, 1, TimeUnit.SECONDS))
-            .build();
     private Properties props;
 
     public IlvlCommand(PluginWrapper wrapper) {

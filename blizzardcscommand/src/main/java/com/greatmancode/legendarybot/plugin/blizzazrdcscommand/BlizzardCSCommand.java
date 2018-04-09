@@ -24,38 +24,15 @@
 
 package com.greatmancode.legendarybot.plugin.blizzazrdcscommand;
 
-import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
-import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.DiscordEmbedBuilder;
+import com.greatmancode.legendarybot.api.commands.PublicAPIBackendZeroArgsEmbedCommandWithPlugin;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import okhttp3.*;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.pf4j.PluginWrapper;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * Command that gives the latest tweet of the @blizzardcs account.
  */
-public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCommand, PublicCommand{
-
-    /**
-     * Instance of the HTTP Client
-     */
-    private OkHttpClient client = new OkHttpClient();
-
-    /**
-     * A instance of the bot's configuration file
-     */
-    private Properties props;
+public class BlizzardCSCommand extends PublicAPIBackendZeroArgsEmbedCommandWithPlugin {
 
 
     public BlizzardCSCommand(PluginWrapper wrapper) {
@@ -64,14 +41,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
 
     @Override
     public void start() {
-        //Load the configuration
-        props = new Properties();
-        try {
-            props.load(new FileInputStream("app.properties"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
+        super.start();
         getBot().getCommandHandler().addCommand("blizzardcs", this, "General Commands");
         log.info("Command !blizzardcs loaded!");
     }
@@ -87,20 +57,7 @@ public class BlizzardCSCommand extends LegendaryBotPlugin implements ZeroArgsCom
     public void execute(MessageReceivedEvent event, String[] args) {
         String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
         if (region != null) {
-            OkHttpClient client = new OkHttpClient.Builder().build();
-            HttpUrl url = new HttpUrl.Builder().scheme("https")
-                    .host(props.getProperty("api.host"))
-                    .addPathSegments("api/twitter/"+region)
-                    .build();
-            Request request = new Request.Builder().url(url).build();
-            try {
-                okhttp3.Response response = client.newCall(request).execute();
-                if (response.code() == 200) {
-                    event.getChannel().sendMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(response.body().string())).queue();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            executeAPICall(event.getChannel(), "api/twitter/"+region);
         }
 
     }
