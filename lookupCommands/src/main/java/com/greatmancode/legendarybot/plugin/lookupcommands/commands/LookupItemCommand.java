@@ -66,7 +66,47 @@ public class LookupItemCommand implements PublicCommand {
                 JSONObject obj = (JSONObject) jsonParser.parse(EntityUtils.toString(response.getEntity()));
                 JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
                 JSONObject firstItem = (JSONObject) hit.get(0);
-                event.getChannel().sendMessage("http://www.wowhead.com/item=" + firstItem.get("_id")).queue();
+                
+                String whLocatedDomain = "www";
+                switch(plugin.getBot().getTranslateManager().getLanguages())
+                {
+                    case "fr":
+                        whLocatedDomain = "fr";
+                        break;
+                        
+                    case "ru":
+                        whLocatedDomain = "ru";
+                        break;
+                        
+                    case "it":
+                        whLocatedDomain = "it";
+                        break;
+                        
+                    case "de":
+                        whLocatedDomain = "de";
+                        break;
+                        
+                    case "es":
+                        whLocatedDomain = "es";
+                        break;
+                        
+                    case "pt":
+                        whLocatedDomain = "pt";
+                        break;
+                        
+                    case "ko":
+                        whLocatedDomain = "ko";
+                        break;
+                        
+                    case "cn":
+                        whLocatedDomain = "cn";
+                        break;
+                        
+                    default:
+                        whLocatedDomain = "www";
+                        break;
+                }
+                event.getChannel().sendMessage("http://" + whLocatedDomain + ".wowhead.com/item=" + firstItem.get("_id")).queue();
             } catch (ParseException e) {
                 e.printStackTrace();
                 event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "command.lookupitem.notfound")).queue();
