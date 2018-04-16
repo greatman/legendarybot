@@ -37,8 +37,6 @@ import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -157,18 +155,6 @@ public class ILegendaryBot extends LegendaryBot {
             mongoClient = new MongoClient(new ServerAddress(props.getProperty("mongodb.server"), Integer.parseInt(props.getProperty("mongodb.port"))), mongoClientOptionsBuilder.build());
         }
 
-        final boolean[] databaseExist = {false};
-        mongoClient.listDatabaseNames().forEach((Block<String>) s -> {
-            if (s.equals(databaseName)) {
-                databaseExist[0] = true;
-            }
-        });
-
-        if (!databaseExist[0] && props.containsKey("mysql.address")) {
-            log.info("new MongoDB database not found. Creating it and converting old MySQL database to MongoDB");
-            convertDatabase();
-        }
-
         //We configure our Stacktrace catchers
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(stacktraceHandler));
 
@@ -190,7 +176,12 @@ public class ILegendaryBot extends LegendaryBot {
                     .buildBlocking(JDA.Status.CONNECTED));
         }
         //Load the settings for each guild
-        jdaList.forEach((jda) -> jda.getGuilds().forEach(guild -> guildSettings.put(guild.getId(), new IGuildSettings(guild, this))));
+        jdaList.forEach((jda) -> jda.getGuilds().forEach(guild -> {
+            guildSettings.put(guild.getId(), new IGuildSettings(guild, this));
+            if (Boolean.parseBoolean((String) props.getOrDefault("convertConfig", "false"))) {
+                new SettingsConverter(this,guild);
+            }
+        }));
 
 
 
@@ -198,6 +189,7 @@ public class ILegendaryBot extends LegendaryBot {
         //We load all plugins
         pluginManager.loadPlugins();
         pluginManager.startPlugins();
+        translateManager = new TranslateManager(this);
         log.info("LegendaryBot is now ready!");
         ready = true;
 
@@ -220,11 +212,6 @@ public class ILegendaryBot extends LegendaryBot {
             mongoClient.close();
             log.info("Legendarybot Shutdown.");
         }));
-
-        translateManager = new TranslateManager(this);
-
-        log.info("LegendaryBot now ready!");
-
     }
 
     /**
@@ -298,6 +285,11 @@ public class ILegendaryBot extends LegendaryBot {
     }
 
     @Override
+    public Properties getBotSettings() {
+        return props;
+    }
+
+    @Override
     public JDA getJDA(Guild guild) {
         for (JDA jda : jdaList) {
             if (jda.getGuildById(guild.getId()) != null) {
@@ -310,117 +302,5 @@ public class ILegendaryBot extends LegendaryBot {
     @Override
     public List<JDA> getJDA() {
         return Collections.unmodifiableList(jdaList);
-    }
-
-    private void convertDatabase() {
-        HikariConfig config = new HikariConfig();
-        config.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
-        config.addDataSourceProperty("serverName", System.getenv("MYSQL_ADDRESS") != null ? System.getenv("MYSQL_ADDRESS") : props.getProperty("mysql.address"));
-        config.addDataSourceProperty("port", System.getenv("MYSQL_PORT") != null ? System.getenv("MYSQL_PORT") : props.getProperty("mysql.port"));
-        config.addDataSourceProperty("databaseName", System.getenv("MYSQL_DATABASE") != null ? System.getenv("MYSQL_DATABASE") : props.getProperty("mysql.database"));
-        config.addDataSourceProperty("user", System.getenv("MYSQL_USER") != null ? System.getenv("MYSQL_USER") : props.getProperty("mysql.user"));
-        config.addDataSourceProperty("password", System.getenv("MYSQL_PASSWORD") != null ? System.getenv("MYSQL_PASSWORD") : props.getProperty("mysql.password"));
-        config.setConnectionTimeout(5000);
-        config.addDataSourceProperty("characterEncoding","utf8");
-        config.addDataSourceProperty("useUnicode","true");
-        HikariDataSource dataSource = new HikariDataSource(config);
-
-        try {
-            Connection connection = dataSource.getConnection();
-            log.info("Converting guild_config table to guild collection");
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM guild_config");
-            MongoCollection<Document> mongoCollection = getMongoDatabase().getCollection("guild");
-            ResultSet set = statement.executeQuery();
-            while (set.next()) {
-                if (set.getString("configName").equals("")) {
-                    continue;
-                }
-                String value = set.getString("configValue");
-                if (set.getString("configName").equals("WOW_SERVER_NAME")) {
-                    value = value.toLowerCase();
-                }
-                mongoCollection.updateOne(eq("guild_id", set.getString("guildId")),set("settings." + set.getString("configName"),value), new UpdateOptions().upsert(true));
-
-            }
-            set.close();
-            statement.close();
-            log.info("Converting guild_commands");
-            statement = connection.prepareStatement("SELECT * FROM guild_commands");
-            set = statement.executeQuery();
-            while (set.next()) {
-                if (set.getString("command_name").equals("")) {
-                    continue;
-                }
-                mongoCollection.updateOne(eq("guild_id", set.getString("guild_id")),set("customCommands." + set.getString("command_name"),set.getString("text")), new UpdateOptions().upsert(true));
-            }
-            set.close();
-            statement.close();
-            mongoCollection = getMongoDatabase().getCollection("wowCharacters");
-
-            log.info("Converting legendarycheck");
-            statement = connection.prepareStatement("SELECT * FROM legendarycheck");
-            set = statement.executeQuery();
-            while (set.next()) {
-                Document document = new Document("name", set.getString("playerName"))
-                        .append("realm", set.getString("serverName"))
-                        .append("region", set.getString("region"))
-                        .append("lastUpdate", set.getLong("lastModified"));
-                mongoCollection.insertOne(document);
-            }
-            set.close();
-            statement.close();
-
-            log.info("Converting user_characters");
-            statement = connection.prepareStatement("SELECT * FROM user_characters");
-            set = statement.executeQuery();
-            while (set.next()) {
-                mongoCollection.updateOne(
-                        and(
-                                eq("name",set.getString("characterName")),
-                                eq("region", set.getString("region")),
-                                eq("realm", set.getString("realmName").toLowerCase())
-                        ),
-                        and(
-                                set("guild", set.getString("guildName")),
-                                set("owner", set.getString("user_id"))
-                        ),
-                        new UpdateOptions().upsert(true));
-            }
-            set.close();
-            statement.close();
-
-            log.info("Converting user_characters_guild");
-            statement = connection.prepareStatement("SELECT * FROM user_characters_guild");
-            set = statement.executeQuery();
-            while (set.next()) {
-                String guildId = set.getString("guild_id");
-
-                MongoCollection<Document> mongoCollectionGuild = getMongoDatabase().getCollection("guild");
-                Document guildDocument = mongoCollectionGuild.find(eq("guild_id", guildId)).first();
-                Document settingsDocument = (Document) guildDocument.get("settings");
-                String region = settingsDocument.getString("WOW_REGION_NAME");
-                String realm = settingsDocument.getString("WOW_SERVER_NAME");
-                if (region != null && realm != null) {
-                    realm = realm.toLowerCase();
-                    mongoCollection.updateOne(
-                            and(
-                                    eq("realm", realm),
-                                    eq("region", region),
-                                    eq("name", set.getString("characterName"))
-                            ),
-                            set("guild_id", set.getString("guild_id"))
-                    );
-                }
-            }
-            set.close();
-            statement.close();
-            connection.close();
-            dataSource.close();
-
-            log.info("Convert done. LegendaryBot is now using the MongoDB database.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
     }
 }

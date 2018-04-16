@@ -23,12 +23,9 @@
  */
 package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
-import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,13 +53,7 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
             event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with the setup command").queue();
             return;
         }
-        OAuth20Service service = new ServiceBuilder(plugin.getProps().getProperty("battlenetoauth.key"))
-                .scope("wow.profile")
-                .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
-                .state(region + ":" + event.getAuthor().getId())
-                .build(new OAuthBattleNetApi(region));
-        event.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("Please follow this link to connect your WoW account to this bot: " + service.getAuthorizationUrl()).queue()));
-        log.info("User " + event.getAuthor().getName() + ":" + event.getAuthor().getId() + " requested to link his characters. Link generated: " + service.getAuthorizationUrl());
+        event.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("Please follow this link to connect your WoW account to this bot: https://" + plugin.getProps().getProperty("api.host") + "/api/oauth/login/" +region + "/" + event.getAuthor().getId())));
     }
 
     @Override

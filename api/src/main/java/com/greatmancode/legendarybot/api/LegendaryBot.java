@@ -36,6 +36,7 @@ import org.influxdb.InfluxDB;
 import org.pf4j.PluginManager;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Represents a LegendaryBot bot
@@ -107,5 +108,7 @@ public abstract class LegendaryBot {
     public abstract boolean isReady();
 
     public abstract TranslateManager getTranslateManager();
+
+    public abstract Properties getBotSettings();
 
 }

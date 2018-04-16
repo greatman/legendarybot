@@ -66,4 +66,9 @@ public interface GuildSettings {
      * @param setting The setting key
      */
     void unsetSetting(String setting);
+
+    /**
+     * Resets the settings cache of the guild.
+     */
+    void resetCache();
 }

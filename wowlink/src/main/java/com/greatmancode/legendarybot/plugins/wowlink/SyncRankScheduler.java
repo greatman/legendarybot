@@ -1,6 +1,7 @@
 package com.greatmancode.legendarybot.plugins.wowlink;
 
 import net.dv8tion.jda.core.entities.Guild;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,9 +26,9 @@ public class SyncRankScheduler {
 
         final Runnable runnable = () -> guild.getMembers().forEach((member -> {
             log.info("Starting update of rank for guild " + guild.getName() + " ID: " + guild.getId());
-            String character = plugin.getMainCharacterForUserInGuild(member.getUser(), guild);
+            JSONObject character = plugin.getMainCharacterForUserInGuild(member.getUser(), guild);
             if (character != null) {
-                String rank = plugin.getWoWRank(guild,character);
+                String rank = plugin.getWoWRank(guild,character.getString("name"));
                 if (rank != null) {
                     plugin.setDiscordRank(member.getUser(), guild, rank);
                 }

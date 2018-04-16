@@ -1,7 +1,5 @@
 dependencies {
     provided project(':api')
-    compile 'com.github.scribejava:scribejava-core:5.0.0'
-    compile 'com.sparkjava:spark-core:2.7.2'
 }
 
 jar {

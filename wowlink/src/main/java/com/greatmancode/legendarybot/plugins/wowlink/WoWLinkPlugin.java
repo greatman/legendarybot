@@ -23,22 +23,12 @@
  */
 package com.greatmancode.legendarybot.plugins.wowlink;
 
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
-import com.greatmancode.legendarybot.api.utils.HeroClass;
 import com.greatmancode.legendarybot.plugins.wowlink.commands.*;
-import com.greatmancode.legendarybot.plugins.wowlink.utils.OAuthBattleNetApi;
-import com.greatmancode.legendarybot.plugins.wowlink.utils.WoWCharacter;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
@@ -46,26 +36,20 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import org.bson.Document;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Spark;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.util.*;
 
-import static spark.Spark.get;
-import static spark.Spark.path;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
 import static com.mongodb.client.model.Updates.set;
 import static com.mongodb.client.model.Updates.unset;
 
@@ -78,18 +62,10 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
     public static final String SETTING_SCHEDULER = "wowlink_scheduler";
     public static final String SETTING_RANK_PREFIX = "wowlink_rank_";
 
-    private final static String MONGO_WOW_CHARACTERS_COLLECTION = "wowCharacters";
     /**
      * The HttpClient to do web requests.
      */
-    private OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(new BattleNetAPIInterceptor(getBot()))
-            .build();
-
-    /**
-     * The settings file
-     */
-    private Properties props;
+    private OkHttpClient client = new OkHttpClient.Builder().build();
 
     /**
      * The Logger
@@ -102,57 +78,8 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         super(wrapper);
     }
 
-
-    /**
-     * Get the properties file.
-     * @return The Properties file.
-     */
-    public Properties getProps() {
-        return props;
-    }
-
     @Override
     public void start() {
-        //Load the configuration
-        props = new Properties();
-        try {
-            props.load(new FileInputStream("app.properties"));
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
-
-        path("/auth", () -> get("/battlenetcallback", (req, res) -> {
-            String state = req.queryParams("state");
-            String region = state.split(":")[0];
-            OAuth20Service service = new ServiceBuilder(props.getProperty("battlenetoauth.key"))
-                    .apiSecret(props.getProperty("battlenetoauth.secret"))
-                    .scope("wow.profile")
-                    .callback("https://legendarybot.greatmancode.com/auth/battlenetcallback")
-                    .build(new OAuthBattleNetApi(region));
-            String oAuthCode = req.queryParams("code");
-            OAuth2AccessToken token = service.getAccessToken(oAuthCode); //TODO: Save oauth code to do a character refresh.
-            OAuthRequest request = new OAuthRequest(Verb.GET,"https://"+region+".api.battle.net/wow/user/characters");
-            service.signRequest(token, request);
-            Response response = service.execute(request);
-            JSONParser parser = new JSONParser();
-            JSONObject obj = (JSONObject) parser.parse(response.getBody());
-            JSONArray charactersArray = (JSONArray) obj.get("characters");
-            List<WoWCharacter> characterList = new ArrayList<>();
-            charactersArray.forEach((c) -> {
-                JSONObject jsonObject = (JSONObject) c;
-                if (jsonObject.containsKey("guild")) {
-                    characterList.add(new WoWCharacter((String)jsonObject.get("name"),((String)jsonObject.get("realm")).toLowerCase(), (String)jsonObject.get("guild"), region, HeroClass.values()[((Long) jsonObject.get("class")).intValue()]));
-                    log.info("User " + state.split(":")[1] + " user have the character " + jsonObject.get("name") + " in guild " + jsonObject.get("guild"));
-                }
-            });
-            if (characterList.size() > 0) {
-                MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
-                characterList.forEach((c) -> collection.updateOne(and(eq("region",c.getRegion()), eq("realm", c.getRealm()), eq("name",c.getCharacterName())),and(set("guild",c.getGuild()),set("owner", state.split(":")[1])),new UpdateOptions().upsert(true)));
-            }
-            return "Your WoW characters are now synced to LegendaryBot!";
-        }));
-
 
         getBot().getCommandHandler().addCommand("linkwowchars", new LinkWoWCharsCommand(this), "World of Warcraft Character");
         getBot().getCommandHandler().addCommand("guildchars", new GuildCharsCommand(this), "World of Warcraft Character");
@@ -167,19 +94,16 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
 
 
         //We load the scheduler
-        getBot().getJDA().forEach((jda -> {
-            jda.getGuilds().forEach(guild -> {
-                if (getBot().getGuildSettings(guild).getSetting(SETTING_SCHEDULER) != null && getBot().getGuildSettings(guild).getSetting(SETTING_RANKSET_ENABLED) != null) {
-                    //scheduler.put(guild.getId(), new SyncRankScheduler(this,guild));
-                }
-            });
-        }));
+        getBot().getJDA().forEach((jda -> jda.getGuilds().forEach(guild -> {
+            if (getBot().getGuildSettings(guild).getSetting(SETTING_SCHEDULER) != null && getBot().getGuildSettings(guild).getSetting(SETTING_RANKSET_ENABLED) != null) {
+                scheduler.put(guild.getId(), new SyncRankScheduler(this,guild));
+            }
+        })));
     }
 
     @Override
     public void stop() {
 
-        Spark.stop();
         getBot().getCommandHandler().removeCommand("linkwowchars");
         getBot().getCommandHandler().removeCommand("guildchars");
         getBot().getCommandHandler().removeCommand("setmainchar");
@@ -202,14 +126,21 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * @return A List containing all characters of a player that belong to a specific guild.
      */
     public List<String> getUserCharactersInGuild(User user, Guild guild) {
-        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
         List<String> charactersList = new ArrayList<>();
-        collection.find(and(eq("owner",user.getId()), eq("guild",getBot().getGuildSettings(guild).getGuildName()), eq("region", getBot().getGuildSettings(guild).getRegionName()))).forEach(new Block<Document>() {
-            @Override
-            public void apply(Document document) {
-                charactersList.add(document.getString("name"));
-            }
-        });
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host(getBot().getBotSettings().getProperty("api.host"))
+                .addPathSegments("api/user/" + user.getId() + "/character/all/"+ getBot().getGuildSettings(guild).getGuildName())
+                .build();
+        Request request = new Request.Builder().url(url).build();
+        try {
+            Response response = client.newCall(request).execute();
+            String result = response.body().string();
+            JSONArray array = new JSONArray(result);
+            array.forEach(entry -> charactersList.add((String) entry));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return charactersList;
     }
 
@@ -219,28 +150,43 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * @param guild The guild to set the main character of the user in.
      * @param character The character name that is the main character of the player.
      */
-    public void setMainCharacterForGuild(User user, Guild guild, String character) {
-        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
-        //We first search for an existing main character and unset it.
-        Document document = collection.find(and(eq("owner", user.getId()), eq("guild_id", guild.getId()))).first();
-        if (document != null) {
-            collection.updateOne(eq("_id", document.getObjectId("_id")), unset("guild_id"));
+    public void setMainCharacterForGuild(User user, Guild guild, String character) { //TODO change void for boolean
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host(getBot().getBotSettings().getProperty("api.host"))
+                .addPathSegments("api/user/"+ user.getId() + "/character/" + guild.getId() + "/"+getBot().getGuildSettings(guild).getRegionName() + "/" + getBot().getGuildSettings(guild).getWowServerName() + "/" + character)
+
+                .build();
+        Request request = new Request.Builder().url(url).addHeader("x-api-key", getBot().getBotSettings().getProperty("api.key")).build();
+        try {
+            client.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        collection.updateOne(and(eq("owner",user.getId()), eq("guild",getBot().getGuildSettings(guild).getGuildName()), eq("region", getBot().getGuildSettings(guild).getRegionName()), eq("name", character)), set("guild_id", guild.getId()));
     }
 
     /**
      * Retrieve the main character of a user in a guild.
      * @param user The user to retrieve the main character from.
      * @param guild The guild to retrieve the main character from.
-     * @return The name of the main character of a user. Returns null if not found.
+     * @return The region/realm/name of the main character of a user. Returns null if not found.
      */
-    public String getMainCharacterForUserInGuild(User user, Guild guild) {
-        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_WOW_CHARACTERS_COLLECTION);
-        //We first search for an existing main character and unset it.
-        Document document = collection.find(and(eq("owner", user.getId()), eq("guild_id", guild.getId()))).first();
-
-        return document != null ? document.getString("name") : null;
+    public JSONObject getMainCharacterForUserInGuild(User user, Guild guild) {
+        JSONObject character = null;
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host(getBot().getBotSettings().getProperty("api.host"))
+                .addPathSegments("api/user/" + user.getId() + "/character/"+guild.getId())
+                .build();
+        Request request = new Request.Builder().url(url).build();
+        try {
+            Response response = client.newCall(request).execute();
+            JSONObject jsonObject = new JSONObject(response.body().source());
+            character = jsonObject.length() > 0 ? jsonObject : null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return character;
     }
 
     /**
@@ -259,8 +205,8 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                 .addQueryParameter("fields", "members")
                 .build();
         Request request = new Request.Builder().url(url).build();
-        try {
-            String result = client.newCall(request).execute().body().string();
+        /*try {
+            String result = clientBattleNet.newCall(request).execute().body().string();
             JSONParser parser = new JSONParser();
             JSONObject jsonObject = (JSONObject) parser.parse(result);
             if (!jsonObject.containsKey("status")) {
@@ -281,7 +227,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
             getBot().getStacktraceHandler().sendStacktrace(e);
-        }
+        }*/
         return rankDiscord;
     }
 

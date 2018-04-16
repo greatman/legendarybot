@@ -58,11 +58,6 @@ public class StreamersPlugin extends LegendaryBotPlugin {
     private OkHttpClient client = new OkHttpClient();
 
     /**
-     * The properties file containing all the settings
-     */
-    private Properties props;
-
-    /**
      * The setting key for status
      */
     public static final String STATUS_KEY = "status";
@@ -72,52 +67,19 @@ public class StreamersPlugin extends LegendaryBotPlugin {
      */
     public static final String GAME_KEY = "game";
 
-    /**
-     * The setting key for the configuration in the database.
-     */
-    public static final String CONFIG_KEY = "streamersPlugin";
-
     public StreamersPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
     public void start() {
-        //Load the configuration
-        props = new Properties();
-        try {
-            props.load(new FileInputStream("app.properties"));
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
+        //todo use the API backend properly.
         getBot().getCommandHandler().addCommand("streamers", new StreamersCommand(this), "General Commands");
         log.info("Command !streamers loaded!");
         getBot().getCommandHandler().addCommand("addstreamer", new AddStreamerCommand(this), "Streamers Admin Commands");
         log.info("Command !addstreamer loaded!");
         getBot().getCommandHandler().addCommand("removestreamer", new RemoveStreamerCommand(this), "Streamers Admin Commands");
         log.info("Command !removestreamer unloaded!");
-
-        log.info("Converting old streamers config");
-        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(guild -> {
-            String setting = getBot().getGuildSettings(guild).getSetting(CONFIG_KEY);
-            if (setting != null) {
-                log.info("Converting " + guild.getId() + ":" + guild.getName() + " streamers config.");
-                for (String streamer : setting.split(";")) {
-                    String[] streamerValues = streamer.split(",");
-                    if (streamerValues.length == 2) {
-                        try {
-                            StreamPlatform platform = StreamPlatform.valueOf(streamerValues[1]);
-                            addStreamer(guild,streamerValues[0],platform);
-                        } catch(IllegalArgumentException ignored) {
-                            log.warn("Invalid config for streamer " + Arrays.toString(streamerValues));
-                        }
-                    }
-                }
-                getBot().getGuildSettings(guild).unsetSetting(CONFIG_KEY);
-                log.info("Done converting " + guild.getId() + ":" + guild.getName() + " streamers config.");
-            }
-        }));
     }
 
     @Override
@@ -143,7 +105,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
             case TWITCH:
                 Request request = new Request.Builder()
                         .url("https://api.twitch.tv/kraken/streams/"+username)
-                        .addHeader("Client-ID", props.getProperty("twitch.key"))
+                        .addHeader("Client-ID", getBot().getBotSettings().getProperty("twitch.key"))
                         .build();
                 try {
                     String result = client.newCall(request).execute().body().string();
@@ -194,7 +156,7 @@ public class StreamersPlugin extends LegendaryBotPlugin {
             case TWITCH:
                 Request request = new Request.Builder()
                         .url("https://api.twitch.tv/kraken/channels/"+username)
-                        .addHeader("Client-ID", props.getProperty("twitch.key"))
+                        .addHeader("Client-ID", getBot().getBotSettings().getProperty("twitch.key"))
                         .build();
                 try {
                     result = client.newCall(request).execute().body().string() != null;

@@ -72,13 +72,11 @@ public class BattleNetAPIInterceptor implements Interceptor {
      */
     public BattleNetAPIInterceptor(LegendaryBot bot) {
         this.bot = bot;
-        Properties props = new Properties();
         try {
-            props.load(new FileInputStream("app.properties"));
-            usKey = props.getProperty("battlenet.us.key");
-            usSecret = props.getProperty("battlenet.us.secret");
-            euKey = props.getProperty("battlenet.eu.key");
-            euSecret = props.getProperty("battlenet.eu.secret");
+            usKey = bot.getBotSettings().getProperty("battlenet.us.key");
+            usSecret = bot.getBotSettings().getProperty("battlenet.us.secret");
+            euKey = bot.getBotSettings().getProperty("battlenet.eu.key");
+            euSecret = bot.getBotSettings().getProperty("battlenet.eu.secret");
 
             if (usKey == null && euKey == null) {
                 throw new IllegalArgumentException("Blizzard API requires at least one API key.");

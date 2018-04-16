@@ -26,18 +26,12 @@ package com.greatmancode.legendarybot.server;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.*;
-import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
-import org.bson.Document;
+import okhttp3.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.set;
-import static com.mongodb.client.model.Updates.unset;
 
 /**
  * A representation of Discord Guild settings. Use a MySQL database to save the parameters
@@ -59,7 +53,9 @@ public class IGuildSettings implements GuildSettings {
      */
     private Map<String, String> settings = new HashMap<>();
 
-    private static final String MONGO_COLLECTION_NAME = "guild";
+    private OkHttpClient client = new OkHttpClient.Builder().build();
+
+    private static final MediaType TEXT = MediaType.parse("text/plain");
 
     /**
      * Create a {@link GuildSettings} instance
@@ -69,46 +65,91 @@ public class IGuildSettings implements GuildSettings {
     public IGuildSettings(Guild guild, LegendaryBot bot) {
         this.bot = bot;
         this.guildId = guild.getId();
-        MongoCollection<Document> collection = bot.getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
-        collection.find(eq("guild_id",guildId)).forEach((Block<Document>) document -> {
-            if (((Document)document.get("settings")) != null) {
-                ((Document)document.get("settings")).forEach((k, v) -> settings.put(k, (String) v));
-            }
-        });
     }
 
 
     @Override
     public String getWowServerName() {
-        return settings.get("WOW_SERVER_NAME");
+        return settings.containsKey("WOW_SERVER_NAME") ? settings.get("WOW_SERVER_NAME") : getSetting("WOW_SERVER_NAME");
+
     }
 
     @Override
     public String getRegionName() {
-        return settings.get("WOW_REGION_NAME");
+        return settings.containsKey("WOW_REGION_NAME") ? settings.get("WOW_REGION_NAME") : getSetting("WOW_REGION_NAME");
     }
 
     @Override
     public String getGuildName() {
-        return settings.get("GUILD_NAME");
+        return settings.containsKey("GUILD_NAME") ? settings.get("GUILD_NAME") : getSetting("GUILD_NAME");
     }
 
     @Override
     public String getSetting(String setting) {
+        if (!settings.containsKey(setting)) {
+            HttpUrl url = new HttpUrl.Builder()
+                    .scheme("https")
+                    .host(bot.getBotSettings().getProperty("api.host"))
+                    .addPathSegments("api/guild/" + guildId + "/setting/" +setting)
+                    .build();
+            Request request = new Request.Builder().url(url).addHeader("x-api-key", bot.getBotSettings().getProperty("api.key")).build();
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.code() == 200) {
+                    settings.put(setting, response.body().string());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                bot.getStacktraceHandler().sendStacktrace(e, "guildid:" + guildId, "setting:" + setting);
+            }
+        }
         return settings.get(setting);
     }
 
     @Override
     public void setSetting(String setting, String value) {
-        MongoCollection<Document> collection = bot.getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
-        collection.updateOne(eq("guild_id", guildId),set("settings." + setting, value), new UpdateOptions().upsert(true));
-        settings.put(setting,value);
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host(bot.getBotSettings().getProperty("api.host"))
+                .addPathSegments("api/guild/" + guildId + "/setting/" +setting)
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(RequestBody.create(TEXT,value))
+                .addHeader("x-api-key", bot.getBotSettings().getProperty("api.key"))
+                .build();
+        try {
+            client.newCall(request).execute();
+            settings.put(setting,value);
+        } catch (IOException e) {
+            e.printStackTrace();
+            bot.getStacktraceHandler().sendStacktrace(e, "guildid:" + guildId, "setting:" + setting);
+        }
     }
 
     @Override
     public void unsetSetting(String setting) {
-        MongoCollection<Document> collection = bot.getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
-        collection.updateOne(eq("guild_id", guildId),unset("settings." + setting));
-        settings.remove(setting);
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host(bot.getBotSettings().getProperty("api.host"))
+                .addPathSegments("api/guild/" + guildId + "/setting/" +setting)
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .addHeader("x-api-key", bot.getBotSettings().getProperty("api.key"))
+                .build();
+        try {
+            client.newCall(request).execute();
+            settings.remove(setting);
+        } catch (IOException e) {
+            e.printStackTrace();
+            bot.getStacktraceHandler().sendStacktrace(e, "guildid:" + guildId, "setting:" + setting);
+        }
+    }
+
+    @Override
+    public void resetCache() {
+        settings.clear();
     }
 }

@@ -27,30 +27,17 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.plugin.customcommands.commands.CreateCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.commands.ListCommand;
 import com.greatmancode.legendarybot.plugin.customcommands.commands.RemoveCommand;
-import com.mongodb.Block;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
-import org.bson.Document;
+import org.json.JSONObject;
 import org.pf4j.PluginWrapper;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
-import static com.mongodb.client.model.Updates.set;
-import static com.mongodb.client.model.Updates.unset;
-
 public class CustomCommandsPlugin extends LegendaryBotPlugin {
 
     private Map<String, Map<String, String>> guildCustomCommands = new HashMap<>();
-    private GuildJoinListener listener = new GuildJoinListener(this);
-
-    private static final String MONGO_COLLECTION_NAME = "guild";
-    private static final String MONGO_DOCUMENT_NAME = "customCommands";
 
     public CustomCommandsPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -58,22 +45,6 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
 
     @Override
     public void start() {
-        log.info("Loading custom commands");
-        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(g -> {
-            MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
-            Map<String, String> result = new HashMap<>();
-            collection.find(eq("guild_id",g.getId())).forEach((Block<Document>) document -> {
-                if (document.containsKey(MONGO_DOCUMENT_NAME)) {
-                    ((Document)document.get(MONGO_DOCUMENT_NAME)).forEach((k, v) -> {
-                        System.out.println("GUILD:" + g.getId() + " key: " + k + " value: " + v);
-                        result.put(k, (String) v);
-                    });
-                }
-            });
-            guildCustomCommands.put(g.getId(), result);
-        }));
-
-        getBot().getJDA().forEach(jda -> jda.addEventListener(listener));
         log.info("Custom commands loaded");
         getBot().getCommandHandler().setUnknownCommandHandler(new IUnknownCommandHandler(this));
         getBot().getCommandHandler().addCommand("createcmd", new CreateCommand(this), "Custom Commands Admin Commands");
@@ -89,7 +60,6 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("removecmd");
         getBot().getCommandHandler().removeCommand("listcommands");
         getBot().getCommandHandler().setUnknownCommandHandler(null);
-        getBot().getJDA().forEach((jda) -> jda.removeEventListener(listener));
         log.info("Plugin Custom Commands unloaded!");
         log.info("Command !createcmd unloaded!");
     }
@@ -101,8 +71,21 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
      * @param value The value of the custom command (What the bot will say).
      */
     public void createCommand(Guild guild, String commandName, String value) {
-        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
-        collection.updateOne(eq("guild_id", guild.getId()),set(MONGO_DOCUMENT_NAME+ "." + commandName, value),new UpdateOptions().upsert(true));
+        if (!guildCustomCommands.containsKey(guild.getId())) {
+            loadCommands(guild);
+        }
+        String customCommandsOutput = getBot().getGuildSettings(guild).getSetting("customCommands");
+        JSONObject customCommands;
+        if (customCommandsOutput != null) {
+            customCommands = new JSONObject(customCommandsOutput);
+        } else {
+            customCommands = new JSONObject();
+        }
+        JSONObject command = new JSONObject();
+        command.put("value", value);
+        command.put("type", "text");
+        customCommands.put(commandName, command);
+        getBot().getGuildSettings(guild).setSetting("customCommands", customCommands.toString());
         guildCustomCommands.get(guild.getId()).put(commandName, value);
     }
 
@@ -113,19 +96,11 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
      */
     public void removeCommand(Guild guild, String commandName) {
         if (guildCustomCommands.get(guild.getId()).containsKey(commandName)) {
-            MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection(MONGO_COLLECTION_NAME);
-            collection.updateOne(and(eq("guild_id",guild.getId()), exists(MONGO_DOCUMENT_NAME + "." + commandName)), unset(MONGO_DOCUMENT_NAME + "." + commandName));
+            JSONObject customCommands = new JSONObject(getBot().getGuildSettings(guild).getSetting("customCommands"));
+            customCommands.remove(commandName);
+            getBot().getGuildSettings(guild).setSetting("customCommands", customCommands.toString());
             guildCustomCommands.get(guild.getId()).remove(commandName);
         }
-    }
-
-    /**
-     * Handler for the joinGuild event. Add the guild to the map.
-     * @param guild The guild to add
-     */
-    public void joinGuildEvent(Guild guild) {
-        //TODO load current commands if it's a rejoin
-        guildCustomCommands.put(guild.getId(), new HashMap<>());
     }
 
     /**
@@ -134,6 +109,22 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
      * @return A Map containing the Trigger and the value of each custom commands.
      */
     public Map<String,String> getServerCommands(Guild guild) {
+        if (getServerCommands(guild) == null) {
+            loadCommands(guild);
+        }
         return Collections.unmodifiableMap(guildCustomCommands.get(guild.getId()));
+    }
+
+    public void loadCommands(Guild guild) {
+        Map<String, String> customCommandsMap = new HashMap<>();
+        String customCommandsOutput = getBot().getGuildSettings(guild).getSetting("customCommands");
+        if (customCommandsOutput != null) {
+            JSONObject customCommands = new JSONObject(customCommandsOutput);
+            customCommands.keys().forEachRemaining(k -> {
+                //TODO support more than text custom commands
+                customCommandsMap.put(k,customCommands.getJSONObject(k).getString("value"));
+            });
+        }
+        guildCustomCommands.put(guild.getId(),customCommandsMap);
     }
 }

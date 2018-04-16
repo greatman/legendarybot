@@ -21,7 +21,6 @@ public class TranslateManager {
     }
 
     private void load() throws IOException {
-        File folder = new File("languages");
         Path path = Paths.get("languages");
         Files.newDirectoryStream(path).forEach(file -> {
             Properties properties = new Properties();
