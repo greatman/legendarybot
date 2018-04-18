@@ -26,10 +26,13 @@ package com.greatmancode.legendarybot.plugins.wowlink.commands;
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The !syncrank command
@@ -56,13 +59,15 @@ public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
             return;
         }
 
-        String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(), event.getGuild());
-        if (character == null) {
-            event.getAuthor().openPrivateChannel().queue((c)-> c.sendMessage("You didn't set a main character yet. Please use !setguildcharacter first.").queue());
-            return;
-        }
-        plugin.setDiscordRank(event.getAuthor(),event.getGuild(),plugin.getWoWRank(event.getGuild(), character));
-        event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Rank synced!").queue());
+        List<Member> memberList = new ArrayList<>();
+        memberList.add(event.getMember());
+        event.getChannel().sendMessage(new MessageBuilder()
+                .append(event.getAuthor())
+                .append(" please wait. Rank Sync will take a few seconds...")
+                .build()).queue(message -> {
+            plugin.doGuildRankUpdate(event.getGuild(),memberList);
+            message.editMessage(new MessageBuilder().append(event.getAuthor()).append(" your rank is now synced!").build()).queue();
+        });
 
     }
 

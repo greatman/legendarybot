@@ -25,33 +25,22 @@ package com.greatmancode.legendarybot.plugins.wowlink;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
-import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.plugins.wowlink.commands.*;
-import com.mongodb.Block;
-import com.mongodb.client.MongoCollection;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.bson.Document;
+import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.set;
-import static com.mongodb.client.model.Updates.unset;
 
 /**
  * The WowLink plugin main class.
@@ -71,6 +60,8 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * The Logger
      */
     private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json");
 
     private Map<String, SyncRankScheduler> scheduler = new HashMap<>();
 
@@ -189,125 +180,6 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         return character;
     }
 
-    /**
-     * Get the Discord rank linked to a WoW guild rank.
-     * @param guild The guild to get the setting from.
-     * @param character The character to get the rank from.
-     * @return The Discord rank of a character.
-     */
-    public String getWoWRank(Guild guild, String character) {
-        int[] rank = new int[1];
-        rank[0] = -1;
-        String rankDiscord = null;
-        HttpUrl url = new HttpUrl.Builder().scheme("https")
-                .host(getBot().getGuildSettings(guild).getRegionName() + ".api.battle.net")
-                .addPathSegments("/wow/guild/" + getBot().getGuildSettings(guild).getWowServerName()+"/" + getBot().getGuildSettings(guild).getGuildName())
-                .addQueryParameter("fields", "members")
-                .build();
-        Request request = new Request.Builder().url(url).build();
-        /*try {
-            String result = clientBattleNet.newCall(request).execute().body().string();
-            JSONParser parser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) parser.parse(result);
-            if (!jsonObject.containsKey("status")) {
-                JSONArray membersArray = (JSONArray) jsonObject.get("members");
-                for (Object e: membersArray) {
-                    JSONObject entry = (JSONObject) e;
-                    JSONObject characterEntry = (JSONObject) entry.get("character");
-                    if (characterEntry.get("name").equals(character)) {
-                        rank[0] = Long.valueOf((long) entry.get("rank")).intValue();
-                        break;
-                    }
-                }
-            }
-            //We found a rank. Translate it.
-            if (rank[0] != -1) {
-                rankDiscord = getBot().getGuildSettings(guild).getSetting(SETTING_RANK_PREFIX + rank[0]);
-            }
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }*/
-        return rankDiscord;
-    }
-
-    /**
-     * Set the Discord rank of a player. If the bot doesn't find the rank in the Discord Guild or can't set the rank, nothing happens.
-     * @param user The user to set the rank to.
-     * @param guild The guild we want to set the rank in
-     * @param rank The rank we want to set.
-     */
-    public void setDiscordRank(User user, Guild guild, String rank) {
-        if (rank == null) {
-            return;
-        }
-        List<Role> botRole = guild.getMember(getBot().getJDA(guild).getSelfUser()).getRoles();
-        final int[] botRoleRank = {-999};
-        botRole.forEach(r -> {
-            if (r.getPosition() > botRoleRank[0]) {
-                botRoleRank[0] = r.getPosition();
-            }
-        });
-
-        List<Role> rolesToAdd = guild.getRolesByName(rank, true);
-        if (rolesToAdd.isEmpty()) {
-            return;
-        }
-
-        if (rolesToAdd.get(0).getPosition() > botRoleRank[0]) {
-            return; //Can't set a rank higher than us.
-        }
-
-
-        //We try to load all the other ranks so we do a cleanup at the same time.
-        Set<String> allRanks = new HashSet<>();
-        GuildSettings settings = getBot().getGuildSettings(guild);
-        for(int i = 0; i <= 9; i++) {
-            String entry = settings.getSetting(SETTING_RANK_PREFIX + i);
-            if (entry != null) {
-                allRanks.add(entry);
-            }
-        }
-        if (allRanks.contains(rank)) {
-            allRanks.remove(rank);
-        }
-
-        List<Role> rolesToRemove = new ArrayList<>();
-        List<Role> memberRoles = guild.getMember(user).getRoles();
-        for(String rankEntry: allRanks) {
-            List<Role> roles = guild.getRolesByName(rankEntry, false);
-            if (!roles.isEmpty()){
-                if (memberRoles.contains(roles.get(0))) {
-                    if (roles.get(0).getPosition() < botRoleRank[0]) {
-                        rolesToRemove.add(roles.get(0));
-                    } else {
-                        log.info("The bot can't remove rank " + rankEntry + " on user " + user.getName());
-                    }
-                } else {
-                    log.info("Role " + rankEntry + " not on user" + user.getName());
-                }
-
-            } else {
-                log.info("Role " + rankEntry + " not found!");
-            }
-        }
-
-
-
-        try {
-            guild.getController().modifyMemberRoles(guild.getMember(user), rolesToAdd, rolesToRemove).reason("LegendaryBot - Rank Sync with WoW Guild.").queue();
-            log.info("User " + user.getName());
-            log.info("Adding ranks:");
-            rolesToAdd.forEach(v -> log.info(v.getName()));
-            log.info("Removing ranks:");
-            rolesToRemove.forEach(v -> log.info(v.getName()));
-        } catch (PermissionException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
-
-    }
-
     public void enableAutoRankUpdate(Guild guild) {
         getBot().getGuildSettings(guild).setSetting(SETTING_SCHEDULER, "true");
         scheduler.put(guild.getId(), new SyncRankScheduler(this, guild));
@@ -317,5 +189,76 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getGuildSettings(guild).unsetSetting(SETTING_SCHEDULER);
         scheduler.get(guild.getId()).stop();
         scheduler.remove(guild.getId());
+    }
+
+    public void doGuildRankUpdate(Guild guild) {
+        doGuildRankUpdate(guild, guild.getMembers());
+    }
+    public void doGuildRankUpdate(Guild guild, List<Member> members) {
+        JSONObject jsonObject = new JSONObject();
+        JSONObject guildObject = new JSONObject();
+        JSONArray guildRanks = new JSONArray();
+        List<Role> guildRoles = guild.getRoles();
+        guildRoles.forEach(role -> {
+            JSONObject roleJSON = new JSONObject();
+            roleJSON.put("name", role.getName());
+            roleJSON.put("position", role.getPosition());
+            roleJSON.put("managerole", role.getPermissions().contains(Permission.MANAGE_ROLES));
+            guildRanks.put(roleJSON);
+        });
+        guildObject.put("ranks", guildRanks);
+
+        JSONArray botRoles = new JSONArray();
+        guild.getSelfMember().getRoles().forEach(role -> botRoles.put(role.getName()));
+        guildObject.put("botranks", botRoles);
+        jsonObject.put("guild", guildObject);
+
+        JSONArray users = new JSONArray();
+        members.forEach(member -> {
+            JSONObject userJSON = new JSONObject();
+            userJSON.put("discordId", member.getUser().getIdLong());
+            JSONArray userRanks = new JSONArray();
+            member.getRoles().forEach(role -> userRanks.put(role.getName()));
+            userJSON.put("ranks", userRanks);
+            users.put(userJSON);
+        });
+
+        jsonObject.put("users", users);
+
+        HttpUrl url = new HttpUrl.Builder()
+                .scheme("https")
+                .host(getBot().getBotSettings().getProperty("api.host"))
+                .addPathSegments("guild/" + guild.getId() + "/rankUpdate")
+                .build();
+        Request request = new Request.Builder().url(url).addHeader("x-api-key", getBot().getBotSettings().getProperty("api.key")).post(RequestBody.create(JSON_MEDIA_TYPE, jsonObject.toString())).build();
+        try {
+            Response response = client.newCall(request).execute();
+            JSONObject responseJSON = new JSONObject(response.body().string());
+            if (responseJSON.has("roleChange")) {
+                responseJSON.getJSONArray("roleChange").forEach(roleChangeEntry -> {
+                    JSONObject roleChange = (JSONObject) roleChangeEntry;
+                    Member member = guild.getMemberById(roleChange.getLong("discordId"));
+                    List<Role> roleToAdd = new ArrayList<>();
+                    List<Role> rolesToRemove = new ArrayList<>();
+                    if (roleChange.has("rankToAdd")) {
+                        roleToAdd.add(guildRoles.stream().filter(r -> r.getName().equals(roleChange.getString("rankToAdd"))).findFirst().orElse(null));
+                    }
+                    if (roleChange.has("ranksToRemove")) {
+                        JSONArray array = roleChange.getJSONArray("ranksToRemove");
+                        array.forEach(rankToRemoveEntry -> {
+                            String rankToRemove = (String) rankToRemoveEntry;
+                            rolesToRemove.add(guildRoles.stream().filter(r -> r.getName().equals(rankToRemove)).findFirst().orElse(null));
+                        });
+                    }
+
+                    if (roleToAdd.size() > 0 || rolesToRemove.size() > 0) {
+                        log.info("Doing the following changes to " + member.getNickname() + ":" + member.getUser().getIdLong() + ": ADD:" + Arrays.toString(roleToAdd.toArray()) + " REMOVE:" + Arrays.toString(rolesToRemove.toArray()));
+                        //guild.getController().modifyMemberRoles(member, roleToAdd, rolesToRemove);
+                    }
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
