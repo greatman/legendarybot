@@ -24,18 +24,11 @@ public class SyncRankScheduler {
 
     public SyncRankScheduler(WoWLinkPlugin plugin, Guild guild) {
 
-        final Runnable runnable = () -> guild.getMembers().forEach((member -> {
-            log.info("Starting update of rank for guild " + guild.getName() + " ID: " + guild.getId());
-            JSONObject character = plugin.getMainCharacterForUserInGuild(member.getUser(), guild);
-            if (character != null) {
-                String rank = plugin.getWoWRank(guild,character.getString("name"));
-                if (rank != null) {
-                    plugin.setDiscordRank(member.getUser(), guild, rank);
-                }
-            }
-            log.info("Update done of rank for guild " + guild.getName() + " ID: " + guild.getId());
-        }));
-
+        final Runnable runnable = () -> {
+            log.info("Doing Rank Update for Guild " + guild.getName() + ":" + guild.getId());
+            plugin.doGuildRankUpdate(null, guild);
+            log.info("Done doing rank update for Guild " + guild.getName() + ":" + guild.getId());
+        };
         scheduler.scheduleAtFixedRate(runnable,0,30, TimeUnit.MINUTES);
     }
 

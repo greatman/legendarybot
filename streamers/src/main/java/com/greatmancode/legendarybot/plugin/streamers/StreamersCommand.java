@@ -25,23 +25,18 @@
 package com.greatmancode.legendarybot.plugin.streamers;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
-import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
-import com.mongodb.client.MongoCollection;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import org.bson.Document;
+import org.json.JSONObject;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Map;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * The !streamers command. Lists all the streamers and their status.
  */
-public class StreamersCommand implements PublicCommand, ZeroArgsCommand {
+public class StreamersCommand implements PublicCommand {
 
     /**
      * The {@link StreamersPlugin} instance.
@@ -54,47 +49,72 @@ public class StreamersCommand implements PublicCommand, ZeroArgsCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        MongoCollection<Document> collection = plugin.getBot().getMongoDatabase().getCollection("guild");
-        Document document = collection.find(and(eq("guild_id", event.getGuild().getId()))).first();
-        if (document != null) {
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle("Server Streamers");
-            eb.setColor(new Color(100,65,164));
-            eb.setThumbnail("https://www-cdn.jtvnw.net/images/twitch_logo3.jpg");
-            Document streamers = ((Document)document.get("streamers"));
-            if (streamers != null) {
-                streamers.forEach((k,v) -> {
-                    StreamPlatform platform = StreamPlatform.valueOf(k);
-                    ArrayList<String> vNew = (ArrayList<String>) v;
-                    vNew.forEach(streamer -> {
-                        Map<String, String> result = plugin.isStreaming(streamer, platform);
-                        String output = "";
-                        if (result.size() != 0) {
-                            String url = "";
-                            if (platform == StreamPlatform.TWITCH) {
-                                url = "https://twitch.tv/" + streamer;
-                            } else if (platform == StreamPlatform.MIXER) {
-                                url = "https://mixer.com/" + streamer;
-                            }
-                            output = "[" + result.get(StreamersPlugin.STATUS_KEY) + " in " + result.get(StreamersPlugin.GAME_KEY) + "!](" + url + ")";
-                        } else {
-                            output = streamer + " is not streaming!";
-                        }
-                        eb.addField(streamer,output, false);
-                    });
-                });
-            }
+        String streamersSetting = plugin.getBot().getGuildSettings(event.getGuild()).getSetting("streamers");
 
-            event.getChannel().sendMessage(eb.build()).queue();
-        } else {
+        if (streamersSetting == null) {
             event.getChannel().sendMessage("No streamers on this server!").queue();
+            return;
         }
+
+        JSONObject streamersJSON = new JSONObject(streamersSetting);
+
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Server Streamers");
+        eb.setColor(new Color(100,65,164));
+        eb.setThumbnail("https://www-cdn.jtvnw.net/images/twitch_logo3.jpg");
+
+        if (streamersJSON.has(StreamPlatform.MIXER.name())) {
+            streamersJSON.getJSONArray(StreamPlatform.MIXER.name()).forEach(username -> {
+                Map<String, String> result = plugin.isStreaming((String) username, StreamPlatform.MIXER);
+                String output = null;
+                if (result.size() != 0) {
+                    output = "[" + result.get(StreamersPlugin.STATUS_KEY) + " in " + result.get(StreamersPlugin.GAME_KEY) + "!](https://mixer.com/" + username + ")";
+
+                } else {
+                    if (args.length == 1) {
+                        output = username + " is not streaming";
+                    }
+                }
+                if (output != null) {
+                    eb.addField((String) username,output, false);
+                }
+            });
+        }
+        if (streamersJSON.has(StreamPlatform.TWITCH.name())) {
+            streamersJSON.getJSONArray(StreamPlatform.TWITCH.name()).forEach(username -> {
+                Map<String, String> result = plugin.isStreaming((String) username, StreamPlatform.TWITCH);
+                String output = null;
+                if (result.size() != 0) {
+                    output = "[" + result.get(StreamersPlugin.STATUS_KEY) + " in " + result.get(StreamersPlugin.GAME_KEY) + "!](https://twitch.com/" + username + ")";
+
+                } else {
+                    if (args.length == 1) {
+                        output = username + " is not streaming";
+                    }
+                }
+                if (output != null) {
+                    eb.addField((String) username,output, false);
+                }
+            });
+        }
+
+        event.getChannel().sendMessage(eb.build()).queue();
 
     }
 
     @Override
+    public int minArgs() {
+        return 0;
+    }
+
+    @Override
+    public int maxArgs() {
+        return 1;
+    }
+
+    @Override
     public String help() {
-        return "Return the list of streamers of this Discord server and their status.";
+        return "Return the list of streamers of this Discord server and their status. Add all at the end of the command to show them all even if they are offline.";
     }
 
     @Override

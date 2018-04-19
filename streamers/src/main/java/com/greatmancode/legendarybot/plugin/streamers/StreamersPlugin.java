@@ -25,27 +25,17 @@
 package com.greatmancode.legendarybot.plugin.streamers;
 
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.entities.Guild;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.bson.Document;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.pf4j.PluginWrapper;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.*;
 
 /**
  * Streamer plugin - Currently allows a guild to have a list of streamers registered.
@@ -100,7 +90,6 @@ public class StreamersPlugin extends LegendaryBotPlugin {
      */
     public Map<String, String> isStreaming(String username, StreamPlatform platform) {
         Map<String, String> map = new HashMap<>();
-        JSONParser parser = new JSONParser();
         switch (platform) {
             case TWITCH:
                 Request request = new Request.Builder()
@@ -110,14 +99,14 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                 try {
                     String result = client.newCall(request).execute().body().string();
 
-                    JSONObject json = (JSONObject) parser.parse(result);
+                    JSONObject json = new JSONObject(result);
                     JSONObject stream = (JSONObject) json.get("stream");
                     if (stream != null) {
                         map.put(STATUS_KEY, (String) ((JSONObject)stream.get("channel")).get("status"));
                         map.put(GAME_KEY, (String) stream.get("game"));
                         map.put("created_at", (String) stream.get("created_at"));
                     }
-                } catch (ParseException | IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     getBot().getStacktraceHandler().sendStacktrace(e, "username:" + username, "platform:" + platform);
                 }
@@ -127,13 +116,13 @@ public class StreamersPlugin extends LegendaryBotPlugin {
                 request = new Request.Builder().url("https://mixer.com/api/v1/channels/" + username).build();
                 try {
                     String result = client.newCall(request).execute().body().string();
-                    JSONObject json = (JSONObject) parser.parse(result);
-                    if (json.containsKey("online") && (boolean)json.get("online")) {
+                    JSONObject json = new JSONObject(result);
+                    if (json.has("online") && (boolean)json.get("online")) {
                         JSONObject stream = (JSONObject) json.get("type");
                         map.put(STATUS_KEY, (String) json.get("name"));
                         map.put(GAME_KEY, (String) stream.get("name"));
                     }
-                } catch (ParseException | IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     getBot().getStacktraceHandler().sendStacktrace(e, "username:" + username, "platform:" + platform);
                 }
@@ -190,8 +179,20 @@ public class StreamersPlugin extends LegendaryBotPlugin {
      * @param platform The platform the user is streaming on.
      */
     public void addStreamer(Guild guild, String username, StreamPlatform platform) {
-        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection("guild");
-        collection.updateOne(eq("guild_id", guild.getId()),addToSet("streamers." + platform.toString(), username), new UpdateOptions().upsert(true));
+        String streamersConfig = getBot().getGuildSettings(guild).getSetting("streamers");
+        JSONObject jsonObject = new JSONObject();
+        if (streamersConfig != null) {
+            jsonObject = new JSONObject(streamersConfig);
+        }
+        if (jsonObject.has(platform.name())) {
+            jsonObject.getJSONArray(platform.name()).put(username);
+        } else {
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.put(username);
+            jsonObject.put(platform.name(), jsonArray);
+        }
+
+        getBot().getGuildSettings(guild).setSetting("streamers", jsonObject.toString());
     }
 
     /**
@@ -201,7 +202,20 @@ public class StreamersPlugin extends LegendaryBotPlugin {
      * @param platform The platform the user is streaming from.
      */
     public void removeStreamer(Guild guild, String username, StreamPlatform platform) {
-        MongoCollection<Document> collection = getBot().getMongoDatabase().getCollection("guild");
-        collection.updateOne(eq("guild_id", guild.getId()),pull("streamers." +platform.toString(), username));
+        String streamersConfig = getBot().getGuildSettings(guild).getSetting("streamers");
+        JSONObject jsonObject = new JSONObject();
+        if (streamersConfig != null) {
+            jsonObject = new JSONObject(streamersConfig);
+        }
+        if (jsonObject.has(platform.name())) {
+            Iterator<Object> iterator = jsonObject.getJSONArray(platform.name()).iterator();
+            while (iterator.hasNext()) {
+                String name = (String) iterator.next();
+                if (name.equalsIgnoreCase(username)) {
+                    iterator.remove();
+                }
+            }
+            getBot().getGuildSettings(guild).setSetting("streamers", jsonObject.toString());
+        }
     }
 }

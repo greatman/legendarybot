@@ -49,9 +49,6 @@ public class IUnknownCommandHandler implements UnknownCommandHandler {
             prefix = "!";
         }
         String value = split[0].substring(prefix.length()).toLowerCase();
-        if (plugin.getServerCommands(event.getGuild()) == null) {
-            plugin.loadCommands(event.getGuild());
-        }
         String result = plugin.getServerCommands(event.getGuild()).get(value);
         if (result != null) {
             if (result.contains(".png") || result.contains(".jpg") || result.contains(".gif")) {

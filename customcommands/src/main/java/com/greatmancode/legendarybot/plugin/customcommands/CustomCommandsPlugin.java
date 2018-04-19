@@ -109,7 +109,7 @@ public class CustomCommandsPlugin extends LegendaryBotPlugin {
      * @return A Map containing the Trigger and the value of each custom commands.
      */
     public Map<String,String> getServerCommands(Guild guild) {
-        if (getServerCommands(guild) == null) {
+        if (!guildCustomCommands.containsKey(guild.getId())) {
             loadCommands(guild);
         }
         return Collections.unmodifiableMap(guildCustomCommands.get(guild.getId()));

@@ -28,7 +28,20 @@ public class SettingsConverter {
         collection.find(eq("guild_id",guild.getId())).forEach((Block<Document>) document -> {
             if (document.get("settings") != null) {
                 log.info("Converting the settings of the guild.");
-                ((Document)document.get("settings")).forEach((k, v) -> bot.getGuildSettings(guild).setSetting(k, (String) v));
+                JSONObject wowlinkRanks = new JSONObject();
+                //If it's wowlink, we create a json of the values instead.
+                ((Document)document.get("settings")).forEach((k, v) -> {
+                    if (k.contains("wowlink_rank_")) {
+                        wowlinkRanks.put(k.split("_")[2], v);
+                    } else if (k.equalsIgnoreCase("wowlink_rankset") || k.equalsIgnoreCase("wowlink_scheduler") || k.equalsIgnoreCase("WOW_GUILD_NAME") || k.equalsIgnoreCase("WOW_REALM_NAME")) {
+                        //We force disable the wow rank autoupdate system because of the massive overhaul. We also ignore bad values
+
+                    } else {
+                        bot.getGuildSettings(guild).setSetting(k, (String) v);
+                    }
+
+                });
+                bot.getGuildSettings(guild).setSetting("wowranks", wowlinkRanks.toString());
             }
         });
 
@@ -68,6 +81,7 @@ public class SettingsConverter {
             streamersJSON.put("MIXER", mixerStreamers);
             bot.getGuildSettings(guild).setSetting("streamers", streamersJSON.toString());
         }
+
 
         //TODO add some kind of character converter for characters with people linked to them.
     }

@@ -27,8 +27,7 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.Command;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-
-import java.sql.SQLException;
+import org.json.JSONObject;
 
 /**
  * A WoW Command. Adds the character & the realm to the arguments of a command if the user did !setmainchar.
@@ -40,10 +39,10 @@ public interface WowCommand extends Command {
         String[] newArgs = args;
         if (args.length == 0) {
             WoWLinkPlugin plugin = ((WoWLinkPlugin)bot.getPluginManager().getPlugin("wowLink").getPlugin());
-            String character = plugin.getMainCharacterForUserInGuild(event.getAuthor(),event.getGuild());
-            if (character != null) {
+            JSONObject character = plugin.getMainCharacterForUserInGuild(event.getAuthor(),event.getGuild());
+            if (character.length() > 0) {
                 newArgs = new String[1];
-                newArgs[0] = character;
+                newArgs[0] = character.getString("name");
             }
         }
         return newArgs;

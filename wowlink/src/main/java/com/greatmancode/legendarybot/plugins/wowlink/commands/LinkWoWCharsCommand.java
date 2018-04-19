@@ -40,8 +40,6 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
      */
     private WoWLinkPlugin plugin;
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     public LinkWoWCharsCommand(WoWLinkPlugin plugin) {
         this.plugin = plugin;
     }
@@ -53,7 +51,7 @@ public class LinkWoWCharsCommand implements PublicCommand, ZeroArgsCommand {
             event.getChannel().sendMessage("The Region is not configured. Please ask a server admin to configure it with the setup command").queue();
             return;
         }
-        event.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("Please follow this link to connect your WoW account to this bot: https://" + plugin.getProps().getProperty("api.host") + "/api/oauth/login/" +region + "/" + event.getAuthor().getId())));
+        event.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("Please follow this link to connect your WoW account to this bot: https://" + plugin.getBot().getBotSettings().getProperty("api.host") + "/api/oauth/login/" +region + "/" + event.getAuthor().getId()).queue()));
     }
 
     @Override

@@ -47,7 +47,7 @@ public class GuildCharsCommand implements PublicCommand {
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        if (plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() == null || plugin.getBot().getGuildSettings(event.getGuild()).getRegionName() == null) {
+        if (plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() == null || plugin.getBot().getGuildSettings(event.getGuild()).getRegionName() == null || plugin.getBot().getGuildSettings(event.getGuild()).getWowServerName() == null) {
             event.getChannel().sendMessage("You can't run this command. A server administrator needs to configure the bot first. Ask him to use !setup.").queue();
             return;
         }
@@ -62,9 +62,6 @@ public class GuildCharsCommand implements PublicCommand {
             builder.append("Your WoW characters in the Guild ");
             charactersList = plugin.getUserCharactersInGuild(event.getAuthor(),event.getGuild());
         }
-
-
-
 
         builder.append(plugin.getBot().getGuildSettings(event.getGuild()).getGuildName());
         builder.append("\n");

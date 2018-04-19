@@ -27,6 +27,7 @@ import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -56,7 +57,13 @@ public class SetWoWRankCommand extends AdminCommand {
             return;
         }
 
-        plugin.getBot().getGuildSettings(event.getGuild()).setSetting(WoWLinkPlugin.SETTING_RANK_PREFIX + args[0], rank);
+        String setting = plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKS);
+        JSONObject rankSettings = new JSONObject();
+        if (setting != null) {
+            rankSettings = new JSONObject(setting);
+        }
+        rankSettings.put(args[0], rank);
+        plugin.getBot().getGuildSettings(event.getGuild()).setSetting(WoWLinkPlugin.SETTING_RANKS, rankSettings.toString());
         event.getChannel().sendMessage("Rank set!").queue();
     }
 

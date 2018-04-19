@@ -33,10 +33,11 @@ import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.greatmancode.legendarybot.commands.*;
 import com.greatmancode.legendarybot.server.IGuildSettings;
-import com.mongodb.*;
-import com.mongodb.client.MongoCollection;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.UpdateOptions;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -44,7 +45,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import org.apache.http.HttpHost;
-import org.bson.Document;
 import org.elasticsearch.client.RestClient;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
@@ -55,16 +55,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.set;
 
 /**
  * Implementation of a {@link LegendaryBot} bot.
@@ -181,8 +174,12 @@ public class ILegendaryBot extends LegendaryBot {
             if (Boolean.parseBoolean((String) props.getOrDefault("convertConfig", "false"))) {
                 new SettingsConverter(this,guild);
             }
-        }));
 
+        }));
+        if (Boolean.parseBoolean((String) props.getOrDefault("convertConfig", "false"))) {
+            props.setProperty("convertConfig", "false");
+            props.store(new FileWriter("app.properties"),null);
+        }
 
 
 

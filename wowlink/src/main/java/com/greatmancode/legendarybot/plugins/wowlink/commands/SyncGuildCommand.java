@@ -60,8 +60,8 @@ public class SyncGuildCommand extends AdminCommand implements ZeroArgsCommand {
                         .append(event.getAuthor())
                         .append(" please wait. Guild Sync will take a few seconds...")
                         .build()).queue(message -> {
-                            plugin.doGuildRankUpdate(event.getGuild());
-                            message.editMessage(new MessageBuilder().append(event.getAuthor()).append("Ranks are now synced!").build()).queue();
+                            plugin.doGuildRankUpdate(event.getMember().getUser(), event.getGuild());
+                            message.editMessage(new MessageBuilder().append(event.getAuthor()).append(" Ranks are now synced!").build()).queue();
         });
     }
 

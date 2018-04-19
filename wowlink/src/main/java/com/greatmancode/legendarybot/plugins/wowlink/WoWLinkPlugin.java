@@ -26,6 +26,7 @@ package com.greatmancode.legendarybot.plugins.wowlink;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.plugins.wowlink.commands.*;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -49,8 +50,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
 
     public static final String SETTING_RANKSET_ENABLED = "wowlink_rankset";
     public static final String SETTING_SCHEDULER = "wowlink_scheduler";
-    public static final String SETTING_RANK_PREFIX = "wowlink_rank_";
-
+    public static final String SETTING_RANKS = "wowranks";
     /**
      * The HttpClient to do web requests.
      */
@@ -148,9 +148,9 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                 .addPathSegments("api/user/"+ user.getId() + "/character/" + guild.getId() + "/"+getBot().getGuildSettings(guild).getRegionName() + "/" + getBot().getGuildSettings(guild).getWowServerName() + "/" + character)
 
                 .build();
-        Request request = new Request.Builder().url(url).addHeader("x-api-key", getBot().getBotSettings().getProperty("api.key")).build();
+        Request request = new Request.Builder().url(url).addHeader("x-api-key", getBot().getBotSettings().getProperty("api.key")).post(RequestBody.create(null, new byte[]{})).build();
         try {
-            client.newCall(request).execute();
+            Response response = client.newCall(request).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -163,7 +163,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
      * @return The region/realm/name of the main character of a user. Returns null if not found.
      */
     public JSONObject getMainCharacterForUserInGuild(User user, Guild guild) {
-        JSONObject character = null;
+        JSONObject character = new JSONObject();
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host(getBot().getBotSettings().getProperty("api.host"))
@@ -172,8 +172,8 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         Request request = new Request.Builder().url(url).build();
         try {
             Response response = client.newCall(request).execute();
-            JSONObject jsonObject = new JSONObject(response.body().source());
-            character = jsonObject.length() > 0 ? jsonObject : null;
+            JSONObject jsonObject = new JSONObject(response.body().string());
+            character = jsonObject.length() > 0 ? jsonObject : new JSONObject();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -191,10 +191,10 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         scheduler.remove(guild.getId());
     }
 
-    public void doGuildRankUpdate(Guild guild) {
-        doGuildRankUpdate(guild, guild.getMembers());
+    public void doGuildRankUpdate(User initiator, Guild guild) {
+        doGuildRankUpdate(initiator, guild, guild.getMembers());
     }
-    public void doGuildRankUpdate(Guild guild, List<Member> members) {
+    public void doGuildRankUpdate(User initiator, Guild guild, List<Member> members) {
         JSONObject jsonObject = new JSONObject();
         JSONObject guildObject = new JSONObject();
         JSONArray guildRanks = new JSONArray();
@@ -224,17 +224,17 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         });
 
         jsonObject.put("users", users);
-
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host(getBot().getBotSettings().getProperty("api.host"))
-                .addPathSegments("guild/" + guild.getId() + "/rankUpdate")
+                .addPathSegments("api/guild/" + guild.getId() + "/rankUpdate")
                 .build();
         Request request = new Request.Builder().url(url).addHeader("x-api-key", getBot().getBotSettings().getProperty("api.key")).post(RequestBody.create(JSON_MEDIA_TYPE, jsonObject.toString())).build();
         try {
             Response response = client.newCall(request).execute();
             JSONObject responseJSON = new JSONObject(response.body().string());
             if (responseJSON.has("roleChange")) {
+                MessageBuilder builder = new MessageBuilder();
                 responseJSON.getJSONArray("roleChange").forEach(roleChangeEntry -> {
                     JSONObject roleChange = (JSONObject) roleChangeEntry;
                     Member member = guild.getMemberById(roleChange.getLong("discordId"));
@@ -252,10 +252,16 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
                     }
 
                     if (roleToAdd.size() > 0 || rolesToRemove.size() > 0) {
-                        log.info("Doing the following changes to " + member.getNickname() + ":" + member.getUser().getIdLong() + ": ADD:" + Arrays.toString(roleToAdd.toArray()) + " REMOVE:" + Arrays.toString(rolesToRemove.toArray()));
-                        //guild.getController().modifyMemberRoles(member, roleToAdd, rolesToRemove);
+                        if (getBot().getGuildSettings(guild).getSetting(SETTING_RANKSET_ENABLED) != null) {
+                            guild.getController().modifyMemberRoles(member, roleToAdd, rolesToRemove).reason("LegendaryBot WoW rank sync").queue();
+                        } else {
+                            builder.append("Changing user " + member.getNickname() + " Adding:" + Arrays.toString(roleToAdd.toArray()) + " Removing:" + Arrays.toString(rolesToRemove.toArray()));
+                        }
                     }
                 });
+                if (!builder.isEmpty()) {
+                    initiator.openPrivateChannel().queue(channel -> channel.sendMessage(builder.build()).queue());
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

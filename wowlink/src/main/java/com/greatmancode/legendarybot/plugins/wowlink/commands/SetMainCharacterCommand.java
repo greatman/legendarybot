@@ -25,9 +25,10 @@ package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,7 +59,9 @@ public class SetMainCharacterCommand implements PublicCommand {
 
         plugin.setMainCharacterForGuild(event.getAuthor(), event.getGuild(), args[0]);
         if (plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED) != null) {
-            plugin.setDiscordRank(event.getAuthor(), event.getGuild(), plugin.getWoWRank(event.getGuild(), args[0]));
+            List<Member> memberList = new ArrayList<>();
+            memberList.add(event.getMember());
+            plugin.doGuildRankUpdate(event.getMember().getUser(), event.getGuild(), memberList);
         }
         event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("Your main character has been set.").queue());
     }

@@ -65,7 +65,7 @@ public class SyncRankCommand implements ZeroArgsCommand, PublicCommand {
                 .append(event.getAuthor())
                 .append(" please wait. Rank Sync will take a few seconds...")
                 .build()).queue(message -> {
-            plugin.doGuildRankUpdate(event.getGuild(),memberList);
+            plugin.doGuildRankUpdate(event.getMember().getUser(), event.getGuild(),memberList);
             message.editMessage(new MessageBuilder().append(event.getAuthor()).append(" your rank is now synced!").build()).queue();
         });
 
