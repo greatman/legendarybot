@@ -31,6 +31,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
+import okhttp3.OkHttpClient;
 import org.elasticsearch.client.RestClient;
 import org.influxdb.InfluxDB;
 import org.pf4j.PluginManager;
@@ -110,5 +111,7 @@ public abstract class LegendaryBot {
     public abstract TranslateManager getTranslateManager();
 
     public abstract Properties getBotSettings();
+
+    public abstract OkHttpClient getBattleNetHttpClient();
 
 }

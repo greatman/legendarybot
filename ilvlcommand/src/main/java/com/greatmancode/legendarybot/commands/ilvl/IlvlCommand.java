@@ -25,30 +25,20 @@ package com.greatmancode.legendarybot.commands.ilvl;
 
 import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
-import com.greatmancode.legendarybot.api.utils.*;
+import com.greatmancode.legendarybot.api.utils.DiscordEmbedBuilder;
+import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.*;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.Map;
-import java.util.NavigableMap;
+import java.util.Arrays;
 import java.util.Properties;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 /**
  * The !lookup command
@@ -99,84 +89,48 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     }
 
     public void execute(MessageReceivedEvent event, String[] args) {
-        String serverName = null;
-        String region = null;
-        try {
-            //If we only received one name, split by dash to look for realm
-            if (args.length == 1) {
-                args = args[0].split("-");
-            }
-            if (args.length == 1) {
-                serverName = getBot().getGuildSettings(event.getGuild()).getWowServerName();
-                region = getBot().getGuildSettings(event.getGuild()).getRegionName();
-            } else if (args.length == 2) {
-                serverName = args[1];
-                region = getBot().getGuildSettings(event.getGuild()).getRegionName();
-            } else {
-                //We got a long server name potentially
-                if (args[args.length - 1].equalsIgnoreCase("US") || args[args.length - 1].equalsIgnoreCase("EU")) {
-                    //Last argument is the region, taking the rest for the realm info
-                    String[] argsend = new String[args.length - 2];
-                    System.arraycopy(args, 1, argsend, 0, args.length - 2);
-                    StringBuilder builder = new StringBuilder();
-                    for (String s : argsend) {
-                        builder.append(" ").append(s);
-                    }
-                    serverName = builder.toString().trim();
-                    region = args[args.length - 1];
-                } else {
-                    String[] argsend = new String[args.length - 1];
-                    System.arraycopy(args, 1, argsend, 0, args.length - 1);
-                    StringBuilder builder = new StringBuilder();
-                    for (String s : argsend) {
-                        builder.append(" ").append(s);
-                    }
-                    serverName = builder.toString().trim();
-                    region = getBot().getGuildSettings(event.getGuild()).getRegionName();
-                }
-            }
-
-            String realmData = WoWUtils.getRealmInformation(getBot(), region, serverName);
-            if (realmData == null) {
-                event.getChannel().sendMessage("Realm not found! Did you make a typo?").queue();
-                return;
-            }
-            JSONParser parser = new JSONParser();
-            JSONObject realmInformation = (JSONObject) parser.parse(realmData);
-            String serverSlug = (String) realmInformation.get("slug");
-            String characterName = args[0];
-            HttpUrl url = new HttpUrl.Builder().scheme("https")
-                    .host(props.getProperty("api.host"))
-                    .addPathSegments("api/character/"+region+"/"+serverSlug+"/"+characterName)
-                    .build();
-            System.out.println(url);
-            Request request = new Request.Builder().url(url).build();
-
-            event.getChannel().sendMessage(new MessageBuilder()
-                    .append(event.getAuthor())
-                    .append(" please wait. Lookups can take a few seconds...")
-                    .build()).queue(message -> client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            if (response.code() != 200) {
-                                message.editMessage(new MessageBuilder()
-                                    .append("Sorry ")
-                                    .append(event.getAuthor())
-                                    .append(". It looks like " + characterName + "-" + serverSlug + " is not a valid character.").build()).queue();
-                                return;
-                            }
-                            message.editMessage(new MessageBuilder().append(event.getAuthor()).append(", here is the requested information:").build()).queue();
-                            message.editMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(response.body().string())).queue();
-                        }
-                    }));
-        } catch (ParseException e) {
-            e.printStackTrace();
+        String[] realmInfo = new String[0];
+        if (args.length > 1) {
+            realmInfo = new String[args.length - 1];
+            System.arraycopy(args, 1, realmInfo, 0, args.length - 1);
         }
+
+        String[] realmResult = WoWUtils.extractRealmRegionInfo(getBot(), event.getGuild(), realmInfo);
+        System.out.println(Arrays.toString(realmResult));
+        String characterName = args[0];
+        HttpUrl url = new HttpUrl.Builder().scheme("https")
+                .host(props.getProperty("api.host"))
+                .addPathSegments("api/character/"+realmResult[1]+"/"+realmResult[0]+"/"+characterName)
+                .build();
+        System.out.println(url);
+        Request request = new Request.Builder().url(url).build();
+
+        event.getChannel().sendMessage(new MessageBuilder()
+                .append(event.getAuthor())
+                .append(" please wait. Lookups can take a few seconds...")
+                .build()).queue(message -> client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        message.editMessage(new MessageBuilder()
+                        .append("Sorry ")
+                        .append(event.getAuthor())
+                        .append(". An error occurred. Try again in some minutes.")
+                        .build()).queue();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.code() != 200) {
+                            message.editMessage(new MessageBuilder()
+                                .append("Sorry ")
+                                .append(event.getAuthor())
+                                .append(". It looks like " + characterName + "-" + realmResult[0] + " is not a valid character.").build()).queue();
+                            return;
+                        }
+                        message.editMessage(new MessageBuilder().append(event.getAuthor()).append(", here is the requested information:").build()).queue();
+                        message.editMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(response.body().string())).queue();
+                    }
+                }));
 
     }
 

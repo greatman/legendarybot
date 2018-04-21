@@ -59,6 +59,13 @@ public class DiscordEmbedBuilder {
         if (jsonObject.has("description")) {
             builder.setDescription(jsonObject.getString("description"));
         }
+        if (jsonObject.has("title")) {
+            if (jsonObject.has("url")) {
+                builder.setTitle(jsonObject.getString("title"), jsonObject.getString("url"));
+            } else {
+                builder.setTitle(jsonObject.getString("title"));
+            }
+        }
         return builder.build();
     }
 }

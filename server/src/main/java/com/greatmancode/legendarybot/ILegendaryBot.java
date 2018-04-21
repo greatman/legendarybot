@@ -25,10 +25,12 @@
 package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
+import com.greatmancode.legendarybot.api.commands.BasicPublicZeroArgsAPICommand;
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.translate.TranslateManager;
+import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
 import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.greatmancode.legendarybot.commands.*;
@@ -44,6 +46,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
+import okhttp3.OkHttpClient;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.influxdb.InfluxDB;
@@ -120,6 +123,10 @@ public class ILegendaryBot extends LegendaryBot {
 
     private String databaseName;
 
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(new BattleNetAPIInterceptor(this))
+            .build();
+
     /**
      * Start all the feature of the LegendaryBot
      */
@@ -158,6 +165,10 @@ public class ILegendaryBot extends LegendaryBot {
         commandHandler.addCommand("setlanguage", new SetLanguageCommand(this), "Admin Commands");
         commandHandler.addCommand("reloadlanguage", new ReloadLanguagesCommand(this), "Admin Commands");
 
+        //Register user commands that don't need to be a plugin
+        commandHandler.addCommand("legionbuilding", new BasicPublicZeroArgsAPICommand(this, "api/legionbuilding/{region}","command.legionbuilding.help", "command.legionbuilding.help"), "World of Warcraft");
+        commandHandler.addCommand("blizzardcs", new BasicPublicZeroArgsAPICommand(this, "api/twitter/{region}", "command.blizzardcs.help", "command.blizzardcs.help"), "General Commands");
+        commandHandler.addCommand("log", new BasicPublicZeroArgsAPICommand(this, "api/guild/{guild}/getLatestLog", "command.log.help", "command.log.help"), "World of Warcraft");
 
         //We build JDA and connect.
         JDABuilder builder = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).setReconnectQueue(new SessionReconnectQueue());
@@ -284,6 +295,11 @@ public class ILegendaryBot extends LegendaryBot {
     @Override
     public Properties getBotSettings() {
         return props;
+    }
+
+    @Override
+    public OkHttpClient getBattleNetHttpClient() {
+        return client;
     }
 
     @Override

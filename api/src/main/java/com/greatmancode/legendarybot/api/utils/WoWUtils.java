@@ -24,15 +24,16 @@
 package com.greatmancode.legendarybot.api.utils;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
+import net.dv8tion.jda.core.entities.Guild;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.awt.*;
 import java.io.IOException;
@@ -52,27 +53,26 @@ public class WoWUtils {
         JSONObject search = new JSONObject();
         JSONObject query = new JSONObject();
         JSONArray fields = new JSONArray();
-        fields.add("name");
-        fields.add("slug");
+        fields.put("name");
+        fields.put("slug");
         JSONObject multi_match = new JSONObject();
         multi_match.put("query", realm);
         multi_match.put("fields", fields);
         query.put("multi_match", multi_match);
         search.put("query", query);
-        HttpEntity entity = new NStringEntity(search.toJSONString(), ContentType.APPLICATION_JSON);
+        HttpEntity entity = new NStringEntity(search.toString(), ContentType.APPLICATION_JSON);
         try {
             Response response = bot.getElasticSearch().performRequest("POST", "/wow/realm_"+region.toLowerCase()+"/_search", Collections.emptyMap(), entity);
             String jsonResponse = EntityUtils.toString(response.getEntity());
-            JSONParser jsonParser = new JSONParser();
-            JSONObject obj = (JSONObject) jsonParser.parse(jsonResponse);
-            JSONArray hit = (JSONArray) ((JSONObject)obj.get("hits")).get("hits");
-            if (hit.size() == 0) {
+            JSONObject obj = new JSONObject(jsonResponse);
+            JSONArray hit = obj.getJSONObject("hits").getJSONArray("hits");
+            if (hit.length() == 0) {
                 return null;
             }
             JSONObject firstItem = (JSONObject) hit.get(0);
             JSONObject source = (JSONObject)  firstItem.get("_source");
-            return source.toJSONString();
-        } catch (IOException | ParseException e) {
+            return source.toString();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
@@ -177,5 +177,73 @@ public class WoWUtils {
                 url = null;
         }
         return url;
+    }
+
+    public static String[] extractRealmRegionInfo(LegendaryBot bot, Guild guild, String[] args) {
+        String serverName;
+        String region;
+        //If we only received one name, split by dash to look for realm
+        if (args.length == 0) {
+            return new String[] {bot.getGuildSettings(guild).getWowServerName(), bot.getGuildSettings(guild).getRegionName()};
+        }
+        if (args.length == 1) {
+            args = args[0].split("-");
+        }
+        if (args.length == 1) {
+            serverName = args[0];
+            region = bot.getGuildSettings(guild).getRegionName();
+        } else {
+            //We got a long server name potentially
+            if (args[args.length - 1].equalsIgnoreCase("US") || args[args.length - 1].equalsIgnoreCase("EU")) {
+                //Last argument is the region, taking the rest for the realm info
+                String[] argsend = new String[args.length - 1];
+                System.arraycopy(args, 0, argsend, 0, args.length - 1);
+                StringBuilder builder = new StringBuilder();
+                for (String s : argsend) {
+                    builder.append(" ").append(s);
+                }
+                serverName = builder.toString().trim();
+                region = args[args.length - 1];
+            } else {
+                String[] argsend = new String[args.length - 1];
+                System.arraycopy(args, 1, argsend, 0, args.length - 1);
+                StringBuilder builder = new StringBuilder();
+                for (String s : argsend) {
+                    builder.append(" ").append(s);
+                }
+                serverName = builder.toString().trim();
+                region = bot.getGuildSettings(guild).getRegionName();
+            }
+        }
+
+        String realmData = WoWUtils.getRealmInformation(bot, region, serverName);
+        if (realmData == null) {
+            //event.getChannel().sendMessage("Realm not found! Did you make a typo?").queue();
+            return null;
+        }
+        JSONObject realmInformation = new JSONObject(realmData);
+        String serverSlug = (String) realmInformation.get("slug");
+        return new String[] {serverSlug, region};
+
+    }
+
+    public static String getRealmTimezone(LegendaryBot bot, String region, String realm) {
+        HttpUrl url = new HttpUrl.Builder().scheme("https")
+                .host(region + ".api.battle.net")
+                .addPathSegments("/wow/realm/status")
+                .addQueryParameter("realms", realm)
+                .build();
+        Request request = new Request.Builder().url(url).build();
+        try {
+            JSONObject jsonObject = new JSONObject(bot.getBattleNetHttpClient().newCall(request).execute().body().string());
+            if (jsonObject.has("code")) {
+                return null;
+            }
+            JSONArray realmArray = jsonObject.getJSONArray("realms");
+            return realmArray.getJSONObject(0).getString("timezone");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -27,6 +27,7 @@ import com.greatmancode.legendarybot.api.commands.PublicCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.utils.BattleNetAPIInterceptor;
+import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -72,45 +73,31 @@ public class InvasionCommand extends LegendaryBotPlugin implements PublicCommand
 
     @Override
     public void execute(MessageReceivedEvent event, String[] args) {
-        //todo support timezones
         //TODO if region is not set, might bug out, do a chekc
-        DateTime current;
-        DateTime startDate;
+
         String region = getBot().getGuildSettings(event.getGuild()).getRegionName();
         String realm = getBot().getGuildSettings(event.getGuild()).getWowServerName();
-        HttpUrl url = new HttpUrl.Builder().scheme("https")
-                .host(region + ".api.battle.net")
-                .addPathSegments("/wow/realm/status")
-                .addQueryParameter("realms", realm)
-                .build();
-        Request request = new Request.Builder().url(url).build();
-        JSONParser parser = new JSONParser();
-        try {
-            JSONObject jsonObject = (JSONObject) parser.parse(client.newCall(request).execute().body().string());
-            if (jsonObject.containsKey("code")) {
-                event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"command.invation.errorrealm")).queue();
-                return;
-            }
-            JSONArray realmArray = (JSONArray) jsonObject.get("realms");
-            String timezone = (String) ((JSONObject)realmArray.get(0)).get("timezone");
-            if (region.equalsIgnoreCase("us")) {
-                startDate = startDateInvasion;
-            } else {
-                startDate = startDateInvasionEu;
-            }
-            current = new DateTime(DateTimeZone.forID(timezone));
-            int[] timeleft = timeLeftBeforeNextInvasion(startDate,current);
-            MessageBuilder builder = new MessageBuilder();
-            if (isInvasionTime(startDate,current)) {
-                builder.append(getBot().getTranslateManager().translate(event.getGuild(), "command.invasion.current") + " " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
-            } else {
-                builder.append(getBot().getTranslateManager().translate(event.getGuild(),"command.invasion.soon") + " " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
-            }
-            event.getChannel().sendMessage(builder.build()).queue();
-        } catch (IOException | ParseException e) {
-            getBot().getStacktraceHandler().sendStacktrace(e, "guildId:" + event.getGuild().getId(), "region:" + region, "realm:" + realm);
-            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(), "error.occurred.try.again.later")).queue();
+        String timezone = WoWUtils.getRealmTimezone(getBot(), region, realm);
+        if (timezone == null) {
+            event.getChannel().sendMessage(getBot().getTranslateManager().translate(event.getGuild(),"command.invation.errorrealm")).queue();
+            return;
         }
+
+        DateTime startDate;
+        if (region.equalsIgnoreCase("us")) {
+            startDate = startDateInvasion;
+        } else {
+            startDate = startDateInvasionEu;
+        }
+        DateTime current = new DateTime(DateTimeZone.forID(timezone));
+        int[] timeleft = timeLeftBeforeNextInvasion(startDate,current);
+        MessageBuilder builder = new MessageBuilder();
+        if (isInvasionTime(startDate,current)) {
+            builder.append(getBot().getTranslateManager().translate(event.getGuild(), "command.invasion.current") + " " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
+        } else {
+            builder.append(getBot().getTranslateManager().translate(event.getGuild(),"command.invasion.soon") + " " + String.format("%02d",timeleft[0]) + ":" + String.format("%02d",timeleft[1]) + " (" + String.format("%02d",timeleft[2])+":" + String.format("%02d",timeleft[3])+")");
+        }
+        event.getChannel().sendMessage(builder.build()).queue();
     }
 
     @Override
