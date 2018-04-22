@@ -35,10 +35,8 @@ import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.greatmancode.legendarybot.commands.*;
 import com.greatmancode.legendarybot.server.IGuildSettings;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -46,11 +44,14 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
-import okhttp3.OkHttpClient;
+import okhttp3.*;
 import org.apache.http.HttpHost;
+import org.bson.Document;
 import org.elasticsearch.client.RestClient;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
@@ -61,6 +62,9 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
 
 /**
  * Implementation of a {@link LegendaryBot} bot.
@@ -188,6 +192,42 @@ public class ILegendaryBot extends LegendaryBot {
 
         }));
         if (Boolean.parseBoolean((String) props.getOrDefault("convertConfig", "false"))) {
+
+
+            //We convert default characters to the new system
+            MongoCollection<Document> collection = getMongoDatabase().getCollection("wowCharacters");
+            MongoCollection<Document> guildCollection = getMongoDatabase().getCollection("guild");
+            JSONArray mainCharacters = new JSONArray();
+            collection.find(exists("guild_id")).forEach((Block<Document>) document -> {
+                if (document.containsKey("owner")) {
+                    Document guildDocument = guildCollection.find(eq("guild_id",document.getString("guild_id"))).first();
+                    System.out.println(guildDocument);
+                    JSONObject characterObject = new JSONObject();
+                    characterObject.put("name", document.getString("name"));
+                    characterObject.put("realm", document.getString("realm"));
+                    characterObject.put("region", document.getString("region"));
+                    characterObject.put("owner", Long.parseLong(document.getString("owner")));
+                    characterObject.put("guild_id", Long.parseLong(document.getString("guild_id")));
+                    characterObject.put("guildName", ((Document)guildDocument.get("settings")).getString("GUILD_NAME"));
+                    mainCharacters.put(characterObject);
+                }
+
+            });
+
+            //We save it to the backend
+            HttpUrl url = new HttpUrl.Builder().scheme("https")
+                    .host(getBotSettings().getProperty("api.host"))
+                    .addPathSegments("api/user/rawCharacter")
+                    .build();
+            Request request = new Request.Builder().url(url).addHeader("x-api-key", getBotSettings().getProperty("api.key")).post(RequestBody.create(MediaType.parse("text/plain"), mainCharacters.toString())).build();
+            try {
+                OkHttpClient httpClient = new OkHttpClient.Builder().build();
+                System.out.println(httpClient.newCall(request).execute());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
             props.setProperty("convertConfig", "false");
             props.store(new FileWriter("app.properties"),null);
         }
