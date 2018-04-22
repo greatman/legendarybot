@@ -82,14 +82,16 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().addCommand("syncguild", new SyncGuildCommand(this), "WoW Admin Commands");
         getBot().getCommandHandler().addCommand("enableautorankupdate", new EnableAutoRankUpdateCommand(this), "WoW Admin Commands");
         getBot().getCommandHandler().addCommand("disableautorankupdate", new DisableAutoRankUpdateCommand(this), "WoW Admin Commands");
+        getBot().getCommandHandler().addCommand("getwowranks", new GetWowRanksCommand(this), "WoW Admin Commands");
 
-
+        WoWLinkPlugin plugin = this;
         //We load the scheduler
-        getBot().getJDA().forEach((jda -> jda.getGuilds().forEach(guild -> {
+        new Thread(() -> getBot().getJDA().forEach((jda -> jda.getGuilds().forEach(guild -> {
             if (getBot().getGuildSettings(guild).getSetting(SETTING_SCHEDULER) != null && getBot().getGuildSettings(guild).getSetting(SETTING_RANKSET_ENABLED) != null) {
-                scheduler.put(guild.getId(), new SyncRankScheduler(this,guild));
+                scheduler.put(guild.getId(), new SyncRankScheduler(plugin,guild));
             }
-        })));
+        })))).start();
+
     }
 
     @Override
@@ -105,7 +107,7 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         getBot().getCommandHandler().removeCommand("syncguild");
         getBot().getCommandHandler().removeCommand("enableautorankupdate");
         getBot().getCommandHandler().removeCommand("disableautorankupdate");
-
+        getBot().getCommandHandler().removeCommand("getwowranks");
         scheduler.forEach((k,v) -> v.stop());
         scheduler.clear();
     }
@@ -172,8 +174,10 @@ public class WoWLinkPlugin extends LegendaryBotPlugin {
         Request request = new Request.Builder().url(url).build();
         try {
             Response response = client.newCall(request).execute();
+            System.out.println(response);
             JSONObject jsonObject = new JSONObject(response.body().string());
-            character = jsonObject.length() > 0 ? jsonObject : new JSONObject();
+            System.out.println(jsonObject);
+            character = jsonObject.length() > 1 ? jsonObject : new JSONObject();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -82,12 +82,12 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             getBot().getStacktraceHandler().sendStacktrace(e);
         }
         final int[] i = {0};
-        getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(guild -> {
+        new Thread(() -> getBot().getJDA().forEach(jda -> jda.getGuilds().forEach(guild -> {
             if (startLegendaryCheck(guild, i[0])) {
                 i[0]++;
             }
+        })));
 
-        }));
         getBot().getCommandHandler().addCommand("enablelc", new EnableLegendaryCheckCommand(this), "Legendary Check Admin Commands");
         getBot().getCommandHandler().addCommand("disablelc", new DisableLegendaryCheckCommand(this), "Legendary Check Admin Commands");
         getBot().getCommandHandler().addCommand("mutelc", new MuteLegendaryCheckCommand(this), "Legendary Check Admin Commands");
