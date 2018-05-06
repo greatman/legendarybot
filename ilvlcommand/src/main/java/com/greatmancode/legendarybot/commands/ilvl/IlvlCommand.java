@@ -30,9 +30,9 @@ import com.greatmancode.legendarybot.api.utils.WoWUtils;
 import com.greatmancode.legendarybot.plugins.wowlink.utils.WowCommand;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import okhttp3.*;
-import org.json.simple.parser.ParseException;
 import org.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
@@ -105,32 +105,19 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
         System.out.println(url);
         Request request = new Request.Builder().url(url).build();
 
-        event.getChannel().sendMessage(new MessageBuilder()
+        Message initialMessage = new MessageBuilder()
                 .append(event.getAuthor())
                 .append(" please wait. Lookups can take a few seconds...")
-                .build()).queue(message -> client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        message.editMessage(new MessageBuilder()
-                        .append("Sorry ")
-                        .append(event.getAuthor())
-                        .append(". An error occurred. Try again in some minutes.")
-                        .build()).queue();
-                    }
+                .build();
+        if (getBot().getGuildSettings(event.getGuild()).getSetting(IlvlCommand.SETTING_PRIVATE_LOOKUP) != null) {
+            event.getAuthor().openPrivateChannel().complete().sendMessage(initialMessage).queue(message -> client.newCall(request).enqueue(new OnMessageCallback(characterName, realmResult[0],message, event)));
+        } else {
+            event.getChannel().sendMessage(new MessageBuilder()
+                    .append(event.getAuthor())
+                    .append(" please wait. Lookups can take a few seconds...")
+                    .build()).queue(message -> client.newCall(request).enqueue(new OnMessageCallback(characterName, realmResult[0],message, event)));
+        }
 
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if (response.code() != 200) {
-                            message.editMessage(new MessageBuilder()
-                                .append("Sorry ")
-                                .append(event.getAuthor())
-                                .append(". It looks like " + characterName + "-" + realmResult[0] + " is not a valid character.").build()).queue();
-                            return;
-                        }
-                        message.editMessage(new MessageBuilder().append(event.getAuthor()).append(", here is the requested information:").build()).queue();
-                        message.editMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(response.body().string())).queue();
-                    }
-                }));
 
     }
 
@@ -149,5 +136,41 @@ public class IlvlCommand extends LegendaryBotPlugin implements WowCommand, Publi
     @Override
     public String shortDescription(Guild guild) {
         return getBot().getTranslateManager().translate(guild, "command.lookup.shorthelp");
+    }
+
+    class OnMessageCallback implements Callback {
+
+        private String characterName;
+        private String realm;
+        private Message message;
+        private MessageReceivedEvent event;
+
+        public OnMessageCallback(String characterName, String realm, Message message, MessageReceivedEvent event) {
+            this.characterName = characterName;
+            this.realm = realm;
+            this.message = message;
+            this.event = event;
+        }
+        @Override
+        public void onFailure(Call call, IOException e) {
+            message.editMessage(new MessageBuilder()
+                    .append("Sorry ")
+                    .append(event.getAuthor())
+                    .append(". An error occurred. Try again in some minutes.")
+                    .build()).queue();
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            if (response.code() != 200) {
+                message.editMessage(new MessageBuilder()
+                        .append("Sorry ")
+                        .append(event.getAuthor())
+                        .append(". It looks like " + characterName + "-" + realm + " is not a valid character.").build()).queue();
+                return;
+            }
+            message.editMessage(new MessageBuilder().append(event.getAuthor()).append(", here is the requested information:").build()).queue();
+            message.editMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(response.body().string())).queue();
+        }
     }
 }
