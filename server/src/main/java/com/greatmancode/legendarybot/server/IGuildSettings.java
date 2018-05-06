@@ -97,6 +97,9 @@ public class IGuildSettings implements GuildSettings {
                 Response response = client.newCall(request).execute();
                 if (response.code() == 200) {
                     settings.put(setting, response.body().string());
+                    response.close();
+                } else {
+                    response.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -119,7 +122,7 @@ public class IGuildSettings implements GuildSettings {
                 .addHeader("x-api-key", bot.getBotSettings().getProperty("api.key"))
                 .build();
         try {
-            client.newCall(request).execute();
+            client.newCall(request).execute().close();
             settings.put(setting,value);
         } catch (IOException e) {
             e.printStackTrace();
@@ -140,7 +143,7 @@ public class IGuildSettings implements GuildSettings {
                 .addHeader("x-api-key", bot.getBotSettings().getProperty("api.key"))
                 .build();
         try {
-            client.newCall(request).execute();
+            client.newCall(request).execute().close();
             settings.remove(setting);
         } catch (IOException e) {
             e.printStackTrace();

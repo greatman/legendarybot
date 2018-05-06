@@ -27,13 +27,11 @@ import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.translate.TranslateManager;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import okhttp3.OkHttpClient;
 import org.elasticsearch.client.RestClient;
-import org.influxdb.InfluxDB;
 import org.pf4j.PluginManager;
 
 import java.util.List;
@@ -95,12 +93,6 @@ public abstract class LegendaryBot {
      * @return a instance of the ElasticSearch client.
      */
     public abstract RestClient getElasticSearch();
-
-    /**
-     * Retrieve the DataDog client
-     * @return The DataDog client instance.
-     */
-    public abstract InfluxDB getStatsClient();
 
     /**
      * Retrieve the status of the bot

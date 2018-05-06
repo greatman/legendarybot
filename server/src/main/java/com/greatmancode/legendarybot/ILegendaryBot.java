@@ -25,6 +25,7 @@
 package com.greatmancode.legendarybot;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
+import com.greatmancode.legendarybot.api.commands.BasicArgumentsAPICommand;
 import com.greatmancode.legendarybot.api.commands.BasicPublicZeroArgsAPICommand;
 import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.plugin.LegendaryBotPluginManager;
@@ -48,8 +49,6 @@ import okhttp3.*;
 import org.apache.http.HttpHost;
 import org.bson.Document;
 import org.elasticsearch.client.RestClient;
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.PluginManager;
@@ -62,6 +61,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
@@ -101,8 +102,6 @@ public class ILegendaryBot extends LegendaryBot {
      */
     private RestClient restClient;
 
-    private InfluxDB influxDB;
-
     /**
      * The app.properties file.
      */
@@ -137,11 +136,6 @@ public class ILegendaryBot extends LegendaryBot {
     public ILegendaryBot() throws IOException, LoginException, InterruptedException, RateLimitedException {
         log.info("LegendaryBot Starting.");
 
-        //TODO variable it into app.properties.
-        influxDB = (props.containsKey("stats.enable") && Boolean.parseBoolean(props.getProperty("stats.enable"))) ? InfluxDBFactory.connect("http://localhost:8086").setDatabase("legendarybot2") : new InfluxDBNull();
-        influxDB.createDatabase("legendarybot2");
-
-
         //We load the stacktrace handler.
         this.stacktraceHandler = props.containsKey("sentry.key") ? new IStacktraceHandler(this, props.getProperty("sentry.key")) : new NullStacktraceHandler();
 
@@ -173,6 +167,8 @@ public class ILegendaryBot extends LegendaryBot {
         commandHandler.addCommand("legionbuilding", new BasicPublicZeroArgsAPICommand(this, "api/legionbuilding/{region}","command.legionbuilding.help", "command.legionbuilding.help"), "World of Warcraft");
         commandHandler.addCommand("blizzardcs", new BasicPublicZeroArgsAPICommand(this, "api/twitter/{region}", "command.blizzardcs.help", "command.blizzardcs.help"), "General Commands");
         commandHandler.addCommand("log", new BasicPublicZeroArgsAPICommand(this, "api/guild/{guild}/getLatestLog", "command.log.help", "command.log.help"), "World of Warcraft");
+        commandHandler.addCommand("owrank", new BasicArgumentsAPICommand(this,"api/overwatch/{region}/{args0}", "command.owrank.shorthelp","command.owrank.longhelp",1,1),"Overwatch");
+        commandHandler.addCommand("server", new BasicArgumentsAPICommand(this, "api/server/{region}/{args0}/status", "command.server.shorthelp", "command.owrank.longhelp",0,1,"{realm}"), "World of Warcraft");
 
         //We build JDA and connect.
         JDABuilder builder = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).setReconnectQueue(new SessionReconnectQueue());
@@ -184,12 +180,12 @@ public class ILegendaryBot extends LegendaryBot {
                     .buildBlocking(JDA.Status.CONNECTED));
         }
         //Load the settings for each guild
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         jdaList.forEach((jda) -> jda.getGuilds().forEach(guild -> {
             guildSettings.put(guild.getId(), new IGuildSettings(guild, this));
             if (Boolean.parseBoolean((String) props.getOrDefault("convertConfig", "false"))) {
-                new SettingsConverter(this,guild);
+                executor.submit(() -> new SettingsConverter(this,guild));
             }
-
         }));
         if (Boolean.parseBoolean((String) props.getOrDefault("convertConfig", "false"))) {
 
@@ -198,10 +194,10 @@ public class ILegendaryBot extends LegendaryBot {
             MongoCollection<Document> collection = getMongoDatabase().getCollection("wowCharacters");
             MongoCollection<Document> guildCollection = getMongoDatabase().getCollection("guild");
             JSONArray mainCharacters = new JSONArray();
+            final int[] i = {0};
             collection.find(exists("guild_id")).forEach((Block<Document>) document -> {
                 if (document.containsKey("owner")) {
                     Document guildDocument = guildCollection.find(eq("guild_id",document.getString("guild_id"))).first();
-                    System.out.println(guildDocument);
                     JSONObject characterObject = new JSONObject();
                     characterObject.put("name", document.getString("name"));
                     characterObject.put("realm", document.getString("realm"));
@@ -210,6 +206,10 @@ public class ILegendaryBot extends LegendaryBot {
                     characterObject.put("guild_id", Long.parseLong(document.getString("guild_id")));
                     characterObject.put("guildName", ((Document)guildDocument.get("settings")).getString("GUILD_NAME"));
                     mainCharacters.put(characterObject);
+                    if (i[0] % 100 == 0) {
+                        System.out.println(i[0] + " done.");
+                    }
+                    i[0]++;
                 }
 
             });
@@ -227,7 +227,10 @@ public class ILegendaryBot extends LegendaryBot {
                 e.printStackTrace();
             }
 
-
+            while (executor.getActiveCount() != 0) {
+                System.out.println("Waiting for conversion to end.");
+                Thread.sleep(10000);
+            }
             props.setProperty("convertConfig", "false");
             props.store(new FileWriter("app.properties"),null);
         }
@@ -256,7 +259,6 @@ public class ILegendaryBot extends LegendaryBot {
                     getStacktraceHandler().sendStacktrace(e);
                 }
             }
-            influxDB.close();
             mongoClient.close();
             log.info("Legendarybot Shutdown.");
         }));
@@ -316,12 +318,6 @@ public class ILegendaryBot extends LegendaryBot {
         }
         return restClient;
     }
-
-    @Override
-    public InfluxDB getStatsClient() {
-        return influxDB;
-    }
-
     @Override
     public boolean isReady() {
         return ready;

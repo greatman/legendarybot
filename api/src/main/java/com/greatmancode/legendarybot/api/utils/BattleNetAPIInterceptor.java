@@ -26,20 +26,14 @@ package com.greatmancode.legendarybot.api.utils;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.influxdb.dto.Point;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -125,9 +119,7 @@ public class BattleNetAPIInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         //TODO support multiple locale
-        bot.getStatsClient().write(Point.measurement("legendarybot")
-        .addField("battlenet",1)
-        .build());
+        //TODO Support the statistic of using this again
         HttpUrl url = null;
         if (chain.request().url().host().equals("us.api.battle.net") && chain.request().url().encodedPath().contains("/data/")) {
             //Data mode US

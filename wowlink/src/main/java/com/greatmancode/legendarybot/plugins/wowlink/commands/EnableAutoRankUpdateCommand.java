@@ -25,8 +25,8 @@ public class EnableAutoRankUpdateCommand extends AdminCommand {
             return;
         }
 
-        if (plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED) != null && plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_SCHEDULER) == null) {
-            event.getChannel().sendMessage("The Auto Rank Update is already enabled.");
+        if (plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_RANKSET_ENABLED) != null && plugin.getBot().getGuildSettings(event.getGuild()).getSetting(WoWLinkPlugin.SETTING_SCHEDULER) != null) {
+            event.getChannel().sendMessage("The Auto Rank Update is already enabled.").queue();
             return;
         }
 

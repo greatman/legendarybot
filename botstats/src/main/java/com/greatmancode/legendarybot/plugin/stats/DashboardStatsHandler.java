@@ -24,9 +24,11 @@
 package com.greatmancode.legendarybot.plugin.stats;
 
 import com.greatmancode.legendarybot.api.LegendaryBot;
-import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point;
+import okhttp3.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,50 +39,71 @@ import java.util.concurrent.TimeUnit;
 public class DashboardStatsHandler {
 
     /**
+     * The OKHttp client
+     */
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .build();
+
+    /**
      * Scheduler to send stats at a specific interval
      */
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     public DashboardStatsHandler(StatsPlugin plugin) {
         LegendaryBot bot = plugin.getBot();
         final Runnable postStats = () -> {
-            BatchPoints points = BatchPoints.database("legendarybot2")
+            JSONArray jsonArray = new JSONArray();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name","Total Servers");
+            jsonObject.put("value", plugin.getGuildCount());
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("name","Text Channels");
+            jsonObject.put("value", plugin.getTextChannelCount());
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("name","voice Channels");
+            jsonObject.put("value",plugin.getVoiceChannelCount());
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("name", "Member Count");
+            jsonObject.put("value", plugin.getMemberCount());
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("name", "Music Sound Queue");
+            jsonObject.put("value", plugin.getSongQueue());
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("name", "Audio Connections");
+            jsonObject.put("value", plugin.getAudioConnections());
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("name", "Used RAM");
+            jsonObject.put("value", plugin.getUsedRam());
+            jsonArray.put(jsonObject);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("name", "Ping");
+            jsonObject.put("value", bot.getJDA().get(0).getPing());
+            jsonArray.put(jsonObject);
+
+            HttpUrl url = new HttpUrl.Builder().scheme("https")
+                    .host(plugin.getBot().getBotSettings().getProperty("api.host"))
+                    .addPathSegments("api/stats")
                     .build();
-            points.point(Point.measurement("legendarybot")
-            .addField("totalservers", plugin.getGuildCount())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("totalservers", plugin.getGuildCount())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("textchannels", plugin.getTextChannelCount())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("voicechannels", plugin.getVoiceChannelCount())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("membercount", plugin.getMemberCount())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("legendaryenabled", plugin.getLegendaryCount())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("music.songqueue", plugin.getSongQueue())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("music.audioconnections", plugin.getAudioConnections())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("usedram", plugin.getUsedRam())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("ping", bot.getJDA().get(0).getPing())
-                    .build());
-            points.point(Point.measurement("legendarybot")
-                    .addField("configurated", plugin.getGuildConfiguredCount())
-                    .build());
-            bot.getStatsClient().write(points);
+            Request request = new Request.Builder().url(url).addHeader("x-api-key", bot.getBotSettings().getProperty("api.key")).post(RequestBody.create(StatsPlugin.MEDIA_TYPE_JSON,jsonArray.toString())).build();
+            try {
+                client.newCall(request).execute().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         };
-        scheduler.scheduleAtFixedRate(postStats,0, 10, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(postStats,0, 1, TimeUnit.MINUTES);
     }
 
     /**

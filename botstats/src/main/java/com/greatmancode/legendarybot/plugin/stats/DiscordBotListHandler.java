@@ -47,11 +47,6 @@ public class DiscordBotListHandler {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     /**
-     * Represents JSON for a Media Type.
-     */
-    private static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
-
-    /**
      * The OKHttp client.
      */
     private OkHttpClient client = new OkHttpClient();
@@ -63,10 +58,9 @@ public class DiscordBotListHandler {
 
     /**
      * Create a DiscordBotList Handler to send stats to Discord bot websites.
-     * @param properties The properties file containing the API keys.
      * @param plugin The {@link StatsPlugin} plugin instance.
      */
-    public DiscordBotListHandler(Properties properties, StatsPlugin plugin) {
+    public DiscordBotListHandler(StatsPlugin plugin) {
         LegendaryBot bot = plugin.getBot();
         final Runnable postStats = () -> {
             Logger logger = LoggerFactory.getLogger(getClass());
@@ -77,8 +71,8 @@ public class DiscordBotListHandler {
                 object.put("shard_count", jda.getShardInfo().getShardTotal());
                 object.put("server_count", jda.getGuilds().size());
                 Request request = new Request.Builder().url("https://bots.discord.pw/api/bots/267134720700186626/stats")
-                        .post(RequestBody.create(MEDIA_TYPE_JSON, object.toJSONString()))
-                        .addHeader("Authorization",properties.getProperty("stats.botsdiscordpw")).build();
+                        .post(RequestBody.create(StatsPlugin.MEDIA_TYPE_JSON, object.toJSONString()))
+                        .addHeader("Authorization",plugin.getBot().getBotSettings().getProperty("stats.botsdiscordpw")).build();
                 try {
                     Response response = client.newCall(request).execute();
                     if (response.isSuccessful()) {
@@ -88,7 +82,7 @@ public class DiscordBotListHandler {
                     }
                     response.close();
 
-                    request = request.newBuilder().header("Authorization",properties.getProperty("stats.discordbotorg")).url("https://discordbots.org/api/bots/267134720700186626/stats").build();
+                    request = request.newBuilder().header("Authorization",plugin.getBot().getBotSettings().getProperty("stats.discordbotorg")).url("https://discordbots.org/api/bots/267134720700186626/stats").build();
                     response = client.newCall(request).execute();
                     if (client.newCall(request).execute().isSuccessful()) {
                         log.info("Sent stats to Discordbots.org");

@@ -51,6 +51,23 @@ public class SettingsConverter {
                 });
                 guildJSON.getJSONObject("settings").put("wowranks", wowlinkRanks);
             }
+            Document streamers = ((Document)document.get("streamers"));
+            if (streamers != null) {
+                log.info("Converting the streamers of the guild.");
+                JSONObject streamersJSON = new JSONObject();
+                JSONArray twitchStreamers = new JSONArray();
+                JSONArray mixerStreamers = new JSONArray();
+                streamers.forEach((k,v) -> {
+                    if (k.equalsIgnoreCase("twitch")) {
+                        ((ArrayList<String>) v).forEach(twitchStreamers::put);
+                    } else if (k.equalsIgnoreCase("mixer")) {
+                        ((ArrayList<String>) v).forEach(mixerStreamers::put);
+                    }
+                });
+                streamersJSON.put("TWITCH", twitchStreamers);
+                streamersJSON.put("MIXER", mixerStreamers);
+                guildJSON.getJSONObject("settings").put("streamers", streamersJSON);
+            }
         });
 
         //We convert the customCommands
@@ -70,26 +87,6 @@ public class SettingsConverter {
         });
 
 
-        //We convert the streamers
-        Document document = collection.find(and(eq("guild_id", guild.getId()))).first();
-        Document streamers = ((Document)document.get("streamers"));
-        if (streamers != null) {
-            log.info("Converting the streamers of the guild.");
-            JSONObject streamersJSON = new JSONObject();
-            JSONArray twitchStreamers = new JSONArray();
-            JSONArray mixerStreamers = new JSONArray();
-            streamers.forEach((k,v) -> {
-                if (k.equalsIgnoreCase("twitch")) {
-                    ((ArrayList<String>) v).forEach(twitchStreamers::put);
-                } else if (k.equalsIgnoreCase("mixer")) {
-                    ((ArrayList<String>) v).forEach(mixerStreamers::put);
-                }
-            });
-            streamersJSON.put("TWITCH", twitchStreamers);
-            streamersJSON.put("MIXER", mixerStreamers);
-            guildJSON.getJSONObject("settings").put("streamers", streamersJSON);
-        }
-
 
         //We save it to the backend
         HttpUrl url = new HttpUrl.Builder().scheme("https")
@@ -101,6 +98,14 @@ public class SettingsConverter {
             System.out.println(client.newCall(request).execute());
         } catch (IOException e) {
             e.printStackTrace();
+            try {
+                Thread.sleep(5000);
+                client.newCall(request).execute();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
         //TODO add some kind of character converter for characters with people linked to them.
     }

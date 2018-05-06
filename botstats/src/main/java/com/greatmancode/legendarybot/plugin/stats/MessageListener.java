@@ -25,26 +25,68 @@ package com.greatmancode.legendarybot.plugin.stats;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import org.influxdb.dto.Point;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MessageListener extends ListenerAdapter {
 
     /**
-     * The {@link StatsPlugin} instance.
+     * The OKHttp client
      */
-    private StatsPlugin plugin;
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .build();
 
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    private int messageCount = 0;
     /**
      * Create a Message Listener
      * @param plugin The {@link StatsPlugin} instance this Message Listener is linked to.
      */
     public MessageListener(StatsPlugin plugin) {
-        this.plugin = plugin;
+        System.out.println("Loading MessageListener");
+        final Runnable postStats = () -> {
+            System.out.println("SENDING MESSAGE STATS");
+            JSONArray jsonArray = new JSONArray();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name","Message Count");
+            jsonObject.put("value", messageCount);
+            jsonArray.put(jsonObject);
+            messageCount = 0;
+            HttpUrl url = new HttpUrl.Builder().scheme("https")
+                    .host(plugin.getBot().getBotSettings().getProperty("api.host"))
+                    .addPathSegments("api/stats")
+                    .build();
+            Request request = new Request.Builder().url(url).addHeader("x-api-key", plugin.getBot().getBotSettings().getProperty("api.key")).post(RequestBody.create(StatsPlugin.MEDIA_TYPE_JSON,jsonArray.toString())).build();
+            try {
+                client.newCall(request).execute().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+        scheduler.scheduleAtFixedRate(postStats,0, 1, TimeUnit.MINUTES);
     }
 
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        plugin.getBot().getStatsClient().write(Point.measurement("legendarybot").addField("messagereceived", 1).build());
+        messageCount++;
     }
+
+    /**
+     * Stop the Stats Handler.
+     */
+    public void stop() {
+        scheduler.shutdownNow();
+    }
+
 }

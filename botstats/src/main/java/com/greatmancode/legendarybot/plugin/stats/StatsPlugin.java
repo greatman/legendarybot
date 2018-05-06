@@ -27,6 +27,7 @@ import com.greatmancode.legendarybot.api.plugin.LegendaryBotPlugin;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.plugin.legendarycheck.LegendaryCheckPlugin;
 import com.greatmancode.legendarybot.plugin.music.MusicPlugin;
+import okhttp3.MediaType;
 import org.pf4j.PluginWrapper;
 
 import java.io.FileInputStream;
@@ -52,27 +53,24 @@ public class StatsPlugin extends LegendaryBotPlugin {
      */
     private DiscordBotListHandler statsHandler;
 
+    /**
+     * Represents JSON for a Media Type.
+     */
+    public static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+
     public StatsPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Override
     public void start() {
-        //Load the configuration
-        Properties props = new Properties();
-        try {
-            props.load(new FileInputStream("app.properties"));
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            getBot().getStacktraceHandler().sendStacktrace(e);
-        }
         getBot().getCommandHandler().addCommand("botstats", new BotStatsCommands(this), "Admin Commands");
         dashboardStatsHandler = new DashboardStatsHandler(this);
         messageListener = new MessageListener(this);
         getBot().getJDA().forEach(jda -> jda.addEventListener(messageListener));
         log.info("Command !botstats loaded!");
-        if (Boolean.parseBoolean(props.getProperty("stats.enable"))) {
-            statsHandler = new DiscordBotListHandler(props, this);
+        if (Boolean.parseBoolean(getBot().getBotSettings().getProperty("stats.enable"))) {
+            statsHandler = new DiscordBotListHandler(this);
         }
     }
 
@@ -83,6 +81,7 @@ public class StatsPlugin extends LegendaryBotPlugin {
             statsHandler.stop();
         }
         dashboardStatsHandler.stop();
+        messageListener.stop();
         getBot().getJDA().forEach(jda -> jda.removeEventListener(messageListener));
         log.info("Command !botstats unloaded!");
     }

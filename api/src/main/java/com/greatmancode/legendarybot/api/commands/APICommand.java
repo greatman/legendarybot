@@ -27,6 +27,9 @@ public interface APICommand {
         if (url.contains("{region}")) {
             url = url.replace("{region}", bot.getGuildSettings(guild).getRegionName());
         }
+        if (url.contains("{realm}")) {
+            url = url.replace("{realm}", bot.getGuildSettings(guild).getWowServerName());
+        }
         OkHttpClient client = new OkHttpClient.Builder().build();
         HttpUrl.Builder httpurl = new HttpUrl.Builder().scheme("https")
                 .host(apiHost)

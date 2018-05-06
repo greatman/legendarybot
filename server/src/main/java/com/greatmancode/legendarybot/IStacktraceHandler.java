@@ -28,7 +28,6 @@ import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
-import org.influxdb.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +60,6 @@ public class IStacktraceHandler implements StacktraceHandler {
 
     @Override
     public void sendStacktrace(Throwable e, String... tags) {
-        bot.getStatsClient().write(Point.measurement("legendarybot").addField("errors", 1).build());
         Arrays.stream(tags).forEach((v) -> client.addTag(v.split(":")[0], v.split(":")[1]));
         client.sendException(e);
         client.setTags(null);

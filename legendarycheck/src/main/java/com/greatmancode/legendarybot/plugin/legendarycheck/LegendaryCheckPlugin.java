@@ -86,7 +86,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
             if (startLegendaryCheck(guild, i[0])) {
                 i[0]++;
             }
-        })));
+        }))).start();
 
         getBot().getCommandHandler().addCommand("enablelc", new EnableLegendaryCheckCommand(this), "Legendary Check Admin Commands");
         getBot().getCommandHandler().addCommand("disablelc", new DisableLegendaryCheckCommand(this), "Legendary Check Admin Commands");
