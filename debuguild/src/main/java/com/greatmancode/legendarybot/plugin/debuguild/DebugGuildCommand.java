@@ -49,14 +49,9 @@ public class DebugGuildCommand extends LegendaryBotPlugin implements Command {
             getBot().getJDA().forEach((jda) -> userGuilds.addAll(jda.getUserById(args[1]).getMutualGuilds()));
             StringBuilder builder = new StringBuilder();
             userGuilds.forEach(guild -> {
-                builder.append(guild.getName() + ":" + guild.getId());
+                builder.append(guild.getName() + ":" + guild.getId() + "\n");
             });
-            event.getAuthor().openPrivateChannel().queue(new Consumer<PrivateChannel>() {
-                @Override
-                public void accept(PrivateChannel privateChannel) {
-                    privateChannel.sendMessage(builder.toString()).queue();
-                }
-            });
+            event.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(builder.toString()).queue());
             return;
         }
         final Guild[] guildEntry = {null};
@@ -127,6 +122,6 @@ public class DebugGuildCommand extends LegendaryBotPlugin implements Command {
 
     @Override
     public void stop() {
-        getBot().getCommandHandler().removeCommand("debugguild");
+        getBot().getCommandHandler().removeCommand("debuguild");
     }
 }

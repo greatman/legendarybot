@@ -164,12 +164,14 @@ public class ILegendaryBot extends LegendaryBot {
         commandHandler.addCommand("reloadlanguage", new ReloadLanguagesCommand(this), "Admin Commands");
 
         //Register user commands that don't need to be a plugin
-        commandHandler.addCommand("legionbuilding", new BasicPublicZeroArgsAPICommand(this, "api/legionbuilding/{region}","command.legionbuilding.help", "command.legionbuilding.help"), "World of Warcraft");
+        commandHandler.addCommand("legionbuilding", new BasicPublicZeroArgsAPICommand(this, "api/region/{region}/legionbuilding","command.legionbuilding.help", "command.legionbuilding.help"), "World of Warcraft");
         commandHandler.addCommand("blizzardcs", new BasicPublicZeroArgsAPICommand(this, "api/twitter/{region}", "command.blizzardcs.help", "command.blizzardcs.help"), "General Commands");
         commandHandler.addCommand("log", new BasicPublicZeroArgsAPICommand(this, "api/guild/{guild}/getLatestLog", "command.log.help", "command.log.help"), "World of Warcraft");
         commandHandler.addCommand("owrank", new BasicArgumentsAPICommand(this,"api/overwatch/{region}/{args0}", "command.owrank.shorthelp","command.owrank.longhelp",1,1),"Overwatch");
         commandHandler.addCommand("server", new BasicArgumentsAPICommand(this, "api/server/{region}/{args0}/status", "command.server.shorthelp", "command.owrank.longhelp",0,1,"{realm}"), "World of Warcraft");
-
+        commandHandler.addCommand("wprank", new BasicPublicZeroArgsAPICommand(this, "api/{guild}/rank", "command.wprank.shorthelp", "command.wprank.shorthelp"), "World of Warcraft");
+        commandHandler.addAlias("rank","wprank");
+        commandHandler.addCommand("token", new BasicPublicZeroArgsAPICommand(this, "api/region/{region}/wowtoken", "command.token.shorthelp", "command.token.shorthelp"), "World of Warcraft");
         //We build JDA and connect.
         JDABuilder builder = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).setReconnectQueue(new SessionReconnectQueue());
         builder.addEventListener(new MessageListener(this));
