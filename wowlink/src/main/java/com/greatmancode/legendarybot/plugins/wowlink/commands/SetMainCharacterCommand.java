@@ -54,7 +54,8 @@ public class SetMainCharacterCommand implements PublicCommand {
 
         List<String> characterList = plugin.getUserCharactersInGuild(event.getAuthor(), event.getGuild());
         if (!characterList.contains(args[0])) {
-            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("This character is not in the Guild " + plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() + " or is not found.").queue());
+            event.getAuthor().openPrivateChannel().queue((c) -> c.sendMessage("This character is not in the Guild " + plugin.getBot().getGuildSettings(event.getGuild()).getGuildName() + " or is not found. Please try syncing your characters.").queue());
+            return;
         }
 
         plugin.setMainCharacterForGuild(event.getAuthor(), event.getGuild(), args[0]);

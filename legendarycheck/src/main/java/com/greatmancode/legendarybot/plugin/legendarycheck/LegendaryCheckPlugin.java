@@ -253,10 +253,12 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         }
         stringBuilder.append("**\n\n");
 
-        if (jsonObject.getJSONArray("itemSpells").length() > 0 && jsonObject.getJSONArray("itemSpells").getJSONObject(0).has("spell") && !jsonObject.getJSONArray("itemSpells").getJSONObject(0).getJSONObject("spell").getString("description").equals("") ) {
-            stringBuilder.append("**Equip:** ");
-            stringBuilder.append(jsonObject.getJSONArray("itemSpells").getJSONObject(0).getJSONObject("spell").getString("description"));
-            stringBuilder.append("\n\n");
+        if (jsonObject.has("itemSpells")) {
+            if (jsonObject.getJSONObject("itemSpells").has("spell") && !jsonObject.getJSONObject("itemSpells").getJSONObject("spell").getString("description").equals("") ) {
+                stringBuilder.append("**Equip:** ");
+                stringBuilder.append(jsonObject.getJSONObject("itemSpells").getJSONObject("spell").getString("description"));
+                stringBuilder.append("\n\n");
+            }
         }
 
         //Hardcoded stuff because blizz does crap in his API

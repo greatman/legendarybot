@@ -1,15 +1,11 @@
 package com.greatmancode.legendarybot.plugins.wowlink.commands;
 
-import com.greatmancode.legendarybot.api.LegendaryBot;
 import com.greatmancode.legendarybot.api.commands.AdminCommand;
 import com.greatmancode.legendarybot.api.commands.ZeroArgsCommand;
 import com.greatmancode.legendarybot.plugins.wowlink.WoWLinkPlugin;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
-
-import java.util.function.Consumer;
 
 public class GetWowRanksCommand extends AdminCommand implements ZeroArgsCommand {
 
