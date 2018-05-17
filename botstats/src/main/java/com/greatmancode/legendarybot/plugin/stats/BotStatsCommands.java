@@ -69,7 +69,6 @@ public class BotStatsCommands implements Command {
         eb.addField(":busts_in_silhouette: Members", plugin.getMemberCount() + "", true);
         eb.addField(":notepad_spiral:Text Channels", plugin.getTextChannelCount() + "", true);
         eb.addField(":loudspeaker:Voice Channels", plugin.getVoiceChannelCount() + "", true);
-        eb.addField("Legendary checks", plugin.getLegendaryCount() + "", true);
         eb.addField(":timer:Uptime", uptime, true);
 
         eb.addField(":computer:Memory", "U: " +plugin.getUsedRam() + "MB / M: " + runtime.maxMemory() / mb + "MB", true);

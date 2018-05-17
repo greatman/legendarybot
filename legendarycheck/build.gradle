@@ -1,5 +1,7 @@
 dependencies {
-    compile project(':api')
+    provided project(':api')
+    compile 'com.amazonaws:aws-java-sdk-sqs:1.11.325'
+    compile 'com.google.guava:guava:25.0-jre'
 }
 
 jar {
@@ -9,5 +11,14 @@ jar {
                 'Plugin-Provider' : 'Greatman',
                 'Plugin-Version' : '0.0.1')
 
+    }
+    from {
+        (configurations.runtime - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
     }
 }

@@ -36,21 +36,15 @@ import com.greatmancode.legendarybot.api.utils.NullStacktraceHandler;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import com.greatmancode.legendarybot.commands.*;
 import com.greatmancode.legendarybot.server.IGuildSettings;
-import com.mongodb.*;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
-import okhttp3.*;
+import okhttp3.OkHttpClient;
 import org.apache.http.HttpHost;
-import org.bson.Document;
 import org.elasticsearch.client.RestClient;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
@@ -58,14 +52,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
 
 /**
  * Implementation of a {@link LegendaryBot} bot.
@@ -86,11 +76,6 @@ public class ILegendaryBot extends LegendaryBot {
      * The settings of every guilds that this bot is connected to
      */
     private Map<String, GuildSettings> guildSettings = new HashMap<>();
-
-    /**
-     * The Database data source
-     */
-    private MongoClient mongoClient;
 
     /**
      * The instance of the Stacktrace Handler.
@@ -124,8 +109,6 @@ public class ILegendaryBot extends LegendaryBot {
 
     private TranslateManager translateManager;
 
-    private String databaseName;
-
     private final OkHttpClient client = new OkHttpClient.Builder()
             .addInterceptor(new BattleNetAPIInterceptor(this))
             .build();
@@ -133,25 +116,11 @@ public class ILegendaryBot extends LegendaryBot {
     /**
      * Start all the feature of the LegendaryBot
      */
-    public ILegendaryBot() throws IOException, LoginException, InterruptedException, RateLimitedException {
+    public ILegendaryBot() throws IOException, LoginException, InterruptedException {
         log.info("LegendaryBot Starting.");
 
         //We load the stacktrace handler.
         this.stacktraceHandler = props.containsKey("sentry.key") ? new IStacktraceHandler(this, props.getProperty("sentry.key")) : new NullStacktraceHandler();
-
-        //Load the database
-        databaseName = props.getProperty("mongodb.database");
-        MongoClientOptions.Builder mongoClientOptionsBuilder = MongoClientOptions.builder();
-        if (props.containsKey("mongodb.ssl")) {
-            mongoClientOptionsBuilder.sslEnabled(Boolean.parseBoolean(props.getProperty("mongodb.ssl")));
-        }
-
-        if (props.containsKey("mongodb.username") && props.containsKey("mongodb.password")) {
-            MongoCredential credential = MongoCredential.createCredential(props.getProperty("mongodb.username"),"admin", props.getProperty("mongodb.password").toCharArray());
-            mongoClient = new MongoClient(new ServerAddress(props.getProperty("mongodb.server"), Integer.parseInt(props.getProperty("mongodb.port"))),credential,mongoClientOptionsBuilder.build());
-        } else {
-            mongoClient = new MongoClient(new ServerAddress(props.getProperty("mongodb.server"), Integer.parseInt(props.getProperty("mongodb.port"))), mongoClientOptionsBuilder.build());
-        }
 
         //We configure our Stacktrace catchers
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(stacktraceHandler));
@@ -182,60 +151,9 @@ public class ILegendaryBot extends LegendaryBot {
                     .buildBlocking(JDA.Status.CONNECTED));
         }
         //Load the settings for each guild
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         jdaList.forEach((jda) -> jda.getGuilds().forEach(guild -> {
             guildSettings.put(guild.getId(), new IGuildSettings(guild, this));
-            if (Boolean.parseBoolean((String) props.getOrDefault("convertConfig", "false"))) {
-                executor.submit(() -> new SettingsConverter(this,guild));
-            }
         }));
-        if (Boolean.parseBoolean((String) props.getOrDefault("convertConfig", "false"))) {
-
-
-            //We convert default characters to the new system
-            MongoCollection<Document> collection = getMongoDatabase().getCollection("wowCharacters");
-            MongoCollection<Document> guildCollection = getMongoDatabase().getCollection("guild");
-            JSONArray mainCharacters = new JSONArray();
-            final int[] i = {0};
-            collection.find(exists("guild_id")).forEach((Block<Document>) document -> {
-                if (document.containsKey("owner")) {
-                    Document guildDocument = guildCollection.find(eq("guild_id",document.getString("guild_id"))).first();
-                    JSONObject characterObject = new JSONObject();
-                    characterObject.put("name", document.getString("name"));
-                    characterObject.put("realm", document.getString("realm"));
-                    characterObject.put("region", document.getString("region"));
-                    characterObject.put("owner", Long.parseLong(document.getString("owner")));
-                    characterObject.put("guild_id", Long.parseLong(document.getString("guild_id")));
-                    characterObject.put("guildName", ((Document)guildDocument.get("settings")).getString("GUILD_NAME"));
-                    mainCharacters.put(characterObject);
-                    if (i[0] % 100 == 0) {
-                        System.out.println(i[0] + " done.");
-                    }
-                    i[0]++;
-                }
-
-            });
-
-            //We save it to the backend
-            HttpUrl url = new HttpUrl.Builder().scheme("https")
-                    .host(getBotSettings().getProperty("api.host"))
-                    .addPathSegments("api/user/rawCharacter")
-                    .build();
-            Request request = new Request.Builder().url(url).addHeader("x-api-key", getBotSettings().getProperty("api.key")).post(RequestBody.create(MediaType.parse("text/plain"), mainCharacters.toString())).build();
-            try {
-                OkHttpClient httpClient = new OkHttpClient.Builder().build();
-                System.out.println(httpClient.newCall(request).execute());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            while (executor.getActiveCount() != 0) {
-                System.out.println("Waiting for conversion to end.");
-                Thread.sleep(10000);
-            }
-            props.setProperty("convertConfig", "false");
-            props.store(new FileWriter("app.properties"),null);
-        }
 
 
 
@@ -261,7 +179,6 @@ public class ILegendaryBot extends LegendaryBot {
                     getStacktraceHandler().sendStacktrace(e);
                 }
             }
-            mongoClient.close();
             log.info("Legendarybot Shutdown.");
         }));
     }
@@ -294,12 +211,6 @@ public class ILegendaryBot extends LegendaryBot {
     @Override
     public PluginManager getPluginManager() {
         return pluginManager;
-    }
-
-
-    @Override
-    public MongoDatabase getMongoDatabase() {
-        return mongoClient.getDatabase(databaseName);
     }
 
     @Override

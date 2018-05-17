@@ -147,14 +147,6 @@ public class StatsPlugin extends LegendaryBotPlugin {
     }
 
     /**
-     * Get the amount of guilds that enabled the LegendaryCheck feature.
-     * @return The amount of guilds that enabled legendaryCheck.
-     */
-    public int getLegendaryCount() {
-        return ((LegendaryCheckPlugin)getBot().getPluginManager().getPlugin("legendaryCheckPlugin").getPlugin()).getLegendaryCheckEnabledCount();
-    }
-
-    /**
      * Get the amount of guilds the bot is connected to.
      * @return The total amount of guilds the bot is connected to.
      */

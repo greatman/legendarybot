@@ -45,7 +45,6 @@ public class EnableLegendaryCheckCommand extends AdminCommand {
     public void execute(MessageReceivedEvent event, String[] args) {
         if (event.getMessage().getMentionedChannels().size() != 0) {
             plugin.getBot().getGuildSettings(event.getGuild()).setSetting(LegendaryCheckPlugin.SETTING_NAME, event.getMessage().getMentionedChannels().get(0).getName());
-            plugin.startLegendaryCheck(event.getGuild());
             event.getChannel().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(),"command.enablelegendarycheck.message",args[0])).queue();
         } else {
             event.getAuthor().openPrivateChannel().complete().sendMessage(plugin.getBot().getTranslateManager().translate(event.getGuild(), "channel.not.found")).queue();

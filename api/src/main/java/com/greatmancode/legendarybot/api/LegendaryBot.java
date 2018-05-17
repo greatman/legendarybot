@@ -27,7 +27,6 @@ import com.greatmancode.legendarybot.api.commands.CommandHandler;
 import com.greatmancode.legendarybot.api.server.GuildSettings;
 import com.greatmancode.legendarybot.api.translate.TranslateManager;
 import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
-import com.mongodb.client.MongoDatabase;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import okhttp3.OkHttpClient;
@@ -73,8 +72,6 @@ public abstract class LegendaryBot {
      * @return A List containing all JDA instances.
      */
     public abstract List<JDA> getJDA();
-
-    public abstract MongoDatabase getMongoDatabase();
 
     /**
      * Add a Guild to the bot.
