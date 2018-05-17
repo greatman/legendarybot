@@ -118,7 +118,7 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
                 System.out.println(messageCount + " in queue.");
             }
         };
-        scheduler.scheduleAtFixedRate(runnable,0, 10, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(runnable,0, 60, TimeUnit.SECONDS);
         log.info("Plugin LegendaryCheck started!");
     }
 
