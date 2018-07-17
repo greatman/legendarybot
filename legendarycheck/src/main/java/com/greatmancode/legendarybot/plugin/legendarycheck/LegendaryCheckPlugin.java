@@ -39,6 +39,7 @@ import com.greatmancode.legendarybot.api.utils.DiscordEmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import okhttp3.HttpUrl;
 import org.pf4j.PluginWrapper;
 
@@ -78,7 +79,6 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
         getBot().getCommandHandler().addCommand("disablelc", new DisableLegendaryCheckCommand(this), "Legendary Check Admin Commands");
         log.info("Command !enablelc, !disablelc and !mutelc added!");
         log.info("Loading the LegendaryCheck Scheduler");
-
         final Runnable runnable = () -> {
             System.out.println("Checking SQS");
             GetQueueUrlResult queueUrlResult = sqs.getQueueUrl(getBot().getBotSettings().getProperty("aws.sqs.queuename"));
@@ -99,9 +99,13 @@ public class LegendaryCheckPlugin extends LegendaryBotPlugin{
                             for (JDA jda : getBot().getJDA()) {
                                 Guild guild = jda.getGuildById(serverID);
                                 if (guild != null) {
-                                    List<TextChannel> channelList = guild.getTextChannelsByName(message.getMessageAttributes().get("channel").getStringValue(),true);
-                                    if (!channelList.isEmpty()) {
-                                        channelList.get(0).sendMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(message.getBody())).queue();
+                                    try {
+                                        List<TextChannel> channelList = guild.getTextChannelsByName(message.getMessageAttributes().get("channel").getStringValue(), true);
+                                        if (!channelList.isEmpty()) {
+                                            channelList.get(0).sendMessage(DiscordEmbedBuilder.convertJsonToMessageEmbed(message.getBody())).queue();
+                                        }
+                                    } catch (PermissionException e) {
+                                        e.printStackTrace();
                                     }
                                 }
                             }

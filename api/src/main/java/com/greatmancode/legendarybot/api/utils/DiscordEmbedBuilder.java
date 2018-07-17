@@ -9,6 +9,7 @@ import java.awt.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 
 public class DiscordEmbedBuilder {
 
@@ -49,8 +50,7 @@ public class DiscordEmbedBuilder {
             });
         }
         if (jsonObject.has("timestamp")) {
-            SimpleDateFormat sf = new SimpleDateFormat();
-            builder.setTimestamp(Instant.parse(jsonObject.getString("timestamp")));
+            builder.setTimestamp(OffsetDateTime.parse(jsonObject.getString("timestamp")));
         }
         if (jsonObject.has("image")) {
             builder.setImage(jsonObject.getJSONObject("image").getString("url"));

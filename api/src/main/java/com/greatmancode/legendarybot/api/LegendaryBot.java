@@ -30,7 +30,6 @@ import com.greatmancode.legendarybot.api.utils.StacktraceHandler;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import okhttp3.OkHttpClient;
-import org.elasticsearch.client.RestClient;
 import org.pf4j.PluginManager;
 
 import java.util.List;
@@ -84,12 +83,6 @@ public abstract class LegendaryBot {
      * @return The {@link StacktraceHandler} instance
      */
     public abstract StacktraceHandler getStacktraceHandler();
-
-    /**
-     * Retrieve the ElasticSearch client
-     * @return a instance of the ElasticSearch client.
-     */
-    public abstract RestClient getElasticSearch();
 
     /**
      * Retrieve the status of the bot

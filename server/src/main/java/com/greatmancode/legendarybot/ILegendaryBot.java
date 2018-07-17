@@ -43,8 +43,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import okhttp3.OkHttpClient;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
 import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
@@ -54,8 +52,6 @@ import javax.security.auth.login.LoginException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Implementation of a {@link LegendaryBot} bot.
@@ -81,12 +77,6 @@ public class ILegendaryBot extends LegendaryBot {
      * The instance of the Stacktrace Handler.
      */
     private StacktraceHandler stacktraceHandler;
-
-    /**
-     * Elastic search client
-     */
-    private RestClient restClient;
-
     /**
      * The app.properties file.
      */
@@ -133,14 +123,14 @@ public class ILegendaryBot extends LegendaryBot {
         commandHandler.addCommand("reloadlanguage", new ReloadLanguagesCommand(this), "Admin Commands");
 
         //Register user commands that don't need to be a plugin
-        commandHandler.addCommand("legionbuilding", new BasicPublicZeroArgsAPICommand(this, "api/region/{region}/legionbuilding","command.legionbuilding.help", "command.legionbuilding.help"), "World of Warcraft");
-        commandHandler.addCommand("blizzardcs", new BasicPublicZeroArgsAPICommand(this, "api/twitter/{region}", "command.blizzardcs.help", "command.blizzardcs.help"), "General Commands");
-        commandHandler.addCommand("log", new BasicPublicZeroArgsAPICommand(this, "api/guild/{guild}/getLatestLog", "command.log.help", "command.log.help"), "World of Warcraft");
-        commandHandler.addCommand("owrank", new BasicArgumentsAPICommand(this,"api/overwatch/{region}/{args0}", "command.owrank.shorthelp","command.owrank.longhelp",1,1),"Overwatch");
-        commandHandler.addCommand("server", new BasicArgumentsAPICommand(this, "api/server/{region}/{args0}/status", "command.server.shorthelp", "command.owrank.longhelp",0,1,"{realm}"), "World of Warcraft");
-        commandHandler.addCommand("wprank", new BasicPublicZeroArgsAPICommand(this, "api/{guild}/rank", "command.wprank.shorthelp", "command.wprank.shorthelp"), "World of Warcraft");
+        commandHandler.addCommand("legionbuilding", new BasicPublicZeroArgsAPICommand(this, "v2/region/{region}/legionbuilding","command.legionbuilding.help", "command.legionbuilding.help"), "World of Warcraft");
+        commandHandler.addCommand("blizzardcs", new BasicPublicZeroArgsAPICommand(this, "v2/twitter/{region}", "command.blizzardcs.help", "command.blizzardcs.help"), "General Commands");
+        commandHandler.addCommand("log", new BasicPublicZeroArgsAPICommand(this, "v2/guild/{guild}/getLatestLog", "command.log.help", "command.log.help"), "World of Warcraft");
+        commandHandler.addCommand("owrank", new BasicArgumentsAPICommand(this,"v2/overwatch/{args0}", "command.owrank.shorthelp","command.owrank.longhelp",1,1),"Overwatch");
+        commandHandler.addCommand("server", new BasicArgumentsAPICommand(this, "v2/server/{region}/{args0}/status", "command.server.shorthelp", "command.owrank.longhelp",0,1,"{realm}"), "World of Warcraft");
+        commandHandler.addCommand("wprank", new BasicPublicZeroArgsAPICommand(this, "v2/guild/{guild}/rank", "command.wprank.shorthelp", "command.wprank.shorthelp"), "World of Warcraft");
         commandHandler.addAlias("rank","wprank");
-        commandHandler.addCommand("token", new BasicPublicZeroArgsAPICommand(this, "api/region/{region}/wowtoken", "command.token.shorthelp", "command.token.shorthelp"), "World of Warcraft");
+        commandHandler.addCommand("token", new BasicPublicZeroArgsAPICommand(this, "v2/region/{region}/wowtoken", "command.token.shorthelp", "command.token.shorthelp"), "World of Warcraft");
         //We build JDA and connect.
         JDABuilder builder = new JDABuilder(AccountType.BOT).setToken(System.getenv("BOT_TOKEN") != null ? System.getenv("BOT_TOKEN") : props.getProperty("bot.token")).setReconnectQueue(new SessionReconnectQueue());
         builder.addEventListener(new MessageListener(this));
@@ -170,15 +160,6 @@ public class ILegendaryBot extends LegendaryBot {
                 getPluginManager().unloadPlugin(wrapper.getPluginId());
             }
             jdaList.forEach(JDA::shutdown);
-
-            if (restClient != null) {
-                try {
-                    restClient.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    getStacktraceHandler().sendStacktrace(e);
-                }
-            }
             log.info("Legendarybot Shutdown.");
         }));
     }
@@ -223,14 +204,6 @@ public class ILegendaryBot extends LegendaryBot {
         return stacktraceHandler;
     }
 
-    @Override
-    public RestClient getElasticSearch() {
-        if (restClient == null) {
-            restClient = RestClient.builder(
-                    new HttpHost(props.getProperty("elasticsearch.address"), Integer.parseInt(props.getProperty("elasticsearch.port")), props.getProperty("elasticsearch.scheme"))).build();
-        }
-        return restClient;
-    }
     @Override
     public boolean isReady() {
         return ready;

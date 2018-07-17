@@ -74,16 +74,16 @@ public class DiscordBotListHandler {
                         .post(RequestBody.create(StatsPlugin.MEDIA_TYPE_JSON, object.toJSONString()))
                         .addHeader("Authorization",plugin.getBot().getBotSettings().getProperty("stats.botsdiscordpw")).build();
                 try {
-                    Response response = client.newCall(request).execute();
-                    if (response.isSuccessful()) {
-                        log.info("Sent stats to Discord PW");
-                    } else {
-                        log.error("Error while sending stats to Discord PW");
-                    }
-                    response.close();
+                    //Response response = client.newCall(request).execute();
+                    //if (response.isSuccessful()) {
+                    //    log.info("Sent stats to Discord PW");
+                    //} else {
+                    //    log.error("Error while sending stats to Discord PW");
+                    //}
+                    //response.close();
 
                     request = request.newBuilder().header("Authorization",plugin.getBot().getBotSettings().getProperty("stats.discordbotorg")).url("https://discordbots.org/api/bots/267134720700186626/stats").build();
-                    response = client.newCall(request).execute();
+                    Response response = client.newCall(request).execute();
                     if (client.newCall(request).execute().isSuccessful()) {
                         log.info("Sent stats to Discordbots.org");
                     } else {

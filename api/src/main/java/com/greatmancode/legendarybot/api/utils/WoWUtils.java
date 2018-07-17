@@ -23,15 +23,13 @@
  */
 package com.greatmancode.legendarybot.api.utils;
 
+import com.github.slugify.Slugify;
 import com.greatmancode.legendarybot.api.LegendaryBot;
 import net.dv8tion.jda.core.entities.Guild;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Response;
+import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -50,28 +48,35 @@ public class WoWUtils {
      * @return A Json string containing information about the realm. Returns null if no realm is found.
      */
     public static String getRealmInformation(LegendaryBot bot, String region, String realm) {
-        JSONObject search = new JSONObject();
-        JSONObject query = new JSONObject();
-        JSONArray fields = new JSONArray();
-        fields.put("name");
-        fields.put("slug");
-        JSONObject multi_match = new JSONObject();
-        multi_match.put("query", realm);
-        multi_match.put("fields", fields);
-        query.put("multi_match", multi_match);
-        search.put("query", query);
-        HttpEntity entity = new NStringEntity(search.toString(), ContentType.APPLICATION_JSON);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(new BattleNetAPIInterceptor(bot)).build();
+        Slugify slg = new Slugify();
+        HttpUrl url = new HttpUrl.Builder().scheme("https")
+                .host(region.toLowerCase()+".api.battle.net")
+                .addPathSegments("data/wow/realm/" + slg.slugify(realm))
+                .addQueryParameter("namespace", "dynamic-us")
+                .addQueryParameter("locale", "en-US")
+                .build();
+        Request request = new Request.Builder().url(url).build();
         try {
-            Response response = bot.getElasticSearch().performRequest("POST", "/wow/realm_"+region.toLowerCase()+"/_search", Collections.emptyMap(), entity);
-            String jsonResponse = EntityUtils.toString(response.getEntity());
-            JSONObject obj = new JSONObject(jsonResponse);
-            JSONArray hit = obj.getJSONObject("hits").getJSONArray("hits");
-            if (hit.length() == 0) {
+            Response response = bot.getBattleNetHttpClient().newCall(request).execute();
+            if (response.isSuccessful()) {
+                response.close();
+                url = new HttpUrl.Builder().scheme("https")
+                        .host(region.toLowerCase()+".api.battle.net")
+                        .addPathSegments("wow/realm/status")
+                        .addQueryParameter("realms", slg.slugify(realm))
+                        .build();
+                request = new Request.Builder().url(url).build();
+                response = bot.getBattleNetHttpClient().newCall(request).execute();
+                if (response.isSuccessful()) {
+                    JSONObject jsonObject = new JSONObject(response.body().string());
+                    return jsonObject.getJSONArray("realms").getJSONObject(0).toString();
+                }
+
+            } else {
+                response.close();
                 return null;
             }
-            JSONObject firstItem = (JSONObject) hit.get(0);
-            JSONObject source = (JSONObject)  firstItem.get("_source");
-            return source.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
