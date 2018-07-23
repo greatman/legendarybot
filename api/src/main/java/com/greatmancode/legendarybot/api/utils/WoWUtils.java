@@ -53,7 +53,7 @@ public class WoWUtils {
         HttpUrl url = new HttpUrl.Builder().scheme("https")
                 .host(region.toLowerCase()+".api.battle.net")
                 .addPathSegments("data/wow/realm/" + slg.slugify(realm))
-                .addQueryParameter("namespace", "dynamic-us")
+                .addQueryParameter("namespace", "dynamic-"+region.toLowerCase())
                 .addQueryParameter("locale", "en-US")
                 .build();
         Request request = new Request.Builder().url(url).build();

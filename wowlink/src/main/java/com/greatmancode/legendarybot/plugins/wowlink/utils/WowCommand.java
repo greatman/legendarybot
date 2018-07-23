@@ -41,8 +41,9 @@ public interface WowCommand extends Command {
             WoWLinkPlugin plugin = ((WoWLinkPlugin)bot.getPluginManager().getPlugin("wowLink").getPlugin());
             JSONObject character = plugin.getMainCharacterForUserInGuild(event.getAuthor(),event.getGuild());
             if (character.length() > 0) {
-                newArgs = new String[1];
+                newArgs = new String[2];
                 newArgs[0] = character.getString("name");
+                newArgs[1] = character.getString("realm");
             }
         }
         return newArgs;
